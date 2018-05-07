@@ -3,11 +3,49 @@
     <head>
         <title>Hypnagogia Aid </title>
         <script type="text/javascript">
-            document.onkeyup = function (e) {
-                if (e.key.length != 1 || e.altKey || e.ctrlKey) return;
-                // https://freesound.org/people/InspectorJ/sounds/339813/
-                var bell = new Audio('bell.wav');
-                bell.play();
+            window.onload = function() {
+                console.log("abc");
+                var cooldown = 180;
+                var slider = document.getElementById("slider");
+                slider.value = 180;
+                var cooldownDiv = document.getElementById("cooldownDiv");
+                var activeTimerDiv = document.getElementById("activeTimerDiv");
+                slider.addEventListener("change", function() {
+                    cooldown = slider.value;
+                    console.log(slider.value);
+                    cooldownDiv.innerHTML = "cooldown: " + cooldown + "s";
+                    start = null;
+                    activeTimerDiv.innerHTML = "";
+                });
+                var start = null;
+                document.onkeydown = function (e) {
+                    if (e.key.length != 1 || e.altKey || e.ctrlKey) return;
+                    if (!start) {
+                        start = new Date();
+                    }
+                }
+                document.onkeyup = function (e) {
+                    if (e.key.length != 1 || e.altKey || e.ctrlKey) return;
+                    var diff = (new Date() - start) / 1000;
+                    console.log(diff);
+                    if (diff < cooldown) return;
+                    // https://freesound.org/people/InspectorJ/sounds/339813/
+                    var bell = new Audio('bell.wav');
+                    bell.play();
+                    start = null;
+                }
+                setInterval(function() {
+                    if (start) {
+                        var diff = (new Date() - start) / 1000;
+                        var timer = Math.round(cooldown - diff);
+                        if (timer >= 0)  {
+                            activeTimerDiv.innerHTML = "time until active: " + timer + "s";
+                        } else {
+                            activeTimerDiv.innerHTML = "active";
+
+                        }
+                    }
+                }, 1000);
             }
         </script>
         <style type="text/css">
@@ -38,6 +76,12 @@
         <p>Hypnagogia is the transitional state between wakefulness and sleep. During hypnagogia, one can experience visions, sounds, and the fluid association of ideas. Many famous thinkers, including Edison, Dali, Tesla, Newton, Poe, and Nabakov, have credited self-induced hypnagogia with enhancing their creativity. Edison famously induced hypnagogia by falling asleep with steel balls in his hands. When he would fall asleep, he would drop the balls, waking himself up and allowing for sustained hypnagogic states. This website allows for a similar effect.</p>
         <center><h2>How to use</h2></center>
         <p>Find a comfortable place to fall asleep and hold down one of the keys on your keyboard. When you fall asleep, you'll stop holding the key and, on release, a bell will play, waking you up. I recommend keeping a notebook nearby to write down your thoughts when you wake up.</p>
+        <p>When you're first falling asleep, you might accidentally release the key while you're getting comfortable, playing annoying noises. So, there is a configurable cooldown before the bell is active below. The bell will only play if you release a key 180 seconds (by default) after pressing any key.</p>
+        <center><h3>Settings</h3>
+        <input type='range' min='0' max='300' value='180' id='slider'></input>
+        <div id='cooldownDiv' style=''>cooldown: 180s</div>
+        <div id='activeTimerDiv' style=''></div>
+        </center>
         <footer>
             <p>Bell sound from freesound user <a href="https://freesound.org/people/InspectorJ/sounds/339813/">InspectorJ</a>. Made by Henry Nelson</p>
         </footer>
