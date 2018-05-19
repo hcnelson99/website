@@ -3,21 +3,32 @@
     <head>
         <title>Hypnagogia Aid </title>
         <script type="text/javascript">
+            // I've written better code before...
             window.onload = function() {
-                console.log("abc");
                 var cooldown = 180;
-                var slider = document.getElementById("slider");
-                slider.value = 180;
+                var delay = 60;
+                var cooldownSlider = document.getElementById("cooldownSlider");
+                cooldownSlider.value = 180;
+                var delaySlider = document.getElementById("delaySlider");
+                delaySlider.value = 60;
                 var cooldownDiv = document.getElementById("cooldownDiv");
                 var activeTimerDiv = document.getElementById("activeTimerDiv");
-                slider.addEventListener("change", function() {
-                    cooldown = slider.value;
-                    console.log(slider.value);
+                cooldownSlider.addEventListener("change", function() {
+                    cooldown = cooldownSlider.value;
                     cooldownDiv.innerHTML = "cooldown: " + cooldown + "s";
                     start = null;
+                    trigger = null;
+                    activeTimerDiv.innerHTML = "";
+                });
+                delaySlider.addEventListener("change", function() {
+                    delay = delaySlider.value;
+                    delayDiv.innerHTML = "delay: " + delay + "s";
+                    start = null;
+                    trigger = null;
                     activeTimerDiv.innerHTML = "";
                 });
                 var start = null;
+                var trigger = null;
                 document.onkeydown = function (e) {
                     if (e.key.length != 1 || e.altKey || e.ctrlKey) return;
                     if (!start) {
@@ -27,12 +38,9 @@
                 document.onkeyup = function (e) {
                     if (e.key.length != 1 || e.altKey || e.ctrlKey) return;
                     var diff = (new Date() - start) / 1000;
-                    console.log(diff);
                     if (diff < cooldown) return;
-                    // https://freesound.org/people/InspectorJ/sounds/339813/
-                    var bell = new Audio('bell.wav');
-                    bell.play();
-                    start = null;
+                    if (trigger) return;
+                    trigger = new Date();
                 }
                 setInterval(function() {
                     if (start) {
@@ -41,8 +49,22 @@
                         if (timer >= 0)  {
                             activeTimerDiv.innerHTML = "time until active: " + timer + "s";
                         } else {
-                            activeTimerDiv.innerHTML = "active";
+                            if (trigger) {
+                                var diff = (new Date() - trigger) / 1000;
+                                var timer = Math.round(delay - diff);
 
+                                activeTimerDiv.innerHTML = "triggered. delay for " + timer + "s";
+                                if (timer <= 0) {
+                                    // https://freesound.org/people/InspectorJ/sounds/339813/
+                                    var bell = new Audio('bell.wav');
+                                    bell.play();
+                                    start = null;
+                                    trigger = null;
+                                }
+
+                            } else {
+                                activeTimerDiv.innerHTML = "active";
+                            }
                         }
                     }
                 }, 1000);
@@ -76,10 +98,12 @@
         <p>Hypnagogia is the transitional state between wakefulness and sleep. During hypnagogia, one can experience visions, sounds, and the fluid association of ideas. Many famous thinkers, including Edison, Dali, Tesla, Newton, Poe, and Nabakov, have credited self-induced hypnagogia with enhancing their creativity. Edison famously induced hypnagogia by falling asleep with steel balls in his hands. When he would fall asleep, he would drop the balls, waking himself up and allowing for sustained hypnagogic states. This website allows for a similar effect.</p>
         <center><h2>How to use</h2></center>
         <p>Find a comfortable place to fall asleep and hold down one of the keys on your keyboard. When you fall asleep, you'll stop holding the key and, on release, a bell will play, waking you up. I recommend keeping a notebook nearby to write down your thoughts when you wake up.</p>
-        <p>When you're first falling asleep, you might accidentally release the key while you're getting comfortable, playing annoying noises. So, there is a configurable cooldown before the bell is active below. The bell will only play if you release a key 180 seconds (by default) after pressing any key.</p>
+        <p>When you're first falling asleep, you might accidentally release the key while you're getting comfortable, playing annoying noises. So, there is a configurable cooldown before the bell is active below. The bell will only play if you release a key 180 seconds (by default) after pressing any key. Additionally, there is a configurable delay which well affect how long the bell will play after the key is released.</p>
         <center><h3>Settings</h3>
-        <input type='range' min='0' max='300' value='180' id='slider'></input>
+        <input type='range' min='0' max='300' value='180' id='cooldownSlider'></input>
         <div id='cooldownDiv' style=''>cooldown: 180s</div>
+        <input type='range' min='0' max='300' value='180' id='delaySlider'></input>
+        <div id='delayDiv' style=''>delay: 60s</div>
         <div id='activeTimerDiv' style=''></div>
         </center>
         <footer>
