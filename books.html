@@ -5,21 +5,41 @@
         <style>
 
         body {
-            max-width: 90ch;
+            max-width: 100ch;
             padding: 2ch;
         }
         h1, h2, h3 {
             line-height: 1.2;
         }
 
+        ul {
+            margin: 0px;
+        }
+
+        .book {
+            margin: 10px;
+            padding: 5px;
+            border-bottom: 2px solid black;
+        }
+
+        .book:last-child {
+            border-bottom: none;
+        }
+
+        .notes {
+            max-width: 85%;
+        }
+
         .best {
             font-weight: bold;
         }
         .title::after {
+            font-weight: normal;
             content: " \2014 ";
         }
-        .date::before { content: "("; }
-        .date::after { content: ")"; }
+        .date {
+            float: right;
+        }
 
         </style>
     </head>
@@ -29,17 +49,42 @@
 
         <h2>Currently Reading</h2>
 
+        <div>
+
         <div class="book">
-            <span class="title">Blindsight</span>
-            <span class="author">Peter Watts</span>
+            <span class="title">Circe </span>
+            <span class="author">Madeline Miller</span>
+        </div>
+
         </div>
 
         <h2>Read</h2>
+
+        <div>
+
+        <div class="book">
+            <span class="title best">Blindsight</span>
+            <span class="author">Peter Watts</span>
+            <span class="date">Oct 2019</span>
+            <ul class="notes">
+                <li>Vampires? In a sci-fi novel? Very good.</li>
+            </ul>
+        </div>
 
         <div class="book">
             <span class="title">The Hidden Life of Trees</span>
             <span class="author">Peter Wohlleben</span>
             <span class="date">Oct 2019</span>
+            <ul class="notes">
+                <li>Didn't love it. Although it did give me more respect and interest in trees (which seem to be even better
+                    environmental manipulators than humans), the book was frustrating to read due to the amount of
+                    anthropomorphization.
+                </li>
+                <li>That being said, it's probably still worth a read. Gave me lots of inspiration for writing alien species in sci-fi.
+                    The descriptions of mycorrizha, tree timespans, and tree "culture" (with adults protecting trees from growing too
+                    fast by blocking all the light) are all very vivid to mine for details.
+                </li>
+            </ul>
         </div>
 
         <div class="book">
@@ -58,7 +103,7 @@
         </div>
 
         <div class="book">
-            <span class="title">Dune </span>
+            <span class="title best">Dune </span>
             <span class="author">Frank Herbert</span>
             <span class="date">Aug 2019</span>
             <ul class="notes">
@@ -77,8 +122,7 @@
             <span class="title">The Memory of Earth</span> 
             <span class="author">Orson Scott Card</span> 
             <span class="date">Jul 2019</span> 
-            <ul class="notes">
-            </div> 
+            <ul class="notes"></ul> 
         </div>
 
         <div class="book">
@@ -105,7 +149,7 @@
         </div>
 
         <div class="book">
-            <span class="title">The Life-Changing Magic of Tidying Up: The Japanese Art of Decluttering and Organizing </span>
+            <span class="title">The Life-Changing Magic of Tidying Up</span>
             <span class="author">Marie Kondo</span>
             <span class="date">2019</span>
             <ul class="notes"></ul>
@@ -781,7 +825,11 @@
             </ul>
         </div>
 
+        </div>
+
         <h2>To Read</h2>
+
+        <div>
 
         <div class="book">
             <span class="title">And Then I Thought I Was a Fish</span>
@@ -804,12 +852,6 @@
         <div class="book">
             <span class="title">Thus Spoke Zarathustra </span>
             <span class="author">Friedrich Nietzsche</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Circe </span>
-            <span class="author">Madeline Miller</span>
         </div>
 
 
@@ -1177,6 +1219,9 @@
             <span class="title">The Amulet of Samarkand</span>
             <span class="author">Jonathan Stroud</span>
         </div>
+
+        </div>    
+
     </body>
 </html>
 
