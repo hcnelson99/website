@@ -96,7 +96,7 @@ function build_trie(words) {
 
 function get_dictionary() {
     var request = new XMLHttpRequest();
-    request.open("GET", "/bogruns/words.txt", false);
+    request.open("GET", window.location.pathname + "words.txt", false);
     request.send();
     if (request.status == 200) {
         var all_words = request.responseText.split("\n");
@@ -207,7 +207,7 @@ function set_url(url_box) {
 }
 
 window.onload = function () {
-    var start_game = document.getElementById("start-game");
+    var reveal_board = document.getElementById("reveal-board");
     var form = document.getElementById("word-form");
     var input = document.getElementById("word-input");
     var score_display = document.getElementById("total-score");
@@ -217,7 +217,7 @@ window.onload = function () {
 
     set_url(url_box);
 
-    start_game.onclick = function () {
+    reveal_board.onclick = function () {
         render_board(board);
         input.focus();
     };
