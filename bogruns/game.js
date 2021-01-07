@@ -182,9 +182,10 @@ function score_word(word) {
     }
 }
 
+var board = gen_board();
+var words = search(board);
+
 window.onload = function () {
-    var board = gen_board();
-    var words = search(board);
     render_board(board);
 
     var form = document.getElementById("word-form");
