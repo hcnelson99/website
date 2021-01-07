@@ -53,7 +53,7 @@ function gen_board() {
 
     var board = [];
     for (var i = 0; i < N; i++) {
-        var roll = randint(0, S - 1);
+        var roll = randint(0, 5);
         board.push(big_cubes[indices[i]][roll]);
     }
 
