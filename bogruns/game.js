@@ -198,7 +198,7 @@ window.onload = function () {
 
     form.onsubmit = function (event) {
         event.preventDefault();
-        var word = input.value;
+        var word = input.value.toLowerCase();
 
         if (word in words && !(word in scored_words)) {
             score += score_word(word);
