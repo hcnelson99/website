@@ -60,6 +60,13 @@ function gen_board() {
     return board;
 }
 
+function hide_board(board) {
+    var boggle = document.getElementById("boggle");
+    for (var i = 0; i < N; i++) {
+        boggle.children[i].innerText = "";
+    }
+}
+
 function render_board(board) {
     var boggle = document.getElementById("boggle");
     for (var i = 0; i < N; i++) {
@@ -182,16 +189,44 @@ function score_word(word) {
     }
 }
 
-var board = gen_board();
+var board;
+
+var url_params = new URLSearchParams(window.location.search);
+if (url_params.has("board")) {
+    board = atob(url_params.get("board")).split(",");
+} else {
+    board = gen_board();
+}
+
 var words = search(board);
 
-window.onload = function () {
-    render_board(board);
+function set_url(url_box) {
+    var code = btoa(board.join());
+    var url_base = window.location.href.split("?")[0];
+    url_box.value = url_base + "?board=" + code;
+}
 
+window.onload = function () {
+    var start_game = document.getElementById("start-game");
     var form = document.getElementById("word-form");
     var input = document.getElementById("word-input");
     var score_display = document.getElementById("total-score");
     var word_list = document.getElementById("word-list");
+    var url_box = document.getElementById("url-box");
+    var new_board = document.getElementById("new-board");
+
+    set_url(url_box);
+
+    start_game.onclick = function () {
+        render_board(board);
+        input.focus();
+    };
+
+    new_board.onclick = function () {
+        board = gen_board();
+        hide_board();
+        set_url(url_box);
+    };
 
     var score = 0;
     var scored_words = {};
