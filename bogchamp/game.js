@@ -222,14 +222,22 @@ window.onload = function () {
         input.focus();
     };
 
+    var score = 0;
+    var scored_words = {};
+
+    // TODO: refactor out initialization functionality
     new_board.onclick = function () {
         board = gen_board();
         hide_board();
         set_url(url_box);
+        score = 0;
+        score_display.innerText = score;
+        scored_words = {};
+        words = search(board);
+        while (word_list.firstChild) {
+            word_list.removeChild(word_list.lastChild);
+        }
     };
-
-    var score = 0;
-    var scored_words = {};
 
     form.onsubmit = function (event) {
         event.preventDefault();
