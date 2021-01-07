@@ -89,7 +89,7 @@ function build_trie(words) {
 
 function get_dictionary() {
     var request = new XMLHttpRequest();
-    request.open("GET", "/words.txt", false);
+    request.open("GET", "/bogruns/words.txt", false);
     request.send();
     if (request.status == 200) {
         var all_words = request.responseText.split("\n");
