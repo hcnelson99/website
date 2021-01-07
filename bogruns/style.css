@@ -1,0 +1,28 @@
+#flex {
+    display: flex;
+}
+#boggle {
+    display: grid;
+    grid-template-columns: repeat(5, min-content);
+    grid-template-rows: repeat(5, min-content);
+    gap: 2px 2px;
+}
+.letter-cube {
+    width: 1.5em;
+    height: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid black;
+    font-size: 3em;
+    font-weight: bold;
+}
+
+#word-input {
+    margin-top: 20px;
+    display: block;
+}
+
+#words {
+    margin-left: 20px;
+}
