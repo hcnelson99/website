@@ -317,15 +317,17 @@ window.onload = function () {
 
             li.appendChild(checkbox);
 
-            if (word_list.children.length == 0) {
-                word_list.appendChild(li);
-            } else {
-                for (var i = 0; i < word_list.children.length; i++) {
-                    if (word < word_list.children[i].innerText) {
-                        word_list.insertBefore(li, word_list.children[i]);
-                        break;
-                    }
+            var inserted = false;
+            for (var i = 0; i < word_list.children.length; i++) {
+                if (word < word_list.children[i].innerText) {
+                    word_list.insertBefore(li, word_list.children[i]);
+                    inserted = true;
+                    break;
                 }
+            }
+
+            if (!inserted) {
+                word_list.appendChild(li);
             }
         }
 
