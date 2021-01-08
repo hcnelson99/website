@@ -295,12 +295,38 @@ window.onload = function () {
         var word = input.value.toLowerCase();
 
         if (word in words && !(word in scored_words)) {
-            set_score(score + score_word(word));
+            var word_score = score_word(word);
+            set_score(score + word_score);
             scored_words[word] = true;
 
             var li = document.createElement("li");
             li.appendChild(document.createTextNode(word));
-            word_list.prepend(li);
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = true;
+
+            checkbox.onclick = function () {
+                if (checkbox.checked) {
+                    set_score(score + word_score);
+                    li.style.color = null;
+                } else {
+                    set_score(score - word_score);
+                    li.style.color = "grey";
+                }
+            };
+
+            li.appendChild(checkbox);
+
+            if (word_list.children.length == 0) {
+                word_list.appendChild(li);
+            } else {
+                for (var i = 0; i < word_list.children.length; i++) {
+                    if (word < word_list.children[i].innerText) {
+                        word_list.insertBefore(li, word_list.children[i]);
+                        break;
+                    }
+                }
+            }
         }
 
         input.value = "";
