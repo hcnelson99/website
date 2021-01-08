@@ -19,7 +19,6 @@
 }
 
 #word-input {
-    margin-top: 20px;
     display: block;
 }
 
@@ -28,5 +27,5 @@
 }
 
 #url-box {
-    width: 50em;
+    width: 95%;
 }

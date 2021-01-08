@@ -225,13 +225,16 @@ window.onload = function () {
     var score = 0;
     var scored_words = {};
 
-    // TODO: refactor out initialization functionality
+    function set_score(x) {
+        score = x;
+        score_display.innerText = score;
+    }
+
     new_board.onclick = function () {
         board = gen_board();
         hide_board();
         set_url(url_box);
-        score = 0;
-        score_display.innerText = score;
+        set_score(0);
         scored_words = {};
         words = search(board);
         while (word_list.firstChild) {
@@ -244,13 +247,12 @@ window.onload = function () {
         var word = input.value.toLowerCase();
 
         if (word in words && !(word in scored_words)) {
-            score += score_word(word);
-            score_display.innerText = score;
+            set_score(score + score_word(word));
             scored_words[word] = true;
 
             var li = document.createElement("li");
             li.appendChild(document.createTextNode(word));
-            word_list.appendChild(li);
+            word_list.prepend(li);
         }
 
         input.value = "";

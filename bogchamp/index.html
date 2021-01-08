@@ -7,54 +7,56 @@
     </head>
     <body>
         <div id="flex">
-            <div id="boggle">
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
-                <div class="letter-cube"></div>
+            <div id="game">
+                <div id="boggle">
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                    <div class="letter-cube"></div>
+                </div>
+                <button id="new-board" type="button">New board</button>
+                <button id="reveal-board" type="button">Reveal board</button>
+                <p>
+                    <input id="url-box" onclick="this.select()" />
+                </p>
             </div>
             <div id="words">
                 Score:
                 <span id="total-score">0</span>
+                <form id="word-form">
+                    <input
+                        id="word-input"
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        spellcheck="false"
+                        type="text"
+                        autofocus
+                    />
+                </form>
                 <ul id="word-list"></ul>
             </div>
         </div>
-        <form id="word-form">
-            <input
-                id="word-input"
-                autocomplete="off"
-                autocorrect="off"
-                autocapitalize="off"
-                spellcheck="false"
-                type="text"
-                autofocus
-            />
-        </form>
-        <button id="new-board" type="button">New board</button>
-        <button id="reveal-board" type="button">Reveal board</button>
-        <p>
-            <input id="url-box" onclick="this.select()" />
-        </p>
     </body>
 </html>
