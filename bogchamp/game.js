@@ -212,7 +212,9 @@ function delete_all_children(node) {
     }
 }
 
-function show_answers() {
+function show_answers(scored_words) {
+    render_board(board);
+
     var answers = document.getElementById("answers");
 
     if (answers.children.length > 0) {
@@ -249,6 +251,10 @@ function show_answers() {
 
         var li = document.createElement("li");
         li.appendChild(document.createTextNode(word));
+        if (word in scored_words) {
+            li.style["text-decoration"] = "line-through";
+            li.style.color = "grey";
+        }
         word_answer_list.appendChild(li);
     }
 
@@ -296,7 +302,7 @@ window.onload = function () {
     };
 
     show_answers_button.onclick = function () {
-        show_answers();
+        show_answers(scored_words);
     };
 
     form.onsubmit = function (event) {
