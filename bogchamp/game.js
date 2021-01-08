@@ -206,6 +206,59 @@ function set_url(url_box) {
     url_box.value = url_base + "?board=" + code;
 }
 
+function delete_all_children(node) {
+    while (node.firstChild) {
+        node.removeChild(node.lastChild);
+    }
+}
+
+function show_answers() {
+    var answers = document.getElementById("answers");
+
+    if (answers.children.length > 0) {
+        return;
+    }
+
+    var sorted_words = Object.keys(words);
+    sorted_words.sort(function (x, y) {
+        if (x.length != y.length) {
+            return y.length - x.length;
+        }
+        if (x < y) {
+            return -1;
+        } else if (x > y) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
+
+    var max_score = 0;
+    for (var i = 0; i < sorted_words.length; i++) {
+        max_score += score_word(sorted_words[i]);
+    }
+
+    var p = document.createElement("p");
+    p.appendChild(document.createTextNode("Maximum Score: " + max_score));
+    answers.appendChild(p);
+
+    var word_answer_list = document.createElement("ul");
+
+    for (var i = 0; i < sorted_words.length; i++) {
+        var word = sorted_words[i];
+
+        var li = document.createElement("li");
+        li.appendChild(document.createTextNode(word));
+        word_answer_list.appendChild(li);
+    }
+
+    answers.appendChild(word_answer_list);
+}
+
+function hide_answers() {
+    delete_all_children(document.getElementById("answers"));
+}
+
 window.onload = function () {
     var reveal_board = document.getElementById("reveal-board");
     var form = document.getElementById("word-form");
@@ -214,6 +267,7 @@ window.onload = function () {
     var word_list = document.getElementById("word-list");
     var url_box = document.getElementById("url-box");
     var new_board = document.getElementById("new-board");
+    var show_answers_button = document.getElementById("show-answers");
 
     set_url(url_box);
 
@@ -237,9 +291,12 @@ window.onload = function () {
         set_score(0);
         scored_words = {};
         words = search(board);
-        while (word_list.firstChild) {
-            word_list.removeChild(word_list.lastChild);
-        }
+        delete_all_children(word_list);
+        hide_answers();
+    };
+
+    show_answers_button.onclick = function () {
+        show_answers();
     };
 
     form.onsubmit = function (event) {

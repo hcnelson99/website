@@ -37,13 +37,16 @@
                 </div>
                 <button id="new-board" type="button">New board</button>
                 <button id="reveal-board" type="button">Reveal board</button>
+                <button id="show-answers" type="button">Show answers</button>
                 <p>
                     <input id="url-box" onclick="this.select()" />
                 </p>
             </div>
-            <div id="words">
-                Score:
-                <span id="total-score">0</span>
+            <div id="words" class="word-list-column">
+                <p>
+                    Score:
+                    <span id="total-score">0</span>
+                </p>
                 <form id="word-form">
                     <input
                         id="word-input"
@@ -57,6 +60,7 @@
                 </form>
                 <ul id="word-list"></ul>
             </div>
+            <div id="answers" class="word-list-column"></div>
         </div>
     </body>
 </html>

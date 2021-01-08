@@ -22,7 +22,7 @@
     display: block;
 }
 
-#words {
+.word-list-column {
     margin-left: 20px;
 }
 
