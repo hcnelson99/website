@@ -74,6 +74,7 @@ function render_board(board) {
     }
 }
 
+// The output of this has been cached in dict.js
 function build_trie(words) {
     var trie = {};
 
@@ -93,28 +94,6 @@ function build_trie(words) {
 
     return trie;
 }
-
-function get_dictionary() {
-    var request = new XMLHttpRequest();
-    request.open("GET", window.location.pathname + "words.txt", false);
-    request.send();
-    if (request.status == 200) {
-        var all_words = request.responseText.split("\n");
-        var words = [];
-        for (var i = 0; i < all_words.length; i++) {
-            if (all_words[i].length >= 4) {
-                words.push(all_words[i]);
-            }
-        }
-        return words;
-    } else {
-        alert("Could not load word list");
-    }
-}
-
-var dict = get_dictionary();
-
-var trie = build_trie(get_dictionary());
 
 function adj(i) {
     var row = Math.floor(i / S);
@@ -212,10 +191,10 @@ function delete_all_children(node) {
     }
 }
 
+var answers;
+
 function show_answers(scored_words) {
     render_board(board);
-
-    var answers = document.getElementById("answers");
 
     if (answers.children.length > 0) {
         return;
@@ -250,7 +229,7 @@ function show_answers(scored_words) {
         var word = sorted_words[i];
 
         var li = document.createElement("li");
-        li.appendChild(document.createTextNode(word));
+        li.appendChild(document.createTextNode(word + " - " + dict[word]));
         if (word in scored_words) {
             li.style["text-decoration"] = "line-through";
             li.style.color = "grey";
@@ -274,6 +253,7 @@ window.onload = function () {
     var url_box = document.getElementById("url-box");
     var new_board = document.getElementById("new-board");
     var show_answers_button = document.getElementById("show-answers");
+    answers = document.getElementById("answers");
 
     set_url(url_box);
 
@@ -307,6 +287,11 @@ window.onload = function () {
 
     form.onsubmit = function (event) {
         event.preventDefault();
+
+        if (answers.children.length > 0) {
+            return false;
+        }
+
         var word = input.value.toLowerCase();
 
         if (word in words && !(word in scored_words)) {
