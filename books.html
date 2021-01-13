@@ -1,1379 +1,1505 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Books</title>
-        <style>
-
-        body {
-            max-width: 100ch;
-            padding: 2ch;
-        }
-        h1, h2, h3 {
-            line-height: 1.2;
-        }
-
-        ul {
-            margin: 0px;
-        }
-
-        .book {
-            margin: 10px;
-            padding: 5px;
-            border-bottom: 2px solid black;
-        }
-
-        .book:last-child {
-            border-bottom: none;
-        }
-
-        .notes {
-            margin-top: 5px;
-            max-width: 85%;
-        }
-
-        .best {
-            font-weight: bold;
-        }
-        .title::after {
-            font-weight: normal;
-            content: " \2014 ";
-        }
-        .date {
-            float: right;
-        }
-
-        </style>
-    </head>
-    <body>
-        <h1><center>Reading List</center></h1>
-        <p>Bolded books are my favorites.</p>
-
-        <h2>Currently Reading</h2>
-
-        <div>
-
-        <div class="book">
-            <span class="title">Demons</span>
-            <span class="author">Fyodor Dostoevsky</span>
-        </div>
-
-        </div>
-
-        <h2>Read</h2>
-
-        <div>
-
-        <div class="book">
-            <span class="title">Xenocide</span>
-            <span class="author">Orson Scott Card</span>
-            <span class="date">September 2020</span>
-        </div>
-
-        <div class="book">
-            <span class="title">The Soul of a New Machine</span>
-            <span class="author">Tracy Kidder</span>
-            <span class="date">September 2020</span>
-        </div>
-
-        <div class="book">
-            <span class="title best">Speaker for the Dead</span>
-            <span class="author">Orson Scott Card</span>
-            <span class="date">August 2020</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Diaspora</span>
-            <span class="author">Greg Egan</span>
-            <span class="date">July 2020</span>
-        </div>
-
-        <div class="book">
-            <span class="title">Little, Big</span>
-            <span class="author">John Crowley</span>
-            <span class="date">June 2020</span>
-            <ul class="notes">
-                <li>Very immersive setting. Everything in the world is slightly unreal but simultaneously emotionally hyperreal.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Permutation City</span>
-            <span class="author">Greg Egan</span>
-            <span class="date">May 2020</span>
-        </div>
-
-        <div class="book">
-            <span class="title best">Story of Your Life and Others</span>
-            <span class="author">Ted Chiang</span>
-            <span class="date">Apr 2020</span>
-            <ul class="notes">
-                <li>Had to read more Ted Chiang. <i>Exhalation </i>is probably better than this collection overall, but they're both quite good. This one is worth picking up for <i>Story of Your Life</i> (Arrival) alone.</li>
-                <li>Favorite stories: Story of Your Life, Tower of Babylon, Liking What You See</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Exhalation</span>
-            <span class="author">Ted Chiang</span>
-            <span class="date">Mar 2020</span>
-            <ul class="notes">
-                <li>One of the best short story collections I've read. Freshest sci-fi I've read in a long time too.</li>
-                <li>I love how logical these stories are. Each narrative embodies a philosophical concept or an idea about human experience. The plots are tight and clever; they don't rely on vague mysteries or big reveals to maintain interest or seem more literary than they are.</li>
-                <li>There are really cool "story notes" at the end -- a few paragraphs about the ideas behind each story and what scientific concepts inspired them. I wish more authors had something like this in their collections and I appreciate how brief he kept them.</li>
-                <li>Favorite stories: The Lifecycle of Software Objects, Exhalation, Omphalos, The Merchant and the Alchemist's Gate</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Foundation</span>
-            <span class="author">Isaac Asimov</span>
-            <span class="date">Mar 2020</span>
-            <ul class="notes">
-                <li>I wish more books were written with this sort of scale. Does a great job of quickly introducing characters and conflict.</li>
-                <li>I'm really awful at remembering character names, but I've never read a book with so many characters where I'm never confused about who is who. Might have to go back and see how this was achieved.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Fifth Season</span>
-            <span class="author">N. K. Jemisin</span>
-            <span class="date">Feb 2020</span>
-            <ul class="notes">
-                <li>Pretty cool fantasy novel, but I'm not sure the second person added anything to the book.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Infinitesimal</span>
-            <span class="author">Amir Alexander</span>
-            <span class="date">Jan 2020</span>
-            <ul class="notes">
-                <li>Really great. Interesting takeaway: the mathematicians who embraced the paradoxes of infinitesimals and tried to determine what they meant about the nature of infinitesimals were able to develop new mathematics that their more conservative peers would never have.</li>
-                <li>This book also somewhat swayed my Platonist position on the metaphysics of mathematics. Learning the history of calculus makes me take more seriously the idea that mathematics is invented rather than discovered.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Neuromancer</span>
-            <span class="author">William Gibson</span>
-            <span class="date">Dec 2019</span>
-        </div>
-
-        <div class="book">
-            <span class="title">The Ones Who Walk Away from Omelas</span>
-            <span class="author">Ursula K. Le Guin</span>
-            <span class="date">Dec 2019</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title best">The Wise Man's Fear</span>
-            <span class="author">Patrick Rothfuss</span>
-            <span class="date">Dec 2019</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title best">The Name of the Wind</span>
-            <span class="author">Patrick Rothfuss</span>
-            <span class="date">Nov 2019</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">And Then I Thought I Was a Fish</span>
-            <span class="author">Peter Welch</span>
-            <span class="date">Nov 2019</span>
-        </div>
-
-
-
-        <div class="book">
-            <span class="title">Sum: Forty Tales from the Afterlives</span>
-            <span class="author">David Eagleman</span>
-            <span class="date">Nov 2019</span>
-            <ul class="notes">
-                <li>First story is really cool.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Circe</span>
-            <span class="author">Madeline Miller</span>
-            <span class="date">Nov 2019</span>
-            <ul class="notes">
-                <li>Great. Recommended for the biohacker who seeks immortality.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Blindsight</span>
-            <span class="author">Peter Watts</span>
-            <span class="date">Oct 2019</span>
-            <ul class="notes">
-                <li>The alien has a really interesting biology and intelligence.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Hidden Life of Trees</span>
-            <span class="author">Peter Wohlleben</span>
-            <span class="date">Oct 2019</span>
-            <ul class="notes">
-                <li>Didn't love it. Although it did give me more respect and interest in trees (which seem to be even better
-                    environmental manipulators than humans), the book was frustrating to read due to the amount of
-                    anthropomorphization.
-                </li>
-                <li>That being said, it's probably still worth a read. Gave me lots of inspiration for writing alien species in sci-fi.
-                    The descriptions of mycorrizha, tree timespans, and tree "culture" (with adults protecting trees from growing too
-                    fast by blocking all the light) are all very vivid to mine for details.
-                </li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Colour of Magic</span>
-            <span class="author">Terry Pratchett</span>
-            <span class="date">Oct 2019</span>
-        </div>
-
-        <div class="book">
-            <span class="title">Galatea 2.2 </span>
-            <span class="author">Richard Powers</span>
-            <span class="date">Aug 2019</span>
-            <ul class="notes">
-                <li>Pretty entertaining, but some of the prose and romance were a little overwrought. Most of the time it felt like I was just waiting for the next scene with the development of the AI.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Dune </span>
-            <span class="author">Frank Herbert</span>
-            <span class="date">Aug 2019</span>
-            <ul class="notes">
-                <li>A little campy but extremely fun. Excellent hybrid of religion and sci-fi.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Nature's Mutiny</span>
-            <span class="author">Philipp Blom</span>
-            <span class="date">Aug 2019</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Memory of Earth</span> 
-            <span class="author">Orson Scott Card</span> 
-            <span class="date">Jul 2019</span> 
-            <ul class="notes"></ul> 
-        </div>
-
-        <div class="book">
-            <span class="title">The Three-Body Problem</span>
-            <span class="author">Liu Cixin</span>
-            <span class="date">2019</span>
-            <ul class="notes">
-                <li>
-                Not really "hard" sci-fi as I remember it being described to
-                me. I think I would have benefitted from knowing that it is
-                more of a political allegory rather than pure sci-fi. Will have
-                to finish the rest of the trilogy.
-                </li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">1491: New Revelations of the Americas Before Columbus </span>
-            <span class="author">Charles C. Mann</span>
-            <span class="date">2019</span>
-            <ul class="notes">
-                <li>I read the book expecting to learn that Native Americans were far more technologically and culturally advanced than is commonly taught. What I didn't expect was to have my concept of a pre-Columbian unravaged wilderness dismantled. Native peoples manipulated and engineered their environment extensively and far more than they are given credit for. For example, the ecosystem of the Amazon rainforest is the result of thousands of years of fruit tree cultivation by native peoples.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Life-Changing Magic of Tidying Up</span>
-            <span class="author">Marie Kondo</span>
-            <span class="date">2019</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Narrative of the Life of Frederick Douglass </span>
-            <span class="author">Frederick Douglass</span>
-            <span class="date">2019</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Pimp: The Story of My Life </span>
-            <span class="author">Iceberg Slim</span>
-            <span class="date">2019</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Oryx and Crake</span>
-            <span class="author">Margaret Atwood</span>
-            <span class="date">2019</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Zami: A New Spelling of My Name </span>
-            <span class="author">Audre Lorde</span>
-            <span class="date">2019</span>
-            <ul class="notes">
-                <li>Pairs extremely well with her essay <em>Uses of the Erotic: The Erotic as Power</em></li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Master and Margarita </span>
-            <span class="author">Mikhail Bulgakov</span>
-            <span class="date">2019</span>
-            <ul class="notes">
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Erasure </span>
-            <span class="author">Percival Everett</span>
-            <span class="date">2019</span>
-            <ul class="notes">
-                <li>A post-modern book that didn't lose any enjoyability for it. Sometimes it feels like post-modern techniques can take over a book, but here they were used precisely and thoughtfully.</li>
-                <li>Interesting to compare the plotline about aging here to that in <em>Galatea 2.2</em>. For some reason this one comes across much better while <em>Galatea</em>'s feels stilted.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Confessions of a Video Vixen </span>
-            <span class="author">Karrine Steffans</span>
-            <span class="date">2019</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Push </span>
-            <span class="author">Sapphire</span>
-            <span class="date">2019</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">The Idiot </span>
-            <span class="author">Fyodor Dostoyevsky</span>
-            <span class="date">2019</span>
-            <ul class="notes">
-                <li>
-                Unique among Dostoyevsky's work in that it is primarily character-driven rather than driven by a certain plot premise. While this makes the book uneven in quality at points, you never know what's going to happen next, and get the sense the author isn't sure either. Very fun and exciting.
-                </li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Man Who Loved Only Numbers: The Story of Paul Erdős and the Search for Mathematical Truth </span>
-            <span class="author">Paul Hoffman</span>
-            <span class="date">2019</span>
-            <ul class="notes">
-                <li>Lots of fun anecdotes. Awesome book for people who aren't interested in mathematics to see why it is so beautiful and creative (and weird).</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Butterflies in November </span>
-            <span class="author">Auður Ava Ólafsdóttir</span>
-            <span class="date">2019. </span>
-            <ul class="notes">
-                <li>
-                Very fun main character. I think I lost some enjoyment because the plot (like the character) felt spacey. Still very interesting to read, even if I didn't enjoy it too much overall.
-                </li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">The Trial </span>
-            <span class="author">Franz Kafka</span>
-            <span class="date">2018</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Pale King </span>
-            <span class="author">David Foster Wallace</span>
-            <span class="date">2018</span>
-            <ul class="notes">
-                <li>5/10</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Everything Is Illuminated </span>
-            <span class="author">Jonathan Safran Foer</span>
-            <span class="date">2018</span>
-            <ul class="notes">
-                <li>Very imaginative and enjoyable. One character is a little gimmicky.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Brief Interviews with Hideous Men</span>
-            <span class="author">David Foster Wallace</span>
-            <span class="date">2018</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">The Paper Menagerie </span>
-            <span class="author">Ken Liu</span>
-            <span class="date">2018</span>
-            <ul class="notes">
-                <li>Short story.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Crying of Lot 49 </span>
-            <span class="author">Thomas Pynchon</span>
-            <span class="date">2018.</span>
-            <ul class="notes">
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Notes from Underground </span>
-            <span class="author">Fyodor Dostoyevsky</span>
-            <span class="date">2018</span>
-            <ul class="notes">
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">East of Eden </span>
-            <span class="author">John Steinbeck</span>
-            <span class="date">2018</span>
-            <ul class="notes">
-                <li>A 600 page book that actually felt like it used its length well. Awesome characters, good and bad.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Odyssey </span>
-            <span class="author">Homer</span>
-            <span class="date">2018</span>
-            <ul class="notes">
-                <li>Read the Emily Wilson translation. Awesome translation and translator's note.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">A Walk in the Woods</span>
-            <span class="author">Bill Bryson</span>
-            <span class="date">2018</span>
-            <ul class="notes">
-                <li>Somewhat enjoyable, but not super exciting.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">House of Leaves </span>
-            <span class="author">Mark Z. Danielewski</span>
-            <span class="date">2017?</span>
-            <ul class="notes">
-                <li>For a book of pure gimmicks, it somehow didn't come across as gimmicky? A lot of fun.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">The Brothers Karamazov</span>
-            <span class="author">Fyodor Dostoyevsky</span>
-            <span class="date">Aug 2017</span>
-            <ul class="notes">
-                <li>One of my favorite novels. The Grand Inquisitor chapter is excellent.</li>
-            </ul>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Beyond Good and Evil </span>
-            <span class="author">Friedrich Nietzsche</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Dubliners</span>
-            <span class="author">James Joyce</span>
-            <span class="date">2017</span>
-            <ul class="notes">
-                <li>I remember certain stories really struck a chord with me, but I'd have to go back to remember which ones.
-                </li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Infinite Jest </span>
-            <span class="author">David Foster Wallace</span>
-            <span class="date">2016?</span>
-            <ul class="notes">
-                <li>Very long and my enjoyment varied a lot.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Crime and Punishment</span>
-            <span class="author">Fyodor Dostoyevsky</span>
-            <span class="date">2016?</span>
-            <ul class="notes">
-                <li>I enjoyed it, despite it being a little too long, but I'm not sure why you'd read this over <em>The Brothers Karamazov</em> or <em>The Idiot</em>.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Mythology </span>
-            <span class="author">Edith Hamilton</span>
-            <span class="date">2016?</span> 
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Illusions: The Adventures of a Reluctant Messiah </span>
-            <span class="author">Richard Bach</span>
-            <span class="date">2016?</span>
-            <ul class="notes">
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Amusing Ourselves to Death: Public Discourse in the Age of Show Business </span>
-            <span class="author">Neil Postman</span>
-            <span class="date">2016?</span>
-            <ul class="notes">
-                <li>Made me stop watching all TV. Seems very prescient now.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Stranger </span>
-            <span class="author">Albert Camus</span>
-            <span class="date">2016</span>
-            <ul class="notes">
-                <li>The sun was in his eyes</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Song of Solomon </span>
-            <span class="author">Toni Morrison</span>
-            <span class="date">2016?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">All the Pretty Horses</span>
-            <span class="author">Cormac McCarthy</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Hamlet </span>
-            <span class="author">William Shakespeare</span>
-            <span class="date">2016?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Origin of Wealth</span>
-            <span class="author">Eric D. Beinhocker</span>
-            <span class="date">2016</span>
-            <ul class="notes">
-                <li>All about complexity economics. The beginning is interesting, but then it drags.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Great Gatsby </span>
-            <span class="author">F. Scott Fitzgerald</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Snow Crash</span>
-            <span class="author">Neal Stephenson</span>
-            <span class="date">?</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title best">Brave New World </span>
-            <span class="author">Aldous Huxley</span>
-            <span class="date">2015</span>
-            <ul class="notes">
-                <li>Compared <em>1984</em>, the writing is a lot worse, but the predictions are more interesting. </li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Wind, Sand and Stars </span>
-            <span class="author">Antoine de Saint-Exupéry</span>
-            <span class="date">2015?</span>
-            <ul class="notes">
-                <li>Very strange to read the unfettered romanticism of <em>The Little Prince</em> in a non-fiction memoir.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Adventures of Huckleberry Finn </span>
-            <span class="author">Mark Twain</span>
-            <span class="date">2015?</span>
-            <ul class="notes"></ul>
-        </div>
-
-
-        <div class="book">
-            <span class="title best">Into the Wild</span>
-            <span class="author">Jon Krakauer</span>
-            <span class="date">2015</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Moonwalking with Einstein</span>
-            <span class="author">Joshua Foer</span>
-            <span class="date">2015?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">As I Lay Dying </span>
-            <span class="author">William Faulkner</span>
-            <span class="date">2015?</span>
-            <ul class="notes">
-                <li>Extremely funny. Each character's voice is very distinct.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Moby-Dick, or, the Whale</span>
-            <span class="author">Herman Melville</span>
-            <span class="date">2015?</span>
-            <ul class="notes">
-                <li>Not sure why I forced myself to read this over a high school summer.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Lolita </span>
-            <span class="author">Vladimir Nabokov</span>
-            <span class="date">2015?</span>
-            <ul class="notes">
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Gödel, Escher, Bach: An Eternal Golden Braid </span>
-            <span class="author">Douglas R. Hofstadter</span>
-            <span class="date">2015</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Art of Drowning </span>
-            <span class="author">Billy Collins</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Picnic, Lightning </span>
-            <span class="author">Billy Collins</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Myth of Sisyphus and Other Essays </span>
-            <span class="author">Albert Camus</span>
-            <span class="date">2015</span>
-            <ul class="notes">
-                <li>Probably the first philosophy book I read. I remember the self-titled essay being particularly good.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Wind-Up Bird Chronicle </span>
-            <span class="author">Haruki Murakami</span>
-            <span class="date">2014?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Of Mice and Men</span>
-            <span class="author">John Steinbeck</span>
-            <span class="date">2014</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">1Q84</span>
-            <span class="author">Haruki Murakami</span>
-            <span class="date">2013?</span>
-            <ul class="notes">
-                <li>Long but enjoyable. Murakami is pretty great when he can fashion an ending.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Life, the Universe and Everything</span>
-            <span class="author">Douglas Adams</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">The Restaurant at the End of the Universe</span>
-            <span class="author">Douglas Adams</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">The Hitchhiker's Guide to the Galaxy </span>
-            <span class="author">Douglas Adams</span>
-            <span class="date">2013?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Pearl </span>
-            <span class="author">John Steinbeck</span>
-            <span class="date">2013</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">The Broom of the System </span>
-            <span class="author">David Foster Wallace</span>
-            <span class="date">2013?</span>
-            <ul class="notes">
-                <li>Very fun first novel.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Animal Farm </span>
-            <span class="author">George Orwell</span>
-            <span class="date">2012?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Do Androids Dream of Electric Sheep? </span>
-            <span class="author">Philip K. Dick</span>
-            <span class="date">2012?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Thirteen Reasons Why </span>
-            <span class="author">Jay Asher</span>
-            <span class="date">2012?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Siddhartha </span>
-            <span class="author">Hermann Hesse</span>
-            <span class="date">2011?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Welcome to the Monkey House </span>
-            <span class="author">Kurt Vonnegut</span>
-            <span class="date">2011?</span>
-            <ul class="notes">
-                <li>One of my favorite short story collections.</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">A Short History of Nearly Everything </span>
-            <span class="author">Bill Bryson</span>
-            <span class="date">?</span>
-            <ul class="notes">
-                <li>Read this twice in elementary school. Probably one of the books that influenced me the most as a kid.</li>
-            </ul>
-        </div>
-
-
-        <div class="book">
-            <span class="title">1984 </span>
-            <span class="author">George Orwell</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Feed </span>
-            <span class="author">M.T. Anderson</span>
-            <span class="date">2011?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Animal Farm </span>
-            <span class="author">George Orwell</span>
-            <span class="date">2011?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Ready Player One</span>
-            <span class="author">Ernest Cline</span>
-            <span class="date">2011?</span>
-            <ul class="notes"></ul>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Curious Incident of the Dog in the Night</span>
-            <span class="author">Time -- Mark Haddon</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Book Thief </span>
-            <span class="author">Markus Zusak</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Shadow of the Giant</span>
-            <span class="author">Orson Scott Card</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Shadow Puppets</span>
-            <span class="author">Orson Scott Card</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Shadow of the Hegemon</span>
-            <span class="author">Orson Scott Card</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Children of the Mind</span>
-            <span class="author">Orson Scott Card</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Ender's Shadow (The Shadow Series, #1) </span>
-            <span class="author">Orson Scott Card</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Xenocide</span>
-            <span class="author">Orson Scott Card</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-
-        <div class="book">
-            <span class="title best">Speaker for the Dead</span>
-            <span class="author">Orson Scott Card</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Ender's Game</span>
-            <span class="author">Orson Scott Card</span>
-            <span class="date">2013?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Giver</span>
-            <span class="author">Lois Lowry</span>
-            <span class="date">2009?</span>
-            <ul class="notes"></ul>
-        </div>
-
-
-        <div class="book">
-            <span class="title best">Mrs. Frisby and the Rats of NIMH</span>
-            <span class="author">Robert C. O'Brien</span>
-            <span class="date">?</span>
-            <ul class="notes">
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">Artemis Fowl</span>
-            <span class="author">Eoin Colfer</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Evolution of Calpurnia Tate</span>
-            <span class="author">Jacqueline Kelly</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Graveyard Book</span>
-            <span class="author">Neil Gaiman</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Lion, the Witch and the Wardrobe</span>
-            <span class="author">C.S. Lewis</span>
-            <span class="date">?</span>
-            <ul class="notes"></ul>
-        </div>
-
-        <div class="book">
-            <span class="title best">The Little Prince </span>
-            <span class="author">Antoine de Saint-Exupéry</span>
-            <span class="date">?</span>
-            <ul class="notes">
-                <li>One of my favorites as a kid. The 2015 movie honors it well.</li>
-            </ul>
-        </div>
-
-        </div>
-
-        <h2>To Read</h2>
-
-        <div>
-
-
-        <div class="book">
-            <span class="title">The Posthumous Memoirs of Brás Cubas</span>
-            <span class="author">Joaquim Maria Machado de Assis</span>
-            <ul class="notes">
-                <li>Pick up the Flora Thomson-DeVeaux translation (<a href="https://www.newyorker.com/books/second-read/rediscovering-one-of-the-wittiest-books-ever-written">New Yorker Article</a>)</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">Entangled Life</span>
-            <span class="author">Merlin Sheldrake</span>
-        </div>
-
-        <div class="book">
-            <span class="title">Schild's Ladder</span>
-            <span class="author">Greg Egan</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Genius at Play</span>
-            <span class="author">Siobhan Roberts</span>
-        </div>
-
-        <div class="book">
-            <span class="title">Cat's Cradle </span>
-            <span class="author">Kurt Vonnegut</span>
-        </div>
-
-        <div class="book">
-            <span class="title">Solaris</span>
-            <span class="author">Stanislaw Lem</span>
-            <ul class="notes">
-                <li>Get the Bill Johnston translation</li>
-            </ul>
-        </div>
-
-        <div class="book">
-            <span class="title">The Art of Game Design</span>
-            <span class="author">Jesse Schell</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Seeing Like a State</span>
-            <span class="author">James Scott</span>
-        </div>
-
-        <div class="book">
-            <span class="title">The Dictator's Handbook</span>
-            <span class="author">Alastair Smith</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Demons </span>
-            <span class="author">Fyodor Dostoyevsky</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Pride and Prejudice </span>
-            <span class="author">Jane Austen</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Thus Spoke Zarathustra </span>
-            <span class="author">Friedrich Nietzsche</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Demons </span>
-            <span class="author">Fyodor Dostoyevsky</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Snow Leopard </span>
-            <span class="author">Peter Matthiessen</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Looming Tower: Al-Qaeda and the Road to 9/11 </span>
-            <span class="author">Lawrence Wright</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">A Little Life </span>
-            <span class="author">Hanya Yanagihara</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Disappearing Earth </span>
-            <span class="author">Julia  Phillips</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Mama's Last Hug</span>
-            <span class="author">Frans de Waal</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Becoming Dr. Seuss</span>
-            <span class="author">Brian Jay Jones</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Dark Pools</span>
-            <span class="author">Scott Patterson</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">All the Light We Cannot See </span>
-            <span class="author">Anthony Doerr</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Middlesex </span>
-            <span class="author">Jeffrey Eugenides</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">How Markets Fail</span>
-            <span class="author">John Cassidy</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Dictator's Handbook</span>
-            <span class="author">Bruce Bueno de Mesquita</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Salt, Fat, Acid, Heat</span>
-            <span class="author">Samin Nosrat</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Mind Illuminated</span>
-            <span class="author">Culadasa (John Yates)</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Our Mathematical Universe</span>
-            <span class="author">Max Tegmark</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Hiking with Nietzsche</span>
-            <span class="author">John Kaag</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Life: A User's Manual </span>
-            <span class="author">Georges Perec</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Madame Bovary </span>
-            <span class="author">Gustave Flaubert</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Worst Journey in the World </span>
-            <span class="author">Apsley Cherry-Garrard</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Einstein's Dreams </span>
-            <span class="author">Alan Lightman</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Invisible Cities </span>
-            <span class="author">Italo Calvino</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Quantum Computing Since Democritus </span>
-            <span class="author">Scott Aaronson</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Why Philosophers Should Care About Computational Complexity </span>
-            <span class="author">Scott Aaronson</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Embodiment and the Inner Life</span>
-            <span class="author">Murray Shanahan</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Ego and Its Own </span>
-            <span class="author">Max Stirner</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Preface to Plato </span>
-            <span class="author">Eric Alfred Havelock</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Simulacra and Simulation </span>
-            <span class="author">Jean Baudrillard</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">War and Peace </span>
-            <span class="author">Leo Tolstoy</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">A Confession </span>
-            <span class="author">Leo Tolstoy</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Inferno</span>
-            <span class="author">Dante Alighieri</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Paradise Lost </span>
-            <span class="author">John Milton</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Corrections </span>
-            <span class="author">Jonathan Franzen</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Hobbit or There and Back Again </span>
-            <span class="author">J.R.R. Tolkien</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">One Flew Over the Cuckoo's Nest </span>
-            <span class="author">Ken Kesey</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Lord of the Flies </span>
-            <span class="author">William Golding</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Capital in the Twenty-First Century </span>
-            <span class="author">Thomas Piketty</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Postcapitalism: A Guide to Our Future </span>
-            <span class="author">Paul  Mason</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Catch-22</span>
-            <span class="author">Joseph Heller</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Signal and the Noise</span>
-            <span class="author">Nate Silver</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Technopoly: The Surrender of Culture to Technology </span>
-            <span class="author">Neil Postman</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Road </span>
-            <span class="author">Cormac McCarthy</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Slaughterhouse-Five </span>
-            <span class="author">Kurt Vonnegut</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Fahrenheit 451 </span>
-            <span class="author">Ray Bradbury</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Othello </span>
-            <span class="author">William Shakespeare</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">A Rose for Emily </span>
-            <span class="author">William Faulkner</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Sound and the Fury </span>
-            <span class="author">William Faulkner</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Ulysses </span>
-            <span class="author">James Joyce</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Gravity's Rainbow </span>
-            <span class="author">Thomas Pynchon</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Pale Fire </span>
-            <span class="author">Vladimir Nabokov</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Speak, Memory </span>
-            <span class="author">Vladimir Nabokov</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Invitation to a Beheading </span>
-            <span class="author">Vladimir Nabokov</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Dark Forest (Remembrance of Earth’s Past, #2) </span>
-            <span class="author">Liu Cixin</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Death's End</span>
-            <span class="author">Liu Cixin</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">Dirk Gently's Holistic Detective Agency </span>
-            <span class="author">Douglas Adams</span>
-        </div>
-
-
-        <div class="book">
-            <span class="title">The Amulet of Samarkand</span>
-            <span class="author">Jonathan Stroud</span>
-        </div>
-
-        </div>    
-
-    </body>
+  <head>
+    <title>Books</title>
+    <style>
+      body {
+        max-width: 100ch;
+        padding: 2ch;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+      }
+
+      ul {
+        margin: 0px;
+      }
+
+      .book {
+        margin: 10px;
+        padding: 5px;
+        border-bottom: 2px solid black;
+      }
+
+      .book:last-child {
+        border-bottom: none;
+      }
+
+      .notes {
+        margin-top: 5px;
+        max-width: 85%;
+      }
+
+      .best {
+        font-weight: bold;
+      }
+      .title::after {
+        font-weight: normal;
+        content: " \2014 ";
+      }
+      .date {
+        float: right;
+      }
+    </style>
+  </head>
+  <body>
+    <h1><center>Reading List</center></h1>
+    <p>Bolded books are my favorites.</p>
+
+    <h2>Currently Reading</h2>
+
+    <div>
+      <div class="book">
+        <span class="title">Unsong</span>
+        <span class="author">Scott Alexander</span>
+        <ul class="notes">
+          <li>
+            Grabbed a fan-made ebook
+            <a href="https://github.com/Wagk/Unsong-In-Ebook-Format/releases/"
+              >here</a
+            >.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>Read</h2>
+
+    <div>
+      <div class="book">
+        <span class="title best">Jonathan Strange and Mr Norrell</span>
+        <span class="author">Susanna Clarke</span>
+        <span class="date">January 2021</span>
+        <ul class="notes">
+          <li>
+            Very fun and definitely worth its length. I am so happy this is just
+            one book and not a trilogy -- epic fantasy trilogies that go on
+            forever are so frustrating, but this manages to be very immersive
+            without dragging into a long series that will never be finished.
+          </li>
+          <li>
+            I picked up this book after reading a
+            <a
+              href="https://www.newyorker.com/magazine/2020/09/14/susanna-clarkes-fantasy-world-of-interiors"
+              >New Yorker Profile</a
+            >
+            on the author, published on the release of her second novel,
+            <i>Piranesi</i>. Might have to pick up that one next.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Trurl's Electronic Bard</span>
+        <span class="author">Stanislaw Lem</span>
+        <span class="date">January 2021</span>
+        <ul class="notes">
+          <li>
+            Short story. Linked by gwern who fed it to GPT-3 in a now-privated
+            tweet.
+            <a
+              href="https://electricliterature.com/wp-content/uploads/2017/11/Trurls-Electronic-Bard.pdf"
+              >PDF here</a
+            >
+          </li>
+          <li>
+            Definitely on my list to read the full anthology,
+            <i>The Cyberiad</i>.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Demons</span>
+        <span class="author">Fyodor Dostoevsky</span>
+        <span class="date">November 2020</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Xenocide</span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">September 2020</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Soul of a New Machine</span>
+        <span class="author">Tracy Kidder</span>
+        <span class="date">September 2020</span>
+      </div>
+
+      <div class="book">
+        <span class="title best">Speaker for the Dead</span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">August 2020</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Diaspora</span>
+        <span class="author">Greg Egan</span>
+        <span class="date">July 2020</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Little, Big</span>
+        <span class="author">John Crowley</span>
+        <span class="date">June 2020</span>
+        <ul class="notes">
+          <li>
+            Very immersive setting. Everything in the world is slightly unreal
+            but simultaneously emotionally hyperreal.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Permutation City</span>
+        <span class="author">Greg Egan</span>
+        <span class="date">May 2020</span>
+      </div>
+
+      <div class="book">
+        <span class="title best">Story of Your Life and Others</span>
+        <span class="author">Ted Chiang</span>
+        <span class="date">Apr 2020</span>
+        <ul class="notes">
+          <li>
+            Had to read more Ted Chiang. <i>Exhalation </i>is probably better
+            than this collection overall, but they're both quite good. This one
+            is worth picking up for <i>Story of Your Life</i> (Arrival) alone.
+          </li>
+          <li>
+            Favorite stories: Story of Your Life, Tower of Babylon, Liking What
+            You See
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Exhalation</span>
+        <span class="author">Ted Chiang</span>
+        <span class="date">Mar 2020</span>
+        <ul class="notes">
+          <li>
+            One of the best short story collections I've read. Freshest sci-fi
+            I've read in a long time too.
+          </li>
+          <li>
+            I love how logical these stories are. Each narrative embodies a
+            philosophical concept or an idea about human experience. The plots
+            are tight and clever; they don't rely on vague mysteries or big
+            reveals to maintain interest or seem more literary than they are.
+          </li>
+          <li>
+            There are really cool "story notes" at the end -- a few paragraphs
+            about the ideas behind each story and what scientific concepts
+            inspired them. I wish more authors had something like this in their
+            collections and I appreciate how brief he kept them.
+          </li>
+          <li>
+            Favorite stories: The Lifecycle of Software Objects, Exhalation,
+            Omphalos, The Merchant and the Alchemist's Gate
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Foundation</span>
+        <span class="author">Isaac Asimov</span>
+        <span class="date">Mar 2020</span>
+        <ul class="notes">
+          <li>
+            I wish more books were written with this sort of scale. Does a great
+            job of quickly introducing characters and conflict.
+          </li>
+          <li>
+            I'm really awful at remembering character names, but I've never read
+            a book with so many characters where I'm never confused about who is
+            who. Might have to go back and see how this was achieved.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Fifth Season</span>
+        <span class="author">N. K. Jemisin</span>
+        <span class="date">Feb 2020</span>
+        <ul class="notes">
+          <li>
+            Pretty cool fantasy novel, but I'm not sure the second person added
+            anything to the book.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Infinitesimal</span>
+        <span class="author">Amir Alexander</span>
+        <span class="date">Jan 2020</span>
+        <ul class="notes">
+          <li>
+            Really great. Interesting takeaway: the mathematicians who embraced
+            the paradoxes of infinitesimals and tried to determine what they
+            meant about the nature of infinitesimals were able to develop new
+            mathematics that their more conservative peers would never have.
+          </li>
+          <li>
+            This book also somewhat swayed my Platonist position on the
+            metaphysics of mathematics. Learning the history of calculus makes
+            me take more seriously the idea that mathematics is invented rather
+            than discovered.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Neuromancer</span>
+        <span class="author">William Gibson</span>
+        <span class="date">Dec 2019</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Ones Who Walk Away from Omelas</span>
+        <span class="author">Ursula K. Le Guin</span>
+        <span class="date">Dec 2019</span>
+      </div>
+
+      <div class="book">
+        <span class="title best">The Wise Man's Fear</span>
+        <span class="author">Patrick Rothfuss</span>
+        <span class="date">Dec 2019</span>
+      </div>
+
+      <div class="book">
+        <span class="title best">The Name of the Wind</span>
+        <span class="author">Patrick Rothfuss</span>
+        <span class="date">Nov 2019</span>
+      </div>
+
+      <div class="book">
+        <span class="title">And Then I Thought I Was a Fish</span>
+        <span class="author">Peter Welch</span>
+        <span class="date">Nov 2019</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Sum: Forty Tales from the Afterlives</span>
+        <span class="author">David Eagleman</span>
+        <span class="date">Nov 2019</span>
+        <ul class="notes">
+          <li>First story is really cool.</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Circe</span>
+        <span class="author">Madeline Miller</span>
+        <span class="date">Nov 2019</span>
+        <ul class="notes">
+          <li>Great. Recommended for the biohacker who seeks immortality.</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Blindsight</span>
+        <span class="author">Peter Watts</span>
+        <span class="date">Oct 2019</span>
+        <ul class="notes">
+          <li>The alien has a really interesting biology and intelligence.</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Hidden Life of Trees</span>
+        <span class="author">Peter Wohlleben</span>
+        <span class="date">Oct 2019</span>
+        <ul class="notes">
+          <li>
+            Didn't love it. Although it did give me more respect and interest in
+            trees (which seem to be even better environmental manipulators than
+            humans), the book was frustrating to read due to the amount of
+            anthropomorphization.
+          </li>
+          <li>
+            That being said, it's probably still worth a read. Gave me lots of
+            inspiration for writing alien species in sci-fi. The descriptions of
+            mycorrizha, tree timespans, and tree "culture" (with adults
+            protecting trees from growing too fast by blocking all the light)
+            are all very vivid to mine for details.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Colour of Magic</span>
+        <span class="author">Terry Pratchett</span>
+        <span class="date">Oct 2019</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Galatea 2.2 </span>
+        <span class="author">Richard Powers</span>
+        <span class="date">Aug 2019</span>
+        <ul class="notes">
+          <li>
+            Pretty entertaining, but some of the prose and romance were a little
+            overwrought. Most of the time it felt like I was just waiting for
+            the next scene with the development of the AI.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Dune </span>
+        <span class="author">Frank Herbert</span>
+        <span class="date">Aug 2019</span>
+        <ul class="notes">
+          <li>
+            A little campy but extremely fun. Excellent hybrid of religion and
+            sci-fi.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Nature's Mutiny</span>
+        <span class="author">Philipp Blom</span>
+        <span class="date">Aug 2019</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Memory of Earth</span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">Jul 2019</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Three-Body Problem</span>
+        <span class="author">Liu Cixin</span>
+        <span class="date">2019</span>
+        <ul class="notes">
+          <li>
+            Not really "hard" sci-fi as I remember it being described to me. I
+            think I would have benefitted from knowing that it is more of a
+            political allegory rather than pure sci-fi. Will have to finish the
+            rest of the trilogy.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best"
+          >1491: New Revelations of the Americas Before Columbus
+        </span>
+        <span class="author">Charles C. Mann</span>
+        <span class="date">2019</span>
+        <ul class="notes">
+          <li>
+            I read the book expecting to learn that Native Americans were far
+            more technologically and culturally advanced than is commonly
+            taught. What I didn't expect was to have my concept of a
+            pre-Columbian unravaged wilderness dismantled. Native peoples
+            manipulated and engineered their environment extensively and far
+            more than they are given credit for. For example, the ecosystem of
+            the Amazon rainforest is the result of thousands of years of fruit
+            tree cultivation by native peoples.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Life-Changing Magic of Tidying Up</span>
+        <span class="author">Marie Kondo</span>
+        <span class="date">2019</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best"
+          >Narrative of the Life of Frederick Douglass
+        </span>
+        <span class="author">Frederick Douglass</span>
+        <span class="date">2019</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Pimp: The Story of My Life </span>
+        <span class="author">Iceberg Slim</span>
+        <span class="date">2019</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Oryx and Crake</span>
+        <span class="author">Margaret Atwood</span>
+        <span class="date">2019</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Zami: A New Spelling of My Name </span>
+        <span class="author">Audre Lorde</span>
+        <span class="date">2019</span>
+        <ul class="notes">
+          <li>
+            Pairs extremely well with her essay
+            <em>Uses of the Erotic: The Erotic as Power</em>
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Master and Margarita </span>
+        <span class="author">Mikhail Bulgakov</span>
+        <span class="date">2019</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Erasure </span>
+        <span class="author">Percival Everett</span>
+        <span class="date">2019</span>
+        <ul class="notes">
+          <li>
+            A post-modern book that didn't lose any enjoyability for it.
+            Sometimes it feels like post-modern techniques can take over a book,
+            but here they were used precisely and thoughtfully.
+          </li>
+          <li>
+            Interesting to compare the plotline about aging here to that in
+            <em>Galatea 2.2</em>. For some reason this one comes across much
+            better while <em>Galatea</em>'s feels stilted.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Confessions of a Video Vixen </span>
+        <span class="author">Karrine Steffans</span>
+        <span class="date">2019</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Push </span>
+        <span class="author">Sapphire</span>
+        <span class="date">2019</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">The Idiot </span>
+        <span class="author">Fyodor Dostoyevsky</span>
+        <span class="date">2019</span>
+        <ul class="notes">
+          <li>
+            Unique among Dostoyevsky's work in that it is primarily
+            character-driven rather than driven by a certain plot premise. While
+            this makes the book uneven in quality at points, you never know
+            what's going to happen next, and get the sense the author isn't sure
+            either. Very fun and exciting.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title"
+          >The Man Who Loved Only Numbers: The Story of Paul Erdős and the
+          Search for Mathematical Truth
+        </span>
+        <span class="author">Paul Hoffman</span>
+        <span class="date">2019</span>
+        <ul class="notes">
+          <li>
+            Lots of fun anecdotes. Awesome book for people who aren't interested
+            in mathematics to see why it is so beautiful and creative (and
+            weird).
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Butterflies in November </span>
+        <span class="author">Auður Ava Ólafsdóttir</span>
+        <span class="date">2019. </span>
+        <ul class="notes">
+          <li>
+            Very fun main character. I think I lost some enjoyment because the
+            plot (like the character) felt spacey. Still very interesting to
+            read, even if I didn't enjoy it too much overall.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">The Trial </span>
+        <span class="author">Franz Kafka</span>
+        <span class="date">2018</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Pale King </span>
+        <span class="author">David Foster Wallace</span>
+        <span class="date">2018</span>
+        <ul class="notes">
+          <li>5/10</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Everything Is Illuminated </span>
+        <span class="author">Jonathan Safran Foer</span>
+        <span class="date">2018</span>
+        <ul class="notes">
+          <li>
+            Very imaginative and enjoyable. One character is a little gimmicky.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Brief Interviews with Hideous Men</span>
+        <span class="author">David Foster Wallace</span>
+        <span class="date">2018</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">The Paper Menagerie </span>
+        <span class="author">Ken Liu</span>
+        <span class="date">2018</span>
+        <ul class="notes">
+          <li>Short story.</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Crying of Lot 49 </span>
+        <span class="author">Thomas Pynchon</span>
+        <span class="date">2018.</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Notes from Underground </span>
+        <span class="author">Fyodor Dostoyevsky</span>
+        <span class="date">2018</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">East of Eden </span>
+        <span class="author">John Steinbeck</span>
+        <span class="date">2018</span>
+        <ul class="notes">
+          <li>
+            A 600 page book that actually felt like it used its length well.
+            Awesome characters, good and bad.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Odyssey </span>
+        <span class="author">Homer</span>
+        <span class="date">2018</span>
+        <ul class="notes">
+          <li>
+            Read the Emily Wilson translation. Awesome translation and
+            translator's note.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">A Walk in the Woods</span>
+        <span class="author">Bill Bryson</span>
+        <span class="date">2018</span>
+        <ul class="notes">
+          <li>Somewhat enjoyable, but not super exciting.</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">House of Leaves </span>
+        <span class="author">Mark Z. Danielewski</span>
+        <span class="date">2017?</span>
+        <ul class="notes">
+          <li>
+            For a book of pure gimmicks, it somehow didn't come across as
+            gimmicky? A lot of fun.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">The Brothers Karamazov</span>
+        <span class="author">Fyodor Dostoyevsky</span>
+        <span class="date">Aug 2017</span>
+        <ul class="notes">
+          <li>
+            One of my favorite novels. The Grand Inquisitor chapter is
+            excellent.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Beyond Good and Evil </span>
+        <span class="author">Friedrich Nietzsche</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Dubliners</span>
+        <span class="author">James Joyce</span>
+        <span class="date">2017</span>
+        <ul class="notes">
+          <li>
+            I remember certain stories really struck a chord with me, but I'd
+            have to go back to remember which ones.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Infinite Jest </span>
+        <span class="author">David Foster Wallace</span>
+        <span class="date">2016?</span>
+        <ul class="notes">
+          <li>Very long and my enjoyment varied a lot.</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Crime and Punishment</span>
+        <span class="author">Fyodor Dostoyevsky</span>
+        <span class="date">2016?</span>
+        <ul class="notes">
+          <li>
+            I enjoyed it, despite it being a little too long, but I'm not sure
+            why you'd read this over <em>The Brothers Karamazov</em> or
+            <em>The Idiot</em>.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Mythology </span>
+        <span class="author">Edith Hamilton</span>
+        <span class="date">2016?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title"
+          >Illusions: The Adventures of a Reluctant Messiah
+        </span>
+        <span class="author">Richard Bach</span>
+        <span class="date">2016?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best"
+          >Amusing Ourselves to Death: Public Discourse in the Age of Show
+          Business
+        </span>
+        <span class="author">Neil Postman</span>
+        <span class="date">2016?</span>
+        <ul class="notes">
+          <li>Made me stop watching all TV. Seems very prescient now.</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Stranger </span>
+        <span class="author">Albert Camus</span>
+        <span class="date">2016</span>
+        <ul class="notes">
+          <li>The sun was in his eyes</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Song of Solomon </span>
+        <span class="author">Toni Morrison</span>
+        <span class="date">2016?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">All the Pretty Horses</span>
+        <span class="author">Cormac McCarthy</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Hamlet </span>
+        <span class="author">William Shakespeare</span>
+        <span class="date">2016?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Origin of Wealth</span>
+        <span class="author">Eric D. Beinhocker</span>
+        <span class="date">2016</span>
+        <ul class="notes">
+          <li>
+            All about complexity economics. The beginning is interesting, but
+            then it drags.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Great Gatsby </span>
+        <span class="author">F. Scott Fitzgerald</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Snow Crash</span>
+        <span class="author">Neal Stephenson</span>
+        <span class="date">?</span>
+      </div>
+
+      <div class="book">
+        <span class="title best">Brave New World </span>
+        <span class="author">Aldous Huxley</span>
+        <span class="date">2015</span>
+        <ul class="notes">
+          <li>
+            Compared <em>1984</em>, the writing is a lot worse, but the
+            predictions are more interesting.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Wind, Sand and Stars </span>
+        <span class="author">Antoine de Saint-Exupéry</span>
+        <span class="date">2015?</span>
+        <ul class="notes">
+          <li>
+            Very strange to read the unfettered romanticism of
+            <em>The Little Prince</em> in a non-fiction memoir.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Adventures of Huckleberry Finn </span>
+        <span class="author">Mark Twain</span>
+        <span class="date">2015?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Into the Wild</span>
+        <span class="author">Jon Krakauer</span>
+        <span class="date">2015</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Moonwalking with Einstein</span>
+        <span class="author">Joshua Foer</span>
+        <span class="date">2015?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">As I Lay Dying </span>
+        <span class="author">William Faulkner</span>
+        <span class="date">2015?</span>
+        <ul class="notes">
+          <li>Extremely funny. Each character's voice is very distinct.</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Moby-Dick, or, the Whale</span>
+        <span class="author">Herman Melville</span>
+        <span class="date">2015?</span>
+        <ul class="notes">
+          <li>
+            Not sure why I forced myself to read this over a high school summer.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Lolita </span>
+        <span class="author">Vladimir Nabokov</span>
+        <span class="date">2015?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best"
+          >Gödel, Escher, Bach: An Eternal Golden Braid
+        </span>
+        <span class="author">Douglas R. Hofstadter</span>
+        <span class="date">2015</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Art of Drowning </span>
+        <span class="author">Billy Collins</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Picnic, Lightning </span>
+        <span class="author">Billy Collins</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Myth of Sisyphus and Other Essays </span>
+        <span class="author">Albert Camus</span>
+        <span class="date">2015</span>
+        <ul class="notes">
+          <li>
+            Probably the first philosophy book I read. I remember the
+            self-titled essay being particularly good.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Wind-Up Bird Chronicle </span>
+        <span class="author">Haruki Murakami</span>
+        <span class="date">2014?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Of Mice and Men</span>
+        <span class="author">John Steinbeck</span>
+        <span class="date">2014</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">1Q84</span>
+        <span class="author">Haruki Murakami</span>
+        <span class="date">2013?</span>
+        <ul class="notes">
+          <li>
+            Long but enjoyable. Murakami is pretty great when he can fashion an
+            ending.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Life, the Universe and Everything</span>
+        <span class="author">Douglas Adams</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best"
+          >The Restaurant at the End of the Universe</span
+        >
+        <span class="author">Douglas Adams</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">The Hitchhiker's Guide to the Galaxy </span>
+        <span class="author">Douglas Adams</span>
+        <span class="date">2013?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Pearl </span>
+        <span class="author">John Steinbeck</span>
+        <span class="date">2013</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">The Broom of the System </span>
+        <span class="author">David Foster Wallace</span>
+        <span class="date">2013?</span>
+        <ul class="notes">
+          <li>Very fun first novel.</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Animal Farm </span>
+        <span class="author">George Orwell</span>
+        <span class="date">2012?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Do Androids Dream of Electric Sheep? </span>
+        <span class="author">Philip K. Dick</span>
+        <span class="date">2012?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Thirteen Reasons Why </span>
+        <span class="author">Jay Asher</span>
+        <span class="date">2012?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Siddhartha </span>
+        <span class="author">Hermann Hesse</span>
+        <span class="date">2011?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Welcome to the Monkey House </span>
+        <span class="author">Kurt Vonnegut</span>
+        <span class="date">2011?</span>
+        <ul class="notes">
+          <li>One of my favorite short story collections.</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">A Short History of Nearly Everything </span>
+        <span class="author">Bill Bryson</span>
+        <span class="date">?</span>
+        <ul class="notes">
+          <li>
+            Read this twice in elementary school. Probably one of the books that
+            influenced me the most as a kid.
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">1984 </span>
+        <span class="author">George Orwell</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Feed </span>
+        <span class="author">M.T. Anderson</span>
+        <span class="date">2011?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Animal Farm </span>
+        <span class="author">George Orwell</span>
+        <span class="date">2011?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Ready Player One</span>
+        <span class="author">Ernest Cline</span>
+        <span class="date">2011?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Curious Incident of the Dog in the Night</span>
+        <span class="author">Time -- Mark Haddon</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Book Thief </span>
+        <span class="author">Markus Zusak</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Shadow of the Giant</span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Shadow Puppets</span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Shadow of the Hegemon</span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Children of the Mind</span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Ender's Shadow (The Shadow Series, #1) </span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Xenocide</span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Speaker for the Dead</span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Ender's Game</span>
+        <span class="author">Orson Scott Card</span>
+        <span class="date">2013?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Giver</span>
+        <span class="author">Lois Lowry</span>
+        <span class="date">2009?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Mrs. Frisby and the Rats of NIMH</span>
+        <span class="author">Robert C. O'Brien</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">Artemis Fowl</span>
+        <span class="author">Eoin Colfer</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Evolution of Calpurnia Tate</span>
+        <span class="author">Jacqueline Kelly</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Graveyard Book</span>
+        <span class="author">Neil Gaiman</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Lion, the Witch and the Wardrobe</span>
+        <span class="author">C.S. Lewis</span>
+        <span class="date">?</span>
+        <ul class="notes"></ul>
+      </div>
+
+      <div class="book">
+        <span class="title best">The Little Prince </span>
+        <span class="author">Antoine de Saint-Exupéry</span>
+        <span class="date">?</span>
+        <ul class="notes">
+          <li>One of my favorites as a kid. The 2015 movie honors it well.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>To Read</h2>
+
+    <div>
+      <div class="book">
+        <span class="title">The Posthumous Memoirs of Brás Cubas</span>
+        <span class="author">Joaquim Maria Machado de Assis</span>
+        <ul class="notes">
+          <li>
+            Pick up the Flora Thomson-DeVeaux translation (<a
+              href="https://www.newyorker.com/books/second-read/rediscovering-one-of-the-wittiest-books-ever-written"
+              >New Yorker Article</a
+            >)
+          </li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">Entangled Life</span>
+        <span class="author">Merlin Sheldrake</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Schild's Ladder</span>
+        <span class="author">Greg Egan</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Genius at Play</span>
+        <span class="author">Siobhan Roberts</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Cat's Cradle </span>
+        <span class="author">Kurt Vonnegut</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Solaris</span>
+        <span class="author">Stanislaw Lem</span>
+        <ul class="notes">
+          <li>Get the Bill Johnston translation</li>
+        </ul>
+      </div>
+
+      <div class="book">
+        <span class="title">The Art of Game Design</span>
+        <span class="author">Jesse Schell</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Seeing Like a State</span>
+        <span class="author">James Scott</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Dictator's Handbook</span>
+        <span class="author">Alastair Smith</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Demons </span>
+        <span class="author">Fyodor Dostoyevsky</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Pride and Prejudice </span>
+        <span class="author">Jane Austen</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Thus Spoke Zarathustra </span>
+        <span class="author">Friedrich Nietzsche</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Demons </span>
+        <span class="author">Fyodor Dostoyevsky</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Snow Leopard </span>
+        <span class="author">Peter Matthiessen</span>
+      </div>
+
+      <div class="book">
+        <span class="title"
+          >The Looming Tower: Al-Qaeda and the Road to 9/11
+        </span>
+        <span class="author">Lawrence Wright</span>
+      </div>
+
+      <div class="book">
+        <span class="title">A Little Life </span>
+        <span class="author">Hanya Yanagihara</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Disappearing Earth </span>
+        <span class="author">Julia Phillips</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Mama's Last Hug</span>
+        <span class="author">Frans de Waal</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Becoming Dr. Seuss</span>
+        <span class="author">Brian Jay Jones</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Dark Pools</span>
+        <span class="author">Scott Patterson</span>
+      </div>
+
+      <div class="book">
+        <span class="title">All the Light We Cannot See </span>
+        <span class="author">Anthony Doerr</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Middlesex </span>
+        <span class="author">Jeffrey Eugenides</span>
+      </div>
+
+      <div class="book">
+        <span class="title">How Markets Fail</span>
+        <span class="author">John Cassidy</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Dictator's Handbook</span>
+        <span class="author">Bruce Bueno de Mesquita</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Salt, Fat, Acid, Heat</span>
+        <span class="author">Samin Nosrat</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Mind Illuminated</span>
+        <span class="author">Culadasa (John Yates)</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Our Mathematical Universe</span>
+        <span class="author">Max Tegmark</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Hiking with Nietzsche</span>
+        <span class="author">John Kaag</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Life: A User's Manual </span>
+        <span class="author">Georges Perec</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Madame Bovary </span>
+        <span class="author">Gustave Flaubert</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Worst Journey in the World </span>
+        <span class="author">Apsley Cherry-Garrard</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Einstein's Dreams </span>
+        <span class="author">Alan Lightman</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Invisible Cities </span>
+        <span class="author">Italo Calvino</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Quantum Computing Since Democritus </span>
+        <span class="author">Scott Aaronson</span>
+      </div>
+
+      <div class="book">
+        <span class="title"
+          >Why Philosophers Should Care About Computational Complexity
+        </span>
+        <span class="author">Scott Aaronson</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Embodiment and the Inner Life</span>
+        <span class="author">Murray Shanahan</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Ego and Its Own </span>
+        <span class="author">Max Stirner</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Preface to Plato </span>
+        <span class="author">Eric Alfred Havelock</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Simulacra and Simulation </span>
+        <span class="author">Jean Baudrillard</span>
+      </div>
+
+      <div class="book">
+        <span class="title">War and Peace </span>
+        <span class="author">Leo Tolstoy</span>
+      </div>
+
+      <div class="book">
+        <span class="title">A Confession </span>
+        <span class="author">Leo Tolstoy</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Inferno</span>
+        <span class="author">Dante Alighieri</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Paradise Lost </span>
+        <span class="author">John Milton</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Corrections </span>
+        <span class="author">Jonathan Franzen</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Hobbit or There and Back Again </span>
+        <span class="author">J.R.R. Tolkien</span>
+      </div>
+
+      <div class="book">
+        <span class="title">One Flew Over the Cuckoo's Nest </span>
+        <span class="author">Ken Kesey</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Lord of the Flies </span>
+        <span class="author">William Golding</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Capital in the Twenty-First Century </span>
+        <span class="author">Thomas Piketty</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Postcapitalism: A Guide to Our Future </span>
+        <span class="author">Paul Mason</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Catch-22</span>
+        <span class="author">Joseph Heller</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Signal and the Noise</span>
+        <span class="author">Nate Silver</span>
+      </div>
+
+      <div class="book">
+        <span class="title"
+          >Technopoly: The Surrender of Culture to Technology
+        </span>
+        <span class="author">Neil Postman</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Road </span>
+        <span class="author">Cormac McCarthy</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Slaughterhouse-Five </span>
+        <span class="author">Kurt Vonnegut</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Fahrenheit 451 </span>
+        <span class="author">Ray Bradbury</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Othello </span>
+        <span class="author">William Shakespeare</span>
+      </div>
+
+      <div class="book">
+        <span class="title">A Rose for Emily </span>
+        <span class="author">William Faulkner</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Sound and the Fury </span>
+        <span class="author">William Faulkner</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Ulysses </span>
+        <span class="author">James Joyce</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Gravity's Rainbow </span>
+        <span class="author">Thomas Pynchon</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Pale Fire </span>
+        <span class="author">Vladimir Nabokov</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Speak, Memory </span>
+        <span class="author">Vladimir Nabokov</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Invitation to a Beheading </span>
+        <span class="author">Vladimir Nabokov</span>
+      </div>
+
+      <div class="book">
+        <span class="title"
+          >The Dark Forest (Remembrance of Earth’s Past, #2)
+        </span>
+        <span class="author">Liu Cixin</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Death's End</span>
+        <span class="author">Liu Cixin</span>
+      </div>
+
+      <div class="book">
+        <span class="title">Dirk Gently's Holistic Detective Agency </span>
+        <span class="author">Douglas Adams</span>
+      </div>
+
+      <div class="book">
+        <span class="title">The Amulet of Samarkand</span>
+        <span class="author">Jonathan Stroud</span>
+      </div>
+    </div>
+  </body>
 </html>
-
