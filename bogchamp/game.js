@@ -244,11 +244,17 @@ function hide_answers() {
     delete_all_children(document.getElementById("answers"));
 }
 
+function cube_clicked(input) {
+    return function() {
+        input.value += this.innerText.toLowerCase();
+    };
+}
+
 window.onload = function () {
     var reveal_board = document.getElementById("reveal-board");
     var form = document.getElementById("word-form");
-    var input = document.getElementById("word-input");
     var score_display = document.getElementById("total-score");
+    var input = document.getElementById("word-input");
     var word_list = document.getElementById("word-list");
     var url_box = document.getElementById("url-box");
     var new_board = document.getElementById("new-board");
@@ -284,6 +290,11 @@ window.onload = function () {
     show_answers_button.onclick = function () {
         show_answers(scored_words);
     };
+
+    var letter_cubes = document.getElementsByClassName("letter-cube");
+    for (var i = 0; i < letter_cubes.length; ++i) {
+        letter_cubes[i].onclick = cube_clicked(input);
+    }
 
     form.onsubmit = function (event) {
         event.preventDefault();
