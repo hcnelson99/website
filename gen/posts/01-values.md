@@ -21,6 +21,7 @@ Here are my top ten values (not in any particular order):
 - Irreverence
 - Decisiveness
 - Meticulousness
+- Perceptiveness
 - Love
 
 You don't have to do it now, but maybe when you're in a knot over a decision or
