@@ -1,6 +1,6 @@
 A few of my friends and I have recently done a simple exercise: write down our
-top ten values.  You start from a list of almost four hundred and narrow it
-down to the ten that feel most important to you.
+top ten values.  You start from a list of almost four hundred and narrow down
+to the ten that feel most important to you.
 
 I found the process surprisingly clarifying. Having to pick out the concepts
 that I value forced me to make fine distinctions between words with nearby
@@ -12,6 +12,7 @@ country. Writing down my values helped me much more confidently make a life
 decision that challenged my sense of self.
 
 Here are my top ten values (not in any particular order):
+
 - Curiosity
 - Creativity
 - Passion
