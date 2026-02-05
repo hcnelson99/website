@@ -25,6 +25,7 @@ const MAX_RANK = 14;
 const PLAYER_LABELS = ["You", "Left Opponent", "Partner", "Right Opponent"];
 const HIDDEN_PLAYERS = [1, 2, 3];
 const POSITIONS = ['bottom', 'left', 'top', 'right'];
+const ORACLES_PER_ROUND = 3;
 
 /** @type {Card[][]} */
 const hands = [[], [], [], []];
@@ -41,7 +42,7 @@ let lastTime = 0;
 // Oracle & Contract state
 /** @type {GamePhase} */
 let gamePhase = "oracle";
-let oraclesRemaining = 3;
+let oraclesRemaining = ORACLES_PER_ROUND;
 /** @type {OracleCard[]} */
 let currentOracles = [];
 /** @type {OracleCard[]} */
@@ -433,16 +434,18 @@ function renderOracleMode() {
   }
   oracleSection.appendChild(choiceRow);
 
-  // Oracle results
-  if (oracleResults.length > 0) {
-    const resultsEl = el('div', 'oracle-results');
-    for (const result of oracleResults) {
-      resultsEl.appendChild(el('div', '', result));
-    }
-    oracleSection.appendChild(resultsEl);
+  // Oracle results — always render 3 slots so contract section never moves
+  const resultsEl = el('div', 'oracle-results');
+  for (let i = 0; i < ORACLES_PER_ROUND; i++) {
+    const line = el('div', '', oracleResults[i] || '\u00a0');
+    if (!oracleResults[i]) line.style.visibility = 'hidden';
+    resultsEl.appendChild(line);
   }
+  oracleSection.appendChild(resultsEl);
 
-  root.appendChild(oracleSection);
+  // Wrap oracle + contract in a flex column layout
+  const layout = el('div', 'oracle-layout');
+  layout.appendChild(oracleSection);
 
   // Contracts
   const contractSection = el('div', 'contract-section');
@@ -473,7 +476,8 @@ function renderOracleMode() {
   }
 
   contractSection.appendChild(contractRow);
-  root.appendChild(contractSection);
+  layout.appendChild(contractSection);
+  root.appendChild(layout);
 
   // All 4 hands — player 0 visible, others hidden
   for (let i = 0; i < 4; i++) {
@@ -496,7 +500,7 @@ function resolveOracle(choice) {
   selectedOracleIndex = -1;
   lastOracles = currentOracles;
   if (oraclesRemaining > 0) {
-    currentOracles = drawOracles(3);
+    currentOracles = drawOracles(ORACLES_PER_ROUND);
   } else {
     currentOracles = [];
   }
@@ -604,8 +608,8 @@ function renderResult() {
 function startNewRound() {
   dealHands();
   gamePhase = "oracle";
-  oraclesRemaining = 3;
-  currentOracles = drawOracles(3);
+  oraclesRemaining = ORACLES_PER_ROUND;
+  currentOracles = drawOracles(ORACLES_PER_ROUND);
   lastOracles = currentOracles;
   availableContracts = generateContracts();
   chosenContract = null;
@@ -772,7 +776,7 @@ document.addEventListener('keydown', (e) => {
 // --- setup ---
 
 dealHands();
-currentOracles = drawOracles(3);
+currentOracles = drawOracles(ORACLES_PER_ROUND);
 lastOracles = currentOracles;
 availableContracts = generateContracts();
 render();
