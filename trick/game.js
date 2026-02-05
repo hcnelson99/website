@@ -52,6 +52,7 @@ let chosenContract = null;
 let oracleResults = [];
 let totalScore = 0;
 let selectedOracleIndex = -1;
+let debugShowAll = false;
 
 // --- utility ---
 
@@ -460,7 +461,7 @@ function renderOracleMode() {
   // All 4 hands — player 0 visible, others hidden
   for (let i = 0; i < 4; i++) {
     const handEl = el('div', 'hand hand-' + POSITIONS[i]);
-    const hidden = i !== 0;
+    const hidden = i !== 0 && !debugShowAll;
     for (const card of hands[i]) {
       handEl.appendChild(renderCard(card, { hidden, active: false }));
     }
@@ -524,7 +525,7 @@ function renderPlay() {
   for (let i = 0; i < 4; i++) {
     const handEl = el('div', 'hand hand-' + POSITIONS[i]);
     const active = !trickComplete && cp === i;
-    const hidden = !isHuman(i);
+    const hidden = !isHuman(i) && !debugShowAll;
 
     for (const card of hands[i]) {
       const legal = canPlay(card, hands[i]);
@@ -733,6 +734,13 @@ function gameLoop(timestamp) {
 
   requestAnimationFrame(gameLoop);
 }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === '`') {
+    debugShowAll = !debugShowAll;
+    render();
+  }
+});
 
 // --- setup ---
 

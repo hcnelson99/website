@@ -1,6 +1,6 @@
 :root {
-  --card-w: 40px;
-  --card-h: 56px;
+  --card-w: 60px;
+  --card-h: 84px;
 }
 
 body {
@@ -8,6 +8,7 @@ body {
   background: #1a1a2e;
   color: #eee;
   font-family: monospace;
+  font-size: 24px;
 }
 
 #root {
@@ -19,43 +20,43 @@ body {
 
 .score {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 16px;
+  top: 15px;
+  left: 15px;
+  font-size: 24px;
   z-index: 1;
 }
 
 .trump-indicator {
   position: absolute;
-  top: 32px;
-  left: 10px;
-  font-size: 16px;
+  top: 48px;
+  left: 15px;
+  font-size: 24px;
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 9px;
 }
 
 .trump-swatch {
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 21px;
+  height: 21px;
 }
 
 .contract-indicator {
   position: absolute;
-  top: 54px;
-  left: 10px;
-  font-size: 14px;
+  top: 81px;
+  left: 15px;
+  font-size: 21px;
   z-index: 1;
   color: #aaa;
 }
 
 .total-score {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 16px;
+  top: 15px;
+  right: 15px;
+  font-size: 24px;
   z-index: 1;
 }
 
@@ -67,7 +68,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 27px;
   font-weight: bold;
   box-sizing: border-box;
 }
@@ -92,32 +93,32 @@ body {
 .hand {
   position: absolute;
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .hand-bottom {
-  bottom: 10px;
+  bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
   flex-direction: row;
 }
 
 .hand-top {
-  top: 10px;
+  top: 15px;
   left: 50%;
   transform: translateX(-50%);
   flex-direction: row;
 }
 
 .hand-left {
-  left: 10px;
+  left: 15px;
   top: 50%;
   transform: translateY(-50%);
   flex-direction: column;
 }
 
 .hand-right {
-  right: 10px;
+  right: 15px;
   top: 50%;
   transform: translateY(-50%);
   flex-direction: column;
@@ -134,8 +135,8 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 160px;
-  height: 180px;
+  width: 240px;
+  height: 270px;
 }
 
 .trick-slot {
@@ -170,27 +171,27 @@ body {
 
 .oracle-section {
   position: absolute;
-  top: 76px;
+  top: 114px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
 }
 
 .section-title {
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: 24px;
+  margin-bottom: 15px;
   color: #aaa;
 }
 
 .card-row {
   display: flex;
-  gap: 16px;
+  gap: 24px;
   justify-content: center;
 }
 
 .oracle-card {
-  width: 120px;
-  padding: 12px;
+  width: 180px;
+  padding: 18px;
   background: #2a2a4e;
   border: 2px solid #444;
   cursor: pointer;
@@ -206,36 +207,36 @@ body {
 }
 
 .oracle-label {
-  font-size: 16px;
+  font-size: 24px;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .oracle-choice-type {
-  font-size: 12px;
+  font-size: 18px;
   color: #888;
 }
 
 .oracle-remaining {
-  margin-top: 8px;
-  font-size: 14px;
+  margin-top: 12px;
+  font-size: 21px;
   color: #888;
 }
 
 .choice-row {
-  margin-top: 12px;
+  margin-top: 18px;
   display: flex;
-  gap: 8px;
+  gap: 12px;
   justify-content: center;
 }
 
 .choice-btn {
-  padding: 6px 14px;
+  padding: 9px 21px;
   background: #333;
   color: #eee;
   border: 1px solid #666;
   font-family: monospace;
-  font-size: 14px;
+  font-size: 21px;
   cursor: pointer;
 }
 
@@ -248,8 +249,8 @@ body {
 }
 
 .oracle-results {
-  margin-top: 14px;
-  font-size: 14px;
+  margin-top: 21px;
+  font-size: 21px;
   color: #ccc;
   line-height: 1.6;
 }
@@ -265,8 +266,8 @@ body {
 }
 
 .contract-card {
-  width: 120px;
-  padding: 12px;
+  width: 180px;
+  padding: 18px;
   background: #1e3a1e;
   border: 2px solid #444;
   cursor: pointer;
@@ -279,14 +280,14 @@ body {
 }
 
 .contract-name {
-  font-size: 14px;
+  font-size: 21px;
   font-weight: bold;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .contract-points {
   color: #aaa;
-  font-size: 13px;
+  font-size: 20px;
 }
 
 /* Result screen */
@@ -302,16 +303,16 @@ body {
 }
 
 .result-title {
-  font-size: 28px;
+  font-size: 42px;
   font-weight: bold;
 }
 
 .result-points {
-  font-size: 22px;
+  font-size: 33px;
 }
 
 .result-continue {
-  margin-top: 20px;
+  margin-top: 30px;
   color: #888;
-  font-size: 14px;
+  font-size: 21px;
 }
