@@ -8,6 +8,7 @@ html, body {
   margin: 0;
   height: 100%;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -111,6 +112,7 @@ body {
   font-size: 27px;
   font-weight: bold;
   box-sizing: border-box;
+  outline: none;
 }
 
 .card.inactive {
@@ -228,6 +230,7 @@ body {
   text-align: center;
   position: relative;
   padding-bottom: 42px;
+  outline: none;
 }
 
 .oracle-card:hover {
@@ -274,6 +277,7 @@ body {
   font-family: monospace;
   font-size: 21px;
   cursor: pointer;
+  outline: none;
 }
 
 .choice-btn:hover:not(.disabled) {
@@ -313,6 +317,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: none;
 }
 
 .trump-card:hover:not(.contract-locked) {
@@ -332,6 +337,7 @@ body {
   cursor: pointer;
   text-align: center;
   line-height: 1.6;
+  outline: none;
 }
 
 .contract-card:hover:not(.contract-locked) {
