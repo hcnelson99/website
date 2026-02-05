@@ -421,10 +421,19 @@ body {
 }
 
 .tutorial-content {
+  position: relative;
   max-width: min(800px, 90vw);
   margin: auto;
   padding: var(--spacing);
   line-height: 1.6;
+}
+
+.tutorial-version {
+  position: absolute;
+  top: var(--spacing);
+  right: var(--spacing);
+  font-size: 14px;
+  color: #555;
 }
 
 .tutorial-title {

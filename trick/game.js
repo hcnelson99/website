@@ -347,6 +347,14 @@ function renderTutorial(root) {
   const overlay = el('div', 'tutorial-overlay');
   const content = el('div', 'tutorial-content');
 
+  // Version from script tag query param
+  const scriptEl = document.querySelector('script[src^="game.js"]');
+  const version = scriptEl ? new URL(/** @type {HTMLScriptElement} */ (scriptEl).src, location.href).searchParams.get('v') : null;
+  if (version) {
+    const versionEl = el('div', 'tutorial-version', 'v' + version);
+    content.appendChild(versionEl);
+  }
+
   content.appendChild(el('div', 'tutorial-title', 'How to Play'));
 
   const sections = [
