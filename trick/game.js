@@ -56,6 +56,7 @@ let oracleResults = [];
 let totalScore = 0;
 let selectedOracleIndex = -1;
 let debugShowAll = false;
+let showTutorial = true;
 
 // --- utility ---
 
@@ -371,6 +372,59 @@ function render() {
   } else if (gamePhase === "result") {
     renderResult();
   }
+
+  const root = document.getElementById('root');
+  if (!root) return;
+
+  const helpBtn = el('button', 'tutorial-btn', '?');
+  helpBtn.addEventListener('click', () => { showTutorial = true; render(); });
+  root.appendChild(helpBtn);
+
+  if (showTutorial) renderTutorial(root);
+}
+
+/** @param {HTMLElement} root */
+function renderTutorial(root) {
+  const overlay = el('div', 'tutorial-overlay');
+  const content = el('div', 'tutorial-content');
+
+  content.appendChild(el('div', 'tutorial-title', 'How to Play'));
+
+  const sections = [
+    ['Overview',
+      'A trick-taking card game. You and your partner (across) play against two opponents. ' +
+      'There are 4 suits (red, blue, green, orange) with cards ranked 2\u201314 (J, Q, K, A).'],
+    ['Oracle Phase',
+      'Each round starts with 3 oracle cards. Pick one at a time to learn something about ' +
+      'opponents\u2019 hands \u2014 like how many cards of a suit they hold, or their longest suit. ' +
+      'Use all 3 oracles, then choose a contract.'],
+    ['Contracts',
+      'Each contract has a trump suit (or no trump), a number of tricks you need to win, ' +
+      'and a point reward/penalty. Higher risk contracts pay more but cost more if you fail.'],
+    ['Playing Tricks',
+      'The lead player plays a card. Everyone else must follow suit if they can. ' +
+      'If you can\u2019t follow suit, you may play any card. The highest card of the led suit wins, ' +
+      'unless a trump card is played \u2014 then the highest trump wins.'],
+    ['Winning',
+      'Tricks won by you or your partner count toward your contract. ' +
+      'If you reach the needed tricks, you score the bonus and the round ends. ' +
+      'If it becomes impossible to reach the target, the round ends early with a penalty.'],
+  ];
+
+  for (const [heading, body] of sections) {
+    content.appendChild(el('div', 'tutorial-heading', heading));
+    content.appendChild(el('div', 'tutorial-body', body));
+  }
+
+  const closeBtn = el('button', 'tutorial-close', 'Got it');
+  closeBtn.addEventListener('click', () => { showTutorial = false; render(); });
+  content.appendChild(closeBtn);
+
+  overlay.appendChild(content);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) { showTutorial = false; render(); }
+  });
+  root.appendChild(overlay);
 }
 
 // --- oracle mode ---
