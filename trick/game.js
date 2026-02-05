@@ -79,6 +79,7 @@ function clearRoot() {
   const root = document.getElementById('root');
   if (!root) return null;
   root.innerHTML = '';
+  root.classList.remove('play-mode', 'result-mode');
   return root;
 }
 
