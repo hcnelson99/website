@@ -255,6 +255,16 @@ body {
   line-height: 1.6;
 }
 
+.play-oracle-results {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  margin-top: 42px;
+  text-align: right;
+  font-size: 18px;
+  color: #999;
+}
+
 /* Contract section */
 
 .contract-section {
@@ -275,8 +285,13 @@ body {
   line-height: 1.6;
 }
 
-.contract-card:hover {
+.contract-card:hover:not(.contract-locked) {
   border-color: #8f8;
+}
+
+.contract-locked {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .contract-name {

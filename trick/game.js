@@ -432,12 +432,13 @@ function renderOracleMode() {
 
   // Contracts
   const contractSection = el('div', 'contract-section');
-  contractSection.appendChild(el('div', 'section-title', 'CONTRACT CHOICES'));
+  const locked = oraclesRemaining > 0;
+  contractSection.appendChild(el('div', 'section-title', locked ? 'CONTRACTS (use all oracles first)' : 'CONTRACT CHOICES'));
 
   const contractRow = el('div', 'card-row');
 
   for (const contract of availableContracts) {
-    const cardEl = el('div', 'contract-card');
+    const cardEl = el('div', 'contract-card' + (locked ? ' contract-locked' : ''));
 
     cardEl.appendChild(el('div', 'contract-name', contract.label));
     cardEl.appendChild(el('div', '', contract.tricksNeeded + ' tricks'));
@@ -451,7 +452,9 @@ function renderOracleMode() {
       cardEl.appendChild(el('div', '', 'no trump'));
     }
 
-    cardEl.addEventListener('click', () => selectContract(contract));
+    if (!locked) {
+      cardEl.addEventListener('click', () => selectContract(contract));
+    }
     contractRow.appendChild(cardEl);
   }
 
@@ -518,6 +521,14 @@ function renderPlay() {
   }
 
   root.appendChild(el('div', 'total-score', 'Score: ' + totalScore));
+
+  if (oracleResults.length > 0) {
+    const resultsEl = el('div', 'oracle-results play-oracle-results');
+    for (const result of oracleResults) {
+      resultsEl.appendChild(el('div', '', result));
+    }
+    root.appendChild(resultsEl);
+  }
 
   const cp = currentPlayer();
   const trickComplete = currentTrick.length === 4;
