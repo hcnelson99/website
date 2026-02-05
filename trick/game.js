@@ -47,8 +47,6 @@ let oraclesRemaining = ORACLES_PER_ROUND;
 let currentOracles = [];
 /** @type {OracleCard[]} */
 let lastOracles = [];
-/** @type {(Suit | null)[]} */
-let trumpChoices = [];
 /** @type {Suit | null | undefined} */
 let chosenTrumpChoice = undefined;
 /** @type {Contract | null} */
@@ -260,13 +258,6 @@ const NOTRUMP_TIERS = [
   { label: "Grand Notrump", tricksNeeded: 10, successPoints: 50, failurePoints: -25, tier: 4 },
 ];
 
-function generateTrumpChoices() {
-  /** @type {(Suit | null)[]} */
-  const options = [...SUITS, null];
-  shuffle(options);
-  return options.slice(0, 2);
-}
-
 /** @param {Suit | null} choice */
 function selectTrump(choice) {
   chosenTrumpChoice = choice;
@@ -361,7 +352,7 @@ function renderTutorial(root) {
   const sections = [
     ['Overview', 'A "trick-taking" card game. You (bottom of screen) and your teammate (top) play against two opponents (left and right). You play cards for both yourself and your teammate, but your teammate\'s hand will only be revealed once play begins. Each round, you\'ll first use "oracle cards" to learn about your partner\'s and opponents\' hands, then pick a "contract" for how many "tricks" you need to win, then play out the tricks and see if you make your contract.'],
     ['Oracle Phase', 'Each round starts by selecting 3 oracle cards. Oracle cards tell you something about other players\' hands -- like how many cards of a suit they hold, or their longest suit.'],
-    ['Contracts', 'After using all 3 oracles, you choose a contract in two steps. First, pick a "trump suit" (explained below) from 2 randomly offered choices (which may include "No Trump"). Then pick a contract tier -- each tier requires a different number of tricks and has a different point reward/penalty. Higher risk contracts pay more but cost more if you fail. Use your oracle information to choose a trump suit that favors your hand and a tier you\'re confident you can make.'],
+    ['Contracts', 'After using all 3 oracles, you choose a contract in two steps. First, pick a trump suit from the 5 available choices (4 suits + No Trump). Then pick a contract tier -- each tier requires a different number of tricks and has a different point reward/penalty. Higher risk contracts pay more but cost more if you fail. Use your oracle information to choose a trump suit that favors your hand and a tier you\'re confident you can make.'],
     ['Playing Tricks', 'A trick consists of each player playing one card. You will start by playing the first card; then play proceeds to the left. Each play must follow the "lead suit": the suit that the trick was started with. If you can\'t follow suit, you may play any card. The highest card of the lead suit wins, unless a trump card is played -- then the highest trump wins. The next trick will be led by the winner of the previous trick.'],
     ['Winning', 'Tricks won by you or your teammate count toward your contract. If you win enough tricks you score the points; if not, you take the penalty.'],
   ];
@@ -384,128 +375,189 @@ function renderTutorial(root) {
 
 // --- oracle mode ---
 
-function renderOracleMode() {
-  const root = clearRoot();
-  if (!root) return;
-
-  const oracleSection = el('div', 'oracle-section');
-
-  // Oracle cards (only when active)
-  if (oraclesRemaining > 0) {
-    oracleSection.appendChild(el('div', 'section-title', 'ORACLE CARDS (pick one)'));
-
-    const oracleRow = el('div', 'card-row');
-    for (let i = 0; i < currentOracles.length; i++) {
-      const oracle = currentOracles[i];
-      const oracleEl = el('div', 'oracle-card' + (selectedOracleIndex === i ? ' selected' : ''));
-      oracleEl.appendChild(el('div', 'oracle-label', oracle.label));
-      oracleEl.appendChild(el('div', 'oracle-choice-type', oracle.choiceType === 'player' ? '[choose player]' : '[choose suit]'));
-      const idx = i;
-      oracleEl.addEventListener('click', () => {
-        selectedOracleIndex = idx;
-        render();
-      });
-      oracleRow.appendChild(oracleEl);
-    }
-    oracleSection.appendChild(oracleRow);
-
-    oracleSection.appendChild(el('div', 'oracle-remaining', 'Oracles remaining: ' + oraclesRemaining));
-
-    // Choice buttons (always visible, but disabled if no selection)
-    const hasSelection = selectedOracleIndex >= 0 && selectedOracleIndex < currentOracles.length;
-    const oracle = hasSelection ? currentOracles[selectedOracleIndex] : null;
-    const choiceRow = el('div', 'choice-row');
-
-    if (!oracle || oracle.choiceType === 'player') {
-      for (const p of HIDDEN_PLAYERS) {
-        const btn = el('button', 'choice-btn' + (hasSelection ? '' : ' disabled'), PLAYER_LABELS[p]);
-        if (hasSelection) {
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            resolveOracle(p);
-          });
-        }
-        choiceRow.appendChild(btn);
-      }
-    } else {
-      for (const suit of SUITS) {
-        const btn = el('button', 'choice-btn suit-btn', suit);
-        btn.style.color = suit;
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          resolveOracle(suit);
-        });
-        choiceRow.appendChild(btn);
-      }
-    }
-    oracleSection.appendChild(choiceRow);
-  }
-
-  // Oracle results (only actual results)
+/** @param {HTMLElement} container */
+function renderOracleResults(container) {
   if (oracleResults.length > 0) {
     const resultsEl = el('div', 'oracle-results');
     for (const result of oracleResults) {
       resultsEl.appendChild(el('div', '', result));
     }
-    oracleSection.appendChild(resultsEl);
+    container.appendChild(resultsEl);
   }
+}
 
-  // Wrap oracle + contract in a flex column layout
+function renderOracleMode() {
+  // Stage detection:
+  // Stage 1: oraclesRemaining > 0
+  // Stage 2: oraclesRemaining === 0 && chosenTrumpChoice === undefined
+  // Stage 3: chosenTrumpChoice !== undefined
+
+  if (oraclesRemaining > 0) {
+    renderOracleStage1();
+  } else if (chosenTrumpChoice === undefined) {
+    renderOracleStage2();
+  } else {
+    renderOracleStage3();
+  }
+}
+
+/** Stage 1: Pick oracle cards */
+function renderOracleStage1() {
+  const root = clearRoot();
+  if (!root) return;
+
+  const oracleSection = el('div', 'oracle-section');
+
+  oracleSection.appendChild(el('div', 'section-title', 'ORACLE CARDS (pick one)'));
+
+  const oracleRow = el('div', 'card-row');
+  for (let i = 0; i < currentOracles.length; i++) {
+    const oracle = currentOracles[i];
+    const oracleEl = el('div', 'oracle-card' + (selectedOracleIndex === i ? ' selected' : ''));
+    oracleEl.appendChild(el('div', 'oracle-label', oracle.label));
+    oracleEl.appendChild(el('div', 'oracle-choice-type', oracle.choiceType === 'player' ? '[choose player]' : '[choose suit]'));
+    const idx = i;
+    oracleEl.addEventListener('click', () => {
+      selectedOracleIndex = idx;
+      render();
+    });
+    oracleRow.appendChild(oracleEl);
+  }
+  oracleSection.appendChild(oracleRow);
+
+  oracleSection.appendChild(el('div', 'oracle-remaining', 'Oracles remaining: ' + oraclesRemaining));
+
+  // Choice buttons (always visible, but disabled if no selection)
+  const hasSelection = selectedOracleIndex >= 0 && selectedOracleIndex < currentOracles.length;
+  const oracle = hasSelection ? currentOracles[selectedOracleIndex] : null;
+  const choiceRow = el('div', 'choice-row');
+
+  if (!oracle || oracle.choiceType === 'player') {
+    for (const p of HIDDEN_PLAYERS) {
+      const btn = el('button', 'choice-btn' + (hasSelection ? '' : ' disabled'), PLAYER_LABELS[p]);
+      if (hasSelection) {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          resolveOracle(p);
+        });
+      }
+      choiceRow.appendChild(btn);
+    }
+  } else {
+    for (const suit of SUITS) {
+      const btn = el('button', 'choice-btn suit-btn', suit);
+      btn.style.color = suit;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resolveOracle(suit);
+      });
+      choiceRow.appendChild(btn);
+    }
+  }
+  oracleSection.appendChild(choiceRow);
+
+  renderOracleResults(oracleSection);
+
   const layout = el('div', 'oracle-layout');
   layout.appendChild(oracleSection);
 
-  // Trump / Contract selection (two-step)
-  const contractSection = el('div', 'contract-section');
-  const locked = oraclesRemaining > 0;
+  // Empty top area placeholder
+  root.appendChild(el('div', 'hand hand-top'));
 
-  if (chosenTrumpChoice === undefined) {
-    // Step 1: pick trump
-    contractSection.appendChild(el('div', 'section-title', locked ? 'CHOOSE TRUMP (use all oracles first)' : 'CHOOSE TRUMP'));
-    const trumpRow = el('div', 'card-row');
-    for (const choice of trumpChoices) {
-      const cardEl = el('div', 'trump-card' + (locked ? ' contract-locked' : ''));
-      if (choice !== null) {
-        const suitEl = el('div', 'trump-card-suit', capitalize(choice));
-        suitEl.style.color = choice;
-        cardEl.appendChild(suitEl);
-      } else {
-        cardEl.appendChild(el('div', 'trump-card-suit', 'No Trump'));
-      }
-      if (!locked) {
-        cardEl.addEventListener('click', () => selectTrump(choice));
-      }
-      trumpRow.appendChild(cardEl);
-    }
-    contractSection.appendChild(trumpRow);
-  } else {
-    // Step 2: pick tier
-    const trumpLabel = chosenTrumpChoice !== null ? capitalize(chosenTrumpChoice) : 'No Trump';
-    contractSection.appendChild(el('div', 'section-title', 'CHOOSE CONTRACT \u2014 ' + trumpLabel));
-    const tierRow = el('div', 'card-row');
-    const tiers = chosenTrumpChoice === null ? NOTRUMP_TIERS : CONTRACT_TIERS;
-    for (const tier of tiers) {
-      const cardEl = el('div', 'contract-card');
-      cardEl.appendChild(el('div', 'contract-name', tier.label));
-      cardEl.appendChild(el('div', '', tier.tricksNeeded + ' tricks'));
-      cardEl.appendChild(el('div', 'contract-points', '+' + tier.successPoints + ' / ' + tier.failurePoints));
-      cardEl.addEventListener('click', () => {
-        const label = chosenTrumpChoice !== null
-          ? tier.label + ' ' + capitalize(/** @type {Suit} */ (chosenTrumpChoice))
-          : tier.label;
-        selectContract({
-          label,
-          trumpSuit: /** @type {Suit | null} */ (chosenTrumpChoice),
-          tricksNeeded: tier.tricksNeeded,
-          successPoints: tier.successPoints,
-          failurePoints: tier.failurePoints,
-        });
-      });
-      tierRow.appendChild(cardEl);
-    }
-    contractSection.appendChild(tierRow);
+  // Center content
+  root.appendChild(layout);
+
+  // Bottom hand
+  const handEl = el('div', 'hand hand-bottom');
+  for (const card of hands[0]) {
+    handEl.appendChild(renderCard(card, { hidden: false, active: false }));
   }
+  root.appendChild(handEl);
+}
 
-  layout.appendChild(contractSection);
+/** Stage 2: Choose trump suit (all 5 options) */
+function renderOracleStage2() {
+  const root = clearRoot();
+  if (!root) return;
+
+  const section = el('div', 'oracle-section');
+
+  renderOracleResults(section);
+
+  section.appendChild(el('div', 'section-title', 'CHOOSE TRUMP'));
+  const trumpRow = el('div', 'card-row');
+
+  /** @type {(Suit | null)[]} */
+  const allTrumpOptions = [...SUITS, null];
+
+  for (const choice of allTrumpOptions) {
+    const cardEl = el('div', 'trump-card');
+    if (choice !== null) {
+      const suitEl = el('div', 'trump-card-suit', capitalize(choice));
+      suitEl.style.color = choice;
+      cardEl.appendChild(suitEl);
+    } else {
+      cardEl.appendChild(el('div', 'trump-card-suit', 'No Trump'));
+    }
+    cardEl.addEventListener('click', () => selectTrump(choice));
+    trumpRow.appendChild(cardEl);
+  }
+  section.appendChild(trumpRow);
+
+  const layout = el('div', 'oracle-layout');
+  layout.appendChild(section);
+
+  // Empty top area placeholder
+  root.appendChild(el('div', 'hand hand-top'));
+
+  // Center content
+  root.appendChild(layout);
+
+  // Bottom hand
+  const handEl = el('div', 'hand hand-bottom');
+  for (const card of hands[0]) {
+    handEl.appendChild(renderCard(card, { hidden: false, active: false }));
+  }
+  root.appendChild(handEl);
+}
+
+/** Stage 3: Choose contract tier */
+function renderOracleStage3() {
+  const root = clearRoot();
+  if (!root) return;
+
+  const section = el('div', 'oracle-section');
+
+  renderOracleResults(section);
+
+  const trumpLabel = chosenTrumpChoice !== null ? capitalize(/** @type {Suit} */ (chosenTrumpChoice)) : 'No Trump';
+  section.appendChild(el('div', 'section-title', 'CHOOSE CONTRACT — ' + trumpLabel));
+
+  const tierRow = el('div', 'card-row');
+  const tiers = chosenTrumpChoice === null ? NOTRUMP_TIERS : CONTRACT_TIERS;
+  for (const tier of tiers) {
+    const cardEl = el('div', 'contract-card');
+    cardEl.appendChild(el('div', 'contract-name', tier.label));
+    cardEl.appendChild(el('div', '', tier.tricksNeeded + ' tricks'));
+    cardEl.appendChild(el('div', 'contract-points', '+' + tier.successPoints + ' / ' + tier.failurePoints));
+    cardEl.addEventListener('click', () => {
+      const label = chosenTrumpChoice !== null
+        ? tier.label + ' ' + capitalize(/** @type {Suit} */ (chosenTrumpChoice))
+        : tier.label;
+      selectContract({
+        label,
+        trumpSuit: /** @type {Suit | null} */ (chosenTrumpChoice),
+        tricksNeeded: tier.tricksNeeded,
+        successPoints: tier.successPoints,
+        failurePoints: tier.failurePoints,
+      });
+    });
+    tierRow.appendChild(cardEl);
+  }
+  section.appendChild(tierRow);
+
+  const layout = el('div', 'oracle-layout');
+  layout.appendChild(section);
 
   // Empty top area placeholder
   root.appendChild(el('div', 'hand hand-top'));
@@ -688,7 +740,6 @@ function startNewRound() {
   oraclesRemaining = ORACLES_PER_ROUND;
   currentOracles = drawOracles(ORACLES_PER_ROUND);
   lastOracles = currentOracles;
-  trumpChoices = generateTrumpChoices();
   chosenTrumpChoice = undefined;
   chosenContract = null;
   oracleResults = [];
@@ -859,7 +910,6 @@ document.addEventListener('keydown', (e) => {
 dealHands();
 currentOracles = drawOracles(ORACLES_PER_ROUND);
 lastOracles = currentOracles;
-trumpChoices = generateTrumpChoices();
 render();
 requestAnimationFrame((timestamp) => {
   lastTime = timestamp;
