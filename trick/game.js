@@ -590,9 +590,18 @@ function renderResult() {
 
   if (chosenContract) {
     const { made, points } = contractResult(chosenContract);
+    const earlyEnd = hands[0].length > 0;
 
     resultEl.appendChild(el('div', 'result-title', made ? 'Contract Made!' : 'Contract Failed'));
-    resultEl.appendChild(el('div', '', chosenContract.label + ': Won ' + tricksWon + ' of ' + chosenContract.tricksNeeded + ' needed'));
+    if (earlyEnd && made) {
+      resultEl.appendChild(el('div', '', 'Won ' + tricksWon + ' of ' + chosenContract.tricksNeeded + ' needed — contract secured'));
+    } else if (earlyEnd) {
+      const tricksLeft = hands[0].length;
+      resultEl.appendChild(el('div', '', 'Won ' + tricksWon + ' with ' + tricksLeft + ' ' + plural('trick', tricksLeft) + ' left'));
+      resultEl.appendChild(el('div', '', 'Needed ' + chosenContract.tricksNeeded + ' — not enough tricks remaining'));
+    } else {
+      resultEl.appendChild(el('div', '', chosenContract.label + ': Won ' + tricksWon + ' of ' + chosenContract.tricksNeeded + ' needed'));
+    }
     resultEl.appendChild(el('div', 'result-points', (points > 0 ? '+' : '') + points + ' points'));
     resultEl.appendChild(el('div', '', 'Total Score: ' + totalScore));
   }
@@ -601,6 +610,17 @@ function renderResult() {
 
   resultEl.addEventListener('click', startNewRound);
   root.appendChild(resultEl);
+
+  // Show all hands revealed if round ended early
+  if (hands[0].length > 0) {
+    for (let i = 0; i < 4; i++) {
+      const handEl = el('div', 'hand hand-' + POSITIONS[i]);
+      for (const card of hands[i]) {
+        handEl.appendChild(renderCard(card, { hidden: false, active: false }));
+      }
+      root.appendChild(handEl);
+    }
+  }
 }
 
 // --- round lifecycle ---
@@ -666,7 +686,10 @@ function resolveTrick() {
   currentTrick = [];
 
   // Check if round is over
-  if (hands.every(h => h.length === 0)) {
+  const roundOver = hands.every(h => h.length === 0);
+  const hopeless = chosenContract && tricksWon + hands[0].length < chosenContract.tricksNeeded;
+  const alreadyWon = chosenContract && tricksWon >= chosenContract.tricksNeeded;
+  if (roundOver || hopeless || alreadyWon) {
     if (chosenContract) {
       totalScore += contractResult(chosenContract).points;
     }
