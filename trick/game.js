@@ -392,23 +392,30 @@ function renderTutorial(root) {
 
   const sections = [
     ['Overview',
-      'A trick-taking card game. You and your partner (across) play against two opponents. ' +
-      'There are 4 suits (red, blue, green, orange) with cards ranked 2\u201314 (J, Q, K, A).'],
+      'A "trick-taking" card game. You (bottom of screen) and your teammate (top) play against ' +
+      'two opponents (left and right). You play cards for both yourself and your teammate ' +
+      '\u2014 your teammate\u2019s hand will be revealed once play begins. ' +
+      'There are 4 suits (red, blue, green, orange) with cards ranked A, K, Q, J, 10, ..., 2. ' +
+      'Each round, you\u2019ll first use "oracle cards" to learn about your opponents\u2019 hands, ' +
+      'then pick a "contract" for how many "tricks" you need to win, ' +
+      'then play out the tricks and see if you make your contract.'],
     ['Oracle Phase',
-      'Each round starts with 3 oracle cards. Pick one at a time to learn something about ' +
-      'opponents\u2019 hands \u2014 like how many cards of a suit they hold, or their longest suit. ' +
+      'Each round starts with 3 oracle cards. You can see your own cards, but not your ' +
+      'teammate\u2019s or opponents\u2019. Pick an oracle to learn something about other players\u2019 ' +
+      'hands \u2014 like how many cards of a suit they hold, or their longest suit. ' +
       'Use all 3 oracles, then choose a contract.'],
     ['Contracts',
-      'Each contract has a trump suit (or no trump), a number of tricks you need to win, ' +
-      'and a point reward/penalty. Higher risk contracts pay more but cost more if you fail.'],
+      'Each contract has a trump suit (explained below), a number of tricks ' +
+      'you need to win, and a point reward/penalty. Higher risk contracts pay more but ' +
+      'cost more if you fail. Use your oracle information to choose a contract with a ' +
+      'trump suit that favors your hand.'],
     ['Playing Tricks',
       'The lead player plays a card. Everyone else must follow suit if they can. ' +
       'If you can\u2019t follow suit, you may play any card. The highest card of the led suit wins, ' +
       'unless a trump card is played \u2014 then the highest trump wins.'],
     ['Winning',
-      'Tricks won by you or your partner count toward your contract. ' +
-      'If you reach the needed tricks, you score the bonus and the round ends. ' +
-      'If it becomes impossible to reach the target, the round ends early with a penalty.'],
+      'Tricks won by you or your teammate count toward your contract. ' +
+      'If you win enough tricks you score the points; if not, you take the penalty.'],
   ];
 
   for (const [heading, body] of sections) {
