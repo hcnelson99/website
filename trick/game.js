@@ -348,6 +348,21 @@ function renderCard(card, opts = {}) {
   return cardEl;
 }
 
+/**
+ * @param {HTMLElement} root
+ * @param {boolean} revealAll
+ */
+function renderHands(root, revealAll) {
+  for (let i = 0; i < 4; i++) {
+    const handEl = el('div', 'hand hand-' + POSITIONS[i]);
+    const hidden = !revealAll && i !== 0 && !debugShowAll;
+    for (const card of hands[i]) {
+      handEl.appendChild(renderCard(card, { hidden, active: false }));
+    }
+    root.appendChild(handEl);
+  }
+}
+
 function render() {
   if (gamePhase === "oracle") {
     renderOracleMode();
@@ -479,15 +494,7 @@ function renderOracleMode() {
   layout.appendChild(contractSection);
   root.appendChild(layout);
 
-  // All 4 hands — player 0 visible, others hidden
-  for (let i = 0; i < 4; i++) {
-    const handEl = el('div', 'hand hand-' + POSITIONS[i]);
-    const hidden = i !== 0 && !debugShowAll;
-    for (const card of hands[i]) {
-      handEl.appendChild(renderCard(card, { hidden, active: false }));
-    }
-    root.appendChild(handEl);
-  }
+  renderHands(root, false);
 }
 
 /** @param {number | Suit} choice */
@@ -611,15 +618,8 @@ function renderResult() {
   resultEl.addEventListener('click', startNewRound);
   root.appendChild(resultEl);
 
-  // Show all hands revealed if round ended early
   if (hands[0].length > 0) {
-    for (let i = 0; i < 4; i++) {
-      const handEl = el('div', 'hand hand-' + POSITIONS[i]);
-      for (const card of hands[i]) {
-        handEl.appendChild(renderCard(card, { hidden: false, active: false }));
-      }
-      root.appendChild(handEl);
-    }
+    renderHands(root, true);
   }
 }
 
