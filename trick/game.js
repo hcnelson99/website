@@ -45,8 +45,6 @@ let gamePhase = "oracle";
 let oraclesRemaining = ORACLES_PER_ROUND;
 /** @type {OracleCard[]} */
 let currentOracles = [];
-/** @type {OracleCard[]} */
-let lastOracles = [];
 /** @type {Suit | null | undefined} */
 let chosenTrumpChoice = undefined;
 /** @type {Contract | null} */
@@ -244,18 +242,18 @@ function drawOracles(n) {
 // --- contract generation ---
 
 const CONTRACT_TIERS = [
-  { label: "Safe", tricksNeeded: 6, successPoints: 5, failurePoints: -3, tier: 0 },
-  { label: "Standard", tricksNeeded: 7, successPoints: 10, failurePoints: -5, tier: 1 },
-  { label: "Ambitious", tricksNeeded: 8, successPoints: 18, failurePoints: -8, tier: 2 },
-  { label: "Bold", tricksNeeded: 9, successPoints: 28, failurePoints: -12, tier: 3 },
-  { label: "Grand", tricksNeeded: 10, successPoints: 40, failurePoints: -18, tier: 4 },
+  { label: "Safe", tricksNeeded: 6, successPoints: 5, failurePoints: -3 },
+  { label: "Standard", tricksNeeded: 7, successPoints: 10, failurePoints: -5 },
+  { label: "Ambitious", tricksNeeded: 8, successPoints: 18, failurePoints: -8 },
+  { label: "Bold", tricksNeeded: 9, successPoints: 28, failurePoints: -12 },
+  { label: "Grand", tricksNeeded: 10, successPoints: 40, failurePoints: -18 },
 ];
 
 const NOTRUMP_TIERS = [
-  { label: "Safe Notrump", tricksNeeded: 6, successPoints: 8, failurePoints: -4, tier: 0 },
-  { label: "Standard Notrump", tricksNeeded: 7, successPoints: 15, failurePoints: -8, tier: 1 },
-  { label: "Ambitious Notrump", tricksNeeded: 8, successPoints: 25, failurePoints: -12, tier: 2 },
-  { label: "Grand Notrump", tricksNeeded: 10, successPoints: 50, failurePoints: -25, tier: 4 },
+  { label: "Safe Notrump", tricksNeeded: 6, successPoints: 8, failurePoints: -4 },
+  { label: "Standard Notrump", tricksNeeded: 7, successPoints: 15, failurePoints: -8 },
+  { label: "Ambitious Notrump", tricksNeeded: 8, successPoints: 25, failurePoints: -12 },
+  { label: "Grand Notrump", tricksNeeded: 10, successPoints: 50, failurePoints: -25 },
 ];
 
 /** @param {Suit | null} choice */
@@ -589,7 +587,6 @@ function resolveOracle(choice) {
   oracleResults.push(result);
   oraclesRemaining--;
   selectedOracleIndex = -1;
-  lastOracles = currentOracles;
   if (oraclesRemaining > 0) {
     currentOracles = drawOracles(ORACLES_PER_ROUND);
   } else {
@@ -747,7 +744,6 @@ function startNewRound() {
   gamePhase = "oracle";
   oraclesRemaining = ORACLES_PER_ROUND;
   currentOracles = drawOracles(ORACLES_PER_ROUND);
-  lastOracles = currentOracles;
   chosenTrumpChoice = undefined;
   chosenContract = null;
   oracleResults = [];
@@ -917,7 +913,6 @@ document.addEventListener('keydown', (e) => {
 
 dealHands();
 currentOracles = drawOracles(ORACLES_PER_ROUND);
-lastOracles = currentOracles;
 render();
 requestAnimationFrame((timestamp) => {
   lastTime = timestamp;
