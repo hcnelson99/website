@@ -44,6 +44,8 @@ let gamePhase = "oracle";
 let oraclesRemaining = 3;
 /** @type {OracleCard[]} */
 let currentOracles = [];
+/** @type {OracleCard[]} */
+let lastOracles = [];
 /** @type {Contract[]} */
 let availableContracts = [];
 /** @type {Contract | null} */
@@ -365,59 +367,71 @@ function renderOracleMode() {
 
   const oracleSection = el('div', 'oracle-section');
 
-  // Oracle cards
-  if (oraclesRemaining > 0) {
-    oracleSection.appendChild(el('div', 'section-title', 'ORACLE CARDS (pick one)'));
+  // Oracle cards (always rendered for stable layout)
+  const oraclesActive = oraclesRemaining > 0;
+  const titleEl = el('div', 'section-title', oraclesActive ? 'ORACLE CARDS (pick one)' : 'ORACLE CARDS');
+  if (!oraclesActive) titleEl.style.visibility = 'hidden';
+  oracleSection.appendChild(titleEl);
 
-    const oracleRow = el('div', 'card-row');
+  const oracleRow = el('div', 'card-row');
+  const oraclesToShow = oraclesActive ? currentOracles : lastOracles;
+  for (let i = 0; i < oraclesToShow.length; i++) {
+    const oracle = oraclesToShow[i];
+    const oracleEl = el('div', 'oracle-card' + (oraclesActive && selectedOracleIndex === i ? ' selected' : ''));
+    if (!oraclesActive) oracleEl.style.visibility = 'hidden';
 
-    for (let i = 0; i < currentOracles.length; i++) {
-      const oracle = currentOracles[i];
-      const oracleEl = el('div', 'oracle-card' + (selectedOracleIndex === i ? ' selected' : ''));
+    oracleEl.appendChild(el('div', 'oracle-label', oracle.label));
+    oracleEl.appendChild(el('div', 'oracle-choice-type', oracle.choiceType === 'player' ? '[choose player]' : '[choose suit]'));
 
-      oracleEl.appendChild(el('div', 'oracle-label', oracle.label));
-      oracleEl.appendChild(el('div', 'oracle-choice-type', oracle.choiceType === 'player' ? '[choose player]' : '[choose suit]'));
-
+    if (oraclesActive) {
       const idx = i;
       oracleEl.addEventListener('click', () => {
         selectedOracleIndex = idx;
         render();
       });
-      oracleRow.appendChild(oracleEl);
     }
+    oracleRow.appendChild(oracleEl);
+  }
+  oracleSection.appendChild(oracleRow);
 
-    oracleSection.appendChild(oracleRow);
-    oracleSection.appendChild(el('div', 'oracle-remaining', 'Oracles remaining: ' + oraclesRemaining));
+  const remainingEl = el('div', 'oracle-remaining', 'Oracles remaining: ' + oraclesRemaining);
+  if (!oraclesActive) remainingEl.style.visibility = 'hidden';
+  oracleSection.appendChild(remainingEl);
 
-    // Choice buttons for selected oracle
-    if (selectedOracleIndex >= 0 && selectedOracleIndex < currentOracles.length) {
-      const oracle = currentOracles[selectedOracleIndex];
-      const choiceRow = el('div', 'choice-row');
+  // Choice buttons (always rendered for stable layout)
+  const hasSelection = oraclesActive && selectedOracleIndex >= 0 && selectedOracleIndex < currentOracles.length;
+  const choiceRow = el('div', 'choice-row');
+  if (!hasSelection) choiceRow.style.visibility = 'hidden';
 
-      if (oracle.choiceType === 'player') {
-        for (const p of HIDDEN_PLAYERS) {
-          const btn = el('button', 'choice-btn', PLAYER_LABELS[p]);
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            resolveOracle(p);
-          });
-          choiceRow.appendChild(btn);
-        }
-      } else {
-        for (const suit of SUITS) {
-          const btn = el('button', 'choice-btn suit-btn', suit);
-          btn.style.color = suit;
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            resolveOracle(suit);
-          });
-          choiceRow.appendChild(btn);
-        }
+  if (hasSelection) {
+    const oracle = currentOracles[selectedOracleIndex];
+    if (oracle.choiceType === 'player') {
+      for (const p of HIDDEN_PLAYERS) {
+        const btn = el('button', 'choice-btn', PLAYER_LABELS[p]);
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          resolveOracle(p);
+        });
+        choiceRow.appendChild(btn);
       }
-
-      oracleSection.appendChild(choiceRow);
+    } else {
+      for (const suit of SUITS) {
+        const btn = el('button', 'choice-btn suit-btn', suit);
+        btn.style.color = suit;
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          resolveOracle(suit);
+        });
+        choiceRow.appendChild(btn);
+      }
+    }
+  } else {
+    // Placeholder buttons to reserve space
+    for (const suit of SUITS) {
+      choiceRow.appendChild(el('button', 'choice-btn suit-btn', suit));
     }
   }
+  oracleSection.appendChild(choiceRow);
 
   // Oracle results
   if (oracleResults.length > 0) {
@@ -480,6 +494,7 @@ function resolveOracle(choice) {
   oracleResults.push(result);
   oraclesRemaining--;
   selectedOracleIndex = -1;
+  lastOracles = currentOracles;
   if (oraclesRemaining > 0) {
     currentOracles = drawOracles(3);
   } else {
@@ -591,6 +606,7 @@ function startNewRound() {
   gamePhase = "oracle";
   oraclesRemaining = 3;
   currentOracles = drawOracles(3);
+  lastOracles = currentOracles;
   availableContracts = generateContracts();
   chosenContract = null;
   oracleResults = [];
@@ -757,6 +773,7 @@ document.addEventListener('keydown', (e) => {
 
 dealHands();
 currentOracles = drawOracles(3);
+lastOracles = currentOracles;
 availableContracts = generateContracts();
 render();
 requestAnimationFrame((timestamp) => {
