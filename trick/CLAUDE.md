@@ -1,0 +1,6 @@
+- Follow the KISS methodology
+- Use vanilla typescript with JSDoc syntax
+- We're writing a game -- it's okay to just have a lot of global variables, as long as we keep the usage of each global variable simple.
+- Don't try to make polished graphics. We're just vibe coding a gameplay prototype, visuals don't matter.
+- Keep it simple!
+- Run `tsc` to typecheck

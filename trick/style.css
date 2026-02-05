@@ -1,0 +1,317 @@
+:root {
+  --card-w: 40px;
+  --card-h: 56px;
+}
+
+body {
+  margin: 0;
+  background: #1a1a2e;
+  color: #eee;
+  font-family: monospace;
+}
+
+#root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.score {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 16px;
+  z-index: 1;
+}
+
+.trump-indicator {
+  position: absolute;
+  top: 32px;
+  left: 10px;
+  font-size: 16px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trump-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+}
+
+.contract-indicator {
+  position: absolute;
+  top: 54px;
+  left: 10px;
+  font-size: 14px;
+  z-index: 1;
+  color: #aaa;
+}
+
+.total-score {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 16px;
+  z-index: 1;
+}
+
+.card {
+  width: var(--card-w);
+  height: var(--card-h);
+  border: none;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  box-sizing: border-box;
+}
+
+.card.inactive {
+  background: #ccc;
+}
+
+.card.hidden {
+  background: #2a2a4e;
+  color: transparent;
+}
+
+.card.hidden.inactive {
+  background: #555;
+}
+
+.card.active {
+  cursor: pointer;
+}
+
+.hand {
+  position: absolute;
+  display: flex;
+  gap: 4px;
+}
+
+.hand-bottom {
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: row;
+}
+
+.hand-top {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: row;
+}
+
+.hand-left {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+}
+
+.hand-right {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+}
+
+.hand-left .card,
+.hand-right .card {
+  width: var(--card-h);
+  height: var(--card-w);
+}
+
+.trick {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 160px;
+  height: 180px;
+}
+
+.trick-slot {
+  position: absolute;
+}
+
+.trick-bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.trick-top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.trick-left {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.trick-right {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Oracle mode */
+
+.oracle-section {
+  position: absolute;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.section-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #aaa;
+}
+
+.card-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.oracle-card {
+  width: 120px;
+  padding: 12px;
+  background: #2a2a4e;
+  border: 2px solid #444;
+  cursor: pointer;
+  text-align: center;
+}
+
+.oracle-card:hover {
+  border-color: #888;
+}
+
+.oracle-card.selected {
+  border-color: #fff;
+}
+
+.oracle-label {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.oracle-choice-type {
+  font-size: 12px;
+  color: #888;
+}
+
+.oracle-remaining {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #888;
+}
+
+.choice-row {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.choice-btn {
+  padding: 6px 14px;
+  background: #333;
+  color: #eee;
+  border: 1px solid #666;
+  font-family: monospace;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.choice-btn:hover {
+  background: #555;
+}
+
+.suit-btn {
+  font-weight: bold;
+}
+
+.oracle-results {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+/* Contract section */
+
+.contract-section {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.contract-card {
+  width: 120px;
+  padding: 12px;
+  background: #1e3a1e;
+  border: 2px solid #444;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.contract-card:hover {
+  border-color: #8f8;
+}
+
+.contract-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.contract-points {
+  color: #aaa;
+  font-size: 13px;
+}
+
+/* Result screen */
+
+.result-screen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  cursor: pointer;
+  line-height: 2;
+}
+
+.result-title {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.result-points {
+  font-size: 22px;
+}
+
+.result-continue {
+  margin-top: 20px;
+  color: #888;
+  font-size: 14px;
+}
