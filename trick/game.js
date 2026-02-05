@@ -362,34 +362,11 @@ function renderTutorial(root) {
   content.appendChild(el('div', 'tutorial-title', 'How to Play'));
 
   const sections = [
-    ['Overview',
-      'A "trick-taking" card game. You (bottom of screen) and your teammate (top) play against ' +
-      'two opponents (left and right). You play cards for both yourself and your teammate ' +
-      '\u2014 your teammate\u2019s hand will be revealed once play begins. ' +
-      'There are 4 suits (red, blue, green, orange) with cards ranked A, K, Q, J, 10, ..., 2. ' +
-      'Each round, you\u2019ll first use "oracle cards" to learn about your opponents\u2019 hands, ' +
-      'then pick a "contract" for how many "tricks" you need to win, ' +
-      'then play out the tricks and see if you make your contract.'],
-    ['Oracle Phase',
-      'Each round starts with 3 oracle cards. You can see your own cards, but not your ' +
-      'teammate\u2019s or opponents\u2019. Pick an oracle to learn something about other players\u2019 ' +
-      'hands \u2014 like how many cards of a suit they hold, or their longest suit. ' +
-      'Use all 3 oracles, then choose a contract.'],
-    ['Contracts',
-      'Each contract has a trump suit (explained below), a number of tricks ' +
-      'you need to win, and a point reward/penalty. Higher risk contracts pay more but ' +
-      'cost more if you fail. Use your oracle information to choose a contract with a ' +
-      'trump suit that favors your hand.'],
-    ['Playing Tricks',
-      'In each trick, each player plays one card. You will start by playing the first card ' +
-      'and then play proceeds to the left. Everyone must follow the "lead suit" \u2014 the suit ' +
-      'that the trick was started with. ' +
-      'If you can\u2019t follow suit, you may play any card. The highest card of the lead suit wins, ' +
-      'unless a trump card is played \u2014 then the highest trump wins. ' +
-      'The next trick will be led by the winner of the previous trick.'],
-    ['Winning',
-      'Tricks won by you or your teammate count toward your contract. ' +
-      'If you win enough tricks you score the points; if not, you take the penalty.'],
+    ['Overview', 'A "trick-taking" card game. You (bottom of screen) and your teammate (top) play against two opponents (left and right). You play cards for both yourself and your teammate, but your teammate\'s hand will only be revealed once play begins. Each round, you\'ll first use "oracle cards" to learn about your partner\'s and opponents\' hands, then pick a "contract" for how many "tricks" you need to win, then play out the tricks and see if you make your contract.'],
+    ['Oracle Phase', 'Each round starts by selecting 3 oracle cards. Oracle cards tell you something about other players\' hands -- like how many cards of a suit they hold, or their longest suit.'],
+    ['Contracts', 'After using all 3 oracles, you choose a contract in two steps. First, pick a "trump suit" (explained below) from 2 randomly offered choices (which may include "No Trump"). Then pick a contract tier -- each tier requires a different number of tricks and has a different point reward/penalty. Higher risk contracts pay more but cost more if you fail. Use your oracle information to choose a trump suit that favors your hand and a tier you\'re confident you can make.'],
+    ['Playing Tricks', 'A trick consists of each player playing one card. You will start by playing the first card; then play proceeds to the left. Each play must follow the "lead suit": the suit that the trick was started with. If you can\'t follow suit, you may play any card. The highest card of the lead suit wins, unless a trump card is played -- then the highest trump wins. The next trick will be led by the winner of the previous trick.'],
+    ['Winning', 'Tricks won by you or your teammate count toward your contract. If you win enough tricks you score the points; if not, you take the penalty.'],
   ];
 
   for (const [heading, body] of sections) {
