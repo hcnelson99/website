@@ -284,6 +284,27 @@ body {
   text-align: center;
 }
 
+.trump-card {
+  width: 180px;
+  padding: 18px;
+  background: #1e2a3e;
+  border: 2px solid #444;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trump-card:hover:not(.contract-locked) {
+  border-color: #88f;
+}
+
+.trump-card-suit {
+  font-size: 24px;
+  font-weight: bold;
+}
+
 .contract-card {
   width: 180px;
   padding: 18px;

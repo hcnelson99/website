@@ -47,8 +47,10 @@ let oraclesRemaining = ORACLES_PER_ROUND;
 let currentOracles = [];
 /** @type {OracleCard[]} */
 let lastOracles = [];
-/** @type {Contract[]} */
-let availableContracts = [];
+/** @type {(Suit | null)[]} */
+let trumpChoices = [];
+/** @type {Suit | null | undefined} */
+let chosenTrumpChoice = undefined;
 /** @type {Contract | null} */
 let chosenContract = null;
 /** @type {string[]} */
@@ -257,48 +259,17 @@ const NOTRUMP_TIERS = [
   { label: "Grand Notrump", tricksNeeded: 10, successPoints: 50, failurePoints: -25, tier: 4 },
 ];
 
-function generateContracts() {
-  /** @type {Contract[]} */
-  const contracts = [];
-  const tierOptions = [0, 1, 2, 3, 4];
-  shuffle(tierOptions);
-  const selectedTiers = tierOptions.slice(0, 3).sort((a, b) => a - b);
+function generateTrumpChoices() {
+  /** @type {(Suit | null)[]} */
+  const options = [...SUITS, null];
+  shuffle(options);
+  return options.slice(0, 2);
+}
 
-  // Track used trump suits to avoid duplicates (null = notrump)
-  /** @type {Set<Suit | null>} */
-  const usedTrumps = new Set();
-
-  for (const tier of selectedTiers) {
-    const isNotrump = Math.random() < 0.3;
-    if (isNotrump && !usedTrumps.has(null)) {
-      const notrumpOption = NOTRUMP_TIERS.find(t => t.tier === tier);
-      if (notrumpOption) {
-        usedTrumps.add(null);
-        contracts.push({
-          label: notrumpOption.label,
-          trumpSuit: null,
-          tricksNeeded: notrumpOption.tricksNeeded,
-          successPoints: notrumpOption.successPoints,
-          failurePoints: notrumpOption.failurePoints,
-        });
-        continue;
-      }
-    }
-    const suitedOption = CONTRACT_TIERS.find(t => t.tier === tier);
-    if (!suitedOption) continue;
-    const available = SUITS.filter(s => !usedTrumps.has(s));
-    const suit = pickRandom(available);
-    usedTrumps.add(suit);
-    contracts.push({
-      label: suitedOption.label + " " + capitalize(suit),
-      trumpSuit: suit,
-      tricksNeeded: suitedOption.tricksNeeded,
-      successPoints: suitedOption.successPoints,
-      failurePoints: suitedOption.failurePoints,
-    });
-  }
-
-  return contracts;
+/** @param {Suit | null} choice */
+function selectTrump(choice) {
+  chosenTrumpChoice = choice;
+  render();
 }
 
 // --- dealing ---
@@ -410,9 +381,12 @@ function renderTutorial(root) {
       'cost more if you fail. Use your oracle information to choose a contract with a ' +
       'trump suit that favors your hand.'],
     ['Playing Tricks',
-      'The lead player plays a card. Everyone else must follow suit if they can. ' +
-      'If you can\u2019t follow suit, you may play any card. The highest card of the led suit wins, ' +
-      'unless a trump card is played \u2014 then the highest trump wins.'],
+      'In each trick, each player plays one card. You will start by playing the first card ' +
+      'and then play proceeds to the left. Everyone must follow the "lead suit" \u2014 the suit ' +
+      'that the trick was started with. ' +
+      'If you can\u2019t follow suit, you may play any card. The highest card of the lead suit wins, ' +
+      'unless a trump card is played \u2014 then the highest trump wins. ' +
+      'The next trick will be led by the winner of the previous trick.'],
     ['Winning',
       'Tricks won by you or your teammate count toward your contract. ' +
       'If you win enough tricks you score the points; if not, you take the penalty.'],
@@ -523,35 +497,57 @@ function renderOracleMode() {
   const layout = el('div', 'oracle-layout');
   layout.appendChild(oracleSection);
 
-  // Contracts
+  // Trump / Contract selection (two-step)
   const contractSection = el('div', 'contract-section');
   const locked = oraclesRemaining > 0;
-  contractSection.appendChild(el('div', 'section-title', locked ? 'CONTRACTS (use all oracles first)' : 'CONTRACT CHOICES'));
 
-  const contractRow = el('div', 'card-row');
-
-  for (const contract of availableContracts) {
-    const cardEl = el('div', 'contract-card' + (locked ? ' contract-locked' : ''));
-
-    cardEl.appendChild(el('div', 'contract-name', contract.label));
-    cardEl.appendChild(el('div', '', contract.tricksNeeded + ' tricks'));
-    cardEl.appendChild(el('div', 'contract-points', contractPointsLabel(contract)));
-
-    if (contract.trumpSuit) {
-      const trumpEl = el('div', '', '\u25a0 ' + contract.trumpSuit);
-      trumpEl.style.color = contract.trumpSuit;
-      cardEl.appendChild(trumpEl);
-    } else {
-      cardEl.appendChild(el('div', '', 'no trump'));
+  if (chosenTrumpChoice === undefined) {
+    // Step 1: pick trump
+    contractSection.appendChild(el('div', 'section-title', locked ? 'CHOOSE TRUMP (use all oracles first)' : 'CHOOSE TRUMP'));
+    const trumpRow = el('div', 'card-row');
+    for (const choice of trumpChoices) {
+      const cardEl = el('div', 'trump-card' + (locked ? ' contract-locked' : ''));
+      if (choice !== null) {
+        const suitEl = el('div', 'trump-card-suit', '\u25a0 ' + capitalize(choice));
+        suitEl.style.color = choice;
+        cardEl.appendChild(suitEl);
+      } else {
+        cardEl.appendChild(el('div', 'trump-card-suit', 'No Trump'));
+      }
+      if (!locked) {
+        cardEl.addEventListener('click', () => selectTrump(choice));
+      }
+      trumpRow.appendChild(cardEl);
     }
-
-    if (!locked) {
-      cardEl.addEventListener('click', () => selectContract(contract));
+    contractSection.appendChild(trumpRow);
+  } else {
+    // Step 2: pick tier
+    const trumpLabel = chosenTrumpChoice !== null ? capitalize(chosenTrumpChoice) : 'No Trump';
+    contractSection.appendChild(el('div', 'section-title', 'CHOOSE CONTRACT \u2014 ' + trumpLabel));
+    const tierRow = el('div', 'card-row');
+    const tiers = chosenTrumpChoice === null ? NOTRUMP_TIERS : CONTRACT_TIERS;
+    for (const tier of tiers) {
+      const cardEl = el('div', 'contract-card');
+      cardEl.appendChild(el('div', 'contract-name', tier.label));
+      cardEl.appendChild(el('div', '', tier.tricksNeeded + ' tricks'));
+      cardEl.appendChild(el('div', 'contract-points', '+' + tier.successPoints + ' / ' + tier.failurePoints));
+      cardEl.addEventListener('click', () => {
+        const label = chosenTrumpChoice !== null
+          ? tier.label + ' ' + capitalize(/** @type {Suit} */ (chosenTrumpChoice))
+          : tier.label;
+        selectContract({
+          label,
+          trumpSuit: /** @type {Suit | null} */ (chosenTrumpChoice),
+          tricksNeeded: tier.tricksNeeded,
+          successPoints: tier.successPoints,
+          failurePoints: tier.failurePoints,
+        });
+      });
+      tierRow.appendChild(cardEl);
     }
-    contractRow.appendChild(cardEl);
+    contractSection.appendChild(tierRow);
   }
 
-  contractSection.appendChild(contractRow);
   layout.appendChild(contractSection);
   root.appendChild(layout);
 
@@ -692,7 +688,8 @@ function startNewRound() {
   oraclesRemaining = ORACLES_PER_ROUND;
   currentOracles = drawOracles(ORACLES_PER_ROUND);
   lastOracles = currentOracles;
-  availableContracts = generateContracts();
+  trumpChoices = generateTrumpChoices();
+  chosenTrumpChoice = undefined;
   chosenContract = null;
   oracleResults = [];
   selectedOracleIndex = -1;
@@ -862,7 +859,7 @@ document.addEventListener('keydown', (e) => {
 dealHands();
 currentOracles = drawOracles(ORACLES_PER_ROUND);
 lastOracles = currentOracles;
-availableContracts = generateContracts();
+trumpChoices = generateTrumpChoices();
 render();
 requestAnimationFrame((timestamp) => {
   lastTime = timestamp;
