@@ -347,10 +347,6 @@ function render() {
   const root = document.getElementById('root');
   if (!root) return;
 
-  const helpBtn = el('button', 'tutorial-btn', '?');
-  helpBtn.addEventListener('click', () => { showTutorial = true; render(); });
-  root.appendChild(helpBtn);
-
   if (showTutorial) renderTutorial(root);
 }
 
@@ -391,55 +387,43 @@ function renderOracleMode() {
   const root = clearRoot();
   if (!root) return;
 
-  root.appendChild(el('div', 'score', 'Total Score: ' + totalScore));
-
   const oracleSection = el('div', 'oracle-section');
 
-  // Oracle cards (always rendered for stable layout)
-  const oraclesActive = oraclesRemaining > 0;
-  const titleEl = el('div', 'section-title', oraclesActive ? 'ORACLE CARDS (pick one)' : 'ORACLE CARDS');
-  if (!oraclesActive) titleEl.style.visibility = 'hidden';
-  oracleSection.appendChild(titleEl);
+  // Oracle cards (only when active)
+  if (oraclesRemaining > 0) {
+    oracleSection.appendChild(el('div', 'section-title', 'ORACLE CARDS (pick one)'));
 
-  const oracleRow = el('div', 'card-row');
-  const oraclesToShow = oraclesActive ? currentOracles : lastOracles;
-  for (let i = 0; i < oraclesToShow.length; i++) {
-    const oracle = oraclesToShow[i];
-    const oracleEl = el('div', 'oracle-card' + (oraclesActive && selectedOracleIndex === i ? ' selected' : ''));
-    if (!oraclesActive) oracleEl.style.visibility = 'hidden';
-
-    oracleEl.appendChild(el('div', 'oracle-label', oracle.label));
-    oracleEl.appendChild(el('div', 'oracle-choice-type', oracle.choiceType === 'player' ? '[choose player]' : '[choose suit]'));
-
-    if (oraclesActive) {
+    const oracleRow = el('div', 'card-row');
+    for (let i = 0; i < currentOracles.length; i++) {
+      const oracle = currentOracles[i];
+      const oracleEl = el('div', 'oracle-card' + (selectedOracleIndex === i ? ' selected' : ''));
+      oracleEl.appendChild(el('div', 'oracle-label', oracle.label));
+      oracleEl.appendChild(el('div', 'oracle-choice-type', oracle.choiceType === 'player' ? '[choose player]' : '[choose suit]'));
       const idx = i;
       oracleEl.addEventListener('click', () => {
         selectedOracleIndex = idx;
         render();
       });
+      oracleRow.appendChild(oracleEl);
     }
-    oracleRow.appendChild(oracleEl);
-  }
-  oracleSection.appendChild(oracleRow);
+    oracleSection.appendChild(oracleRow);
 
-  const remainingEl = el('div', 'oracle-remaining', 'Oracles remaining: ' + oraclesRemaining);
-  if (!oraclesActive) remainingEl.style.visibility = 'hidden';
-  oracleSection.appendChild(remainingEl);
+    oracleSection.appendChild(el('div', 'oracle-remaining', 'Oracles remaining: ' + oraclesRemaining));
 
-  // Choice buttons (always rendered for stable layout)
-  const hasSelection = oraclesActive && selectedOracleIndex >= 0 && selectedOracleIndex < currentOracles.length;
-  const choiceRow = el('div', 'choice-row');
-  if (!hasSelection) choiceRow.style.visibility = 'hidden';
+    // Choice buttons (always visible, but disabled if no selection)
+    const hasSelection = selectedOracleIndex >= 0 && selectedOracleIndex < currentOracles.length;
+    const oracle = hasSelection ? currentOracles[selectedOracleIndex] : null;
+    const choiceRow = el('div', 'choice-row');
 
-  if (hasSelection) {
-    const oracle = currentOracles[selectedOracleIndex];
-    if (oracle.choiceType === 'player') {
+    if (!oracle || oracle.choiceType === 'player') {
       for (const p of HIDDEN_PLAYERS) {
-        const btn = el('button', 'choice-btn', PLAYER_LABELS[p]);
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          resolveOracle(p);
-        });
+        const btn = el('button', 'choice-btn' + (hasSelection ? '' : ' disabled'), PLAYER_LABELS[p]);
+        if (hasSelection) {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            resolveOracle(p);
+          });
+        }
         choiceRow.appendChild(btn);
       }
     } else {
@@ -453,22 +437,17 @@ function renderOracleMode() {
         choiceRow.appendChild(btn);
       }
     }
-  } else {
-    // Placeholder buttons to reserve space
-    for (const suit of SUITS) {
-      choiceRow.appendChild(el('button', 'choice-btn suit-btn', suit));
-    }
+    oracleSection.appendChild(choiceRow);
   }
-  oracleSection.appendChild(choiceRow);
 
-  // Oracle results — always render 3 slots so contract section never moves
-  const resultsEl = el('div', 'oracle-results');
-  for (let i = 0; i < ORACLES_PER_ROUND; i++) {
-    const line = el('div', '', oracleResults[i] || '\u00a0');
-    if (!oracleResults[i]) line.style.visibility = 'hidden';
-    resultsEl.appendChild(line);
+  // Oracle results (only actual results)
+  if (oracleResults.length > 0) {
+    const resultsEl = el('div', 'oracle-results');
+    for (const result of oracleResults) {
+      resultsEl.appendChild(el('div', '', result));
+    }
+    oracleSection.appendChild(resultsEl);
   }
-  oracleSection.appendChild(resultsEl);
 
   // Wrap oracle + contract in a flex column layout
   const layout = el('div', 'oracle-layout');
@@ -485,7 +464,7 @@ function renderOracleMode() {
     for (const choice of trumpChoices) {
       const cardEl = el('div', 'trump-card' + (locked ? ' contract-locked' : ''));
       if (choice !== null) {
-        const suitEl = el('div', 'trump-card-suit', '\u25a0 ' + capitalize(choice));
+        const suitEl = el('div', 'trump-card-suit', capitalize(choice));
         suitEl.style.color = choice;
         cardEl.appendChild(suitEl);
       } else {
@@ -526,9 +505,19 @@ function renderOracleMode() {
   }
 
   layout.appendChild(contractSection);
+
+  // Empty top area placeholder
+  root.appendChild(el('div', 'hand hand-top'));
+
+  // Center content
   root.appendChild(layout);
 
-  renderHands(root, false);
+  // Bottom hand
+  const handEl = el('div', 'hand hand-bottom');
+  for (const card of hands[0]) {
+    handEl.appendChild(renderCard(card, { hidden: false, active: false }));
+  }
+  root.appendChild(handEl);
 }
 
 /** @param {number | Suit} choice */
@@ -562,51 +551,71 @@ function selectContract(contract) {
 function renderPlay() {
   const root = clearRoot();
   if (!root) return;
+  root.classList.add('play-mode');
 
-  root.appendChild(el('div', 'score', 'Tricks won: ' + tricksWon + (chosenContract ? ' / ' + chosenContract.tricksNeeded + ' needed' : '')));
-
+  // HUD left (desktop)
+  const hudLeft = el('div', 'hud-left');
+  hudLeft.appendChild(el('div', 'score', 'Tricks: ' + tricksWon + '/' + (chosenContract ? chosenContract.tricksNeeded : '?')));
   const trumpEl = el('div', 'trump-indicator');
   if (trumpSuit) {
-    trumpEl.textContent = 'Trump: ';
-    const swatch = el('span', 'trump-swatch');
-    swatch.style.background = trumpSuit;
-    trumpEl.appendChild(swatch);
+    const label = el('span', '', 'Trump: ');
+    const suitName = el('span', '', capitalize(trumpSuit));
+    suitName.style.color = trumpSuit;
+    trumpEl.appendChild(label);
+    trumpEl.appendChild(suitName);
   } else {
     trumpEl.textContent = 'No Trump';
   }
-  root.appendChild(trumpEl);
-
+  hudLeft.appendChild(trumpEl);
   if (chosenContract) {
-    root.appendChild(el('div', 'contract-indicator', chosenContract.label + ' (' + contractPointsLabel(chosenContract) + ')'));
+    hudLeft.appendChild(el('div', 'contract-indicator', contractPointsLabel(chosenContract)));
   }
+  root.appendChild(hudLeft);
 
-  root.appendChild(el('div', 'total-score', 'Score: ' + totalScore));
-
+  // HUD right (desktop)
+  const hudRight = el('div', 'hud-right');
+  hudRight.appendChild(el('div', 'total-score', 'Score: ' + totalScore));
   if (oracleResults.length > 0) {
-    const resultsEl = el('div', 'oracle-results play-oracle-results');
+    const resultsEl = el('div', 'oracle-results');
     for (const result of oracleResults) {
       resultsEl.appendChild(el('div', '', result));
     }
-    root.appendChild(resultsEl);
+    hudRight.appendChild(resultsEl);
   }
+  root.appendChild(hudRight);
+
+  // HUD top (mobile) - same info, laid out horizontally
+  const hudTop = el('div', 'hud-top');
+  hudTop.appendChild(el('div', 'score', 'Tricks: ' + tricksWon + '/' + (chosenContract ? chosenContract.tricksNeeded : '?')));
+  const trumpEl2 = el('div', 'trump-indicator');
+  if (trumpSuit) {
+    const label = el('span', '', 'Trump: ');
+    const suitName = el('span', '', capitalize(trumpSuit));
+    suitName.style.color = trumpSuit;
+    trumpEl2.appendChild(label);
+    trumpEl2.appendChild(suitName);
+  } else {
+    trumpEl2.textContent = 'No Trump';
+  }
+  hudTop.appendChild(trumpEl2);
+  hudTop.appendChild(el('div', 'total-score', 'Score: ' + totalScore));
+  root.appendChild(hudTop);
 
   const cp = currentPlayer();
   const trickComplete = currentTrick.length === 4;
 
-  for (let i = 0; i < 4; i++) {
-    const handEl = el('div', 'hand hand-' + POSITIONS[i]);
-    const active = !trickComplete && cp === i;
-    const hidden = !isHuman(i) && !debugShowAll;
-
-    for (const card of hands[i]) {
-      const legal = canPlay(card, hands[i]);
-      const cardActive = active && (!isHuman(i) || legal);
-      const onClick = (active && isHuman(i) && legal) ? () => playCard(i, card) : null;
-      handEl.appendChild(renderCard(card, { hidden, active: cardActive, onClick }));
-    }
-    root.appendChild(handEl);
+  // Top hand (partner)
+  const topHand = el('div', 'hand hand-top');
+  const topActive = !trickComplete && cp === 2;
+  for (const card of hands[2]) {
+    const legal = canPlay(card, hands[2]);
+    const cardActive = topActive && legal;
+    const onClick = (topActive && legal) ? () => playCard(2, card) : null;
+    topHand.appendChild(renderCard(card, { hidden: false, active: cardActive, onClick }));
   }
+  root.appendChild(topHand);
 
+  // Trick area (center)
   const trickEl = el('div', 'trick');
   const trickPositions = ['trick-bottom', 'trick-left', 'trick-top', 'trick-right'];
   for (let i = 0; i < 4; i++) {
@@ -619,6 +628,17 @@ function renderPlay() {
     trickEl.appendChild(slot);
   }
   root.appendChild(trickEl);
+
+  // Bottom hand (player)
+  const bottomHand = el('div', 'hand hand-bottom');
+  const bottomActive = !trickComplete && cp === 0;
+  for (const card of hands[0]) {
+    const legal = canPlay(card, hands[0]);
+    const cardActive = bottomActive && legal;
+    const onClick = (bottomActive && legal) ? () => playCard(0, card) : null;
+    bottomHand.appendChild(renderCard(card, { hidden: false, active: cardActive, onClick }));
+  }
+  root.appendChild(bottomHand);
 }
 
 // --- result mode ---
@@ -637,8 +657,8 @@ function renderResult() {
     if (earlyEnd && made) {
       resultEl.appendChild(el('div', '', 'Won ' + tricksWon + ' of ' + chosenContract.tricksNeeded + ' needed — contract secured'));
     } else if (earlyEnd) {
-      const tricksLeft = hands[0].length;
-      resultEl.appendChild(el('div', '', 'Won ' + tricksWon + ' with ' + tricksLeft + ' ' + plural('trick', tricksLeft) + ' left'));
+      const handsLeft = hands[0].length;
+      resultEl.appendChild(el('div', '', 'Won ' + tricksWon + ' ' + plural('trick', tricksWon) + ' with ' + handsLeft + ' ' + plural('hand', handsLeft) + ' left'));
       resultEl.appendChild(el('div', '', 'Needed ' + chosenContract.tricksNeeded + ' — not enough tricks remaining'));
     } else {
       resultEl.appendChild(el('div', '', chosenContract.label + ': Won ' + tricksWon + ' of ' + chosenContract.tricksNeeded + ' needed'));
@@ -652,7 +672,9 @@ function renderResult() {
   resultEl.addEventListener('click', startNewRound);
   root.appendChild(resultEl);
 
-  if (hands[0].length > 0) {
+  // Only show hands on desktop (> 600px)
+  if (hands[0].length > 0 && window.innerWidth > 600) {
+    root.classList.add('result-mode');
     renderHands(root, true);
   }
 }
