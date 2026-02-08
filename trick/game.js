@@ -8,13 +8,6 @@
  *   choiceType: "none" | "suit" | "honor" | "opponent",
  *   resolve: (choice?: number | Suit) => string
  * }} OracleCard
- * @typedef {{
- *   label: string,
- *   trumpSuit: Suit | null,
- *   tricksNeeded: number,
- *   successPoints: number,
- *   failurePoints: number,
- * }} Contract
  * @typedef {"oracle" | "play" | "result"} GamePhase
  */
 
@@ -39,16 +32,12 @@ let trumpSuit = null;
 let animationDelay = 1.0;
 let lastTime = 0;
 
-// Oracle & Contract state
+// Oracle state
 /** @type {GamePhase} */
 let gamePhase = "oracle";
 let oraclesRemaining = ORACLES_PER_ROUND;
 /** @type {OracleCard[]} */
 let currentOracles = [];
-/** @type {Suit | null | undefined} */
-let chosenTrumpChoice = undefined;
-/** @type {Contract | null} */
-let chosenContract = null;
 /** @type {string[]} */
 let oracleResults = [];
 let totalScore = 0;
@@ -143,21 +132,6 @@ function groupBySuit(cards) {
   return [...bySuit.values()];
 }
 
-/** @param {Contract} contract */
-function contractPointsLabel(contract) {
-  return '+' + contract.successPoints + ' / ' + contract.failurePoints;
-}
-
-/**
- * Returns { made, points } for the current round's contract.
- * @param {Contract} contract
- */
-function contractResult(contract) {
-  const made = tricksWon >= contract.tricksNeeded;
-  const points = made ? contract.successPoints : contract.failurePoints;
-  return { made, points };
-}
-
 function currentPlayer() {
   return (leadPlayer + currentTrick.length) % 4;
 }
@@ -194,13 +168,23 @@ function oraclePartnerLongest() {
 }
 
 /** @returns {OracleCard} */
-function oraclePartnerHighCards() {
+function oracleSwapWithPartner() {
   return {
-    label: "Partner High Cards",
-    choiceType: "none",
-    resolve() {
-      const count = hands[2].filter(c => c.rank >= 11).length;
-      return `Partner has ${count} ${plural("card", count)} ranked J or higher.`;
+    label: "Swap with Partner",
+    choiceType: "suit",
+    resolve(choice) {
+      const suit = /** @type {Suit} */ (choice);
+      const mine = hands[0].filter(c => c.suit === suit);
+      const theirs = hands[2].filter(c => c.suit === suit);
+      if (mine.length === 0 || theirs.length === 0) return `No ${suit} swap possible — one side has none.`;
+      const myWorst = mine.reduce((a, b) => a.rank < b.rank ? a : b);
+      const theirBest = theirs.reduce((a, b) => a.rank > b.rank ? a : b);
+      if (theirBest.rank <= myWorst.rank) return `Partner's best ${suit} (${rankLabel(theirBest.rank)}) isn't better than your worst (${rankLabel(myWorst.rank)}).`;
+      hands[0].splice(hands[0].indexOf(myWorst), 1);
+      hands[2].splice(hands[2].indexOf(theirBest), 1);
+      hands[0].push(theirBest);
+      hands[2].push(myWorst);
+      return `Swapped your ${rankLabel(myWorst.rank)} of ${suit} for partner's ${rankLabel(theirBest.rank)} of ${suit}.`;
     }
   };
 }
@@ -353,7 +337,7 @@ function oracleScoutOpponent() {
 
 function generateOracleDeck() {
   const deck = [
-    oraclePartnerLongest(), oraclePartnerHighCards(),
+    oraclePartnerLongest(), oracleSwapWithPartner(),
     oracleRevealHonors(), oracleReveal8(),
     oracleRevealShortSuits(), oracleTakeCard(),
     oracleCountSuit(), oracleDiscardSuit(),
@@ -365,24 +349,11 @@ function generateOracleDeck() {
 
 // --- contract generation ---
 
-const CONTRACT_TIERS = [
-  { label: "Safe", tricksNeeded: 6, successPoints: 5, failurePoints: -3 },
-  { label: "Standard", tricksNeeded: 7, successPoints: 10, failurePoints: -5 },
-  { label: "Ambitious", tricksNeeded: 8, successPoints: 18, failurePoints: -8 },
-  { label: "Bold", tricksNeeded: 9, successPoints: 28, failurePoints: -12 },
-  { label: "Grand", tricksNeeded: 10, successPoints: 40, failurePoints: -18 },
-];
-
-const NOTRUMP_TIERS = [
-  { label: "Safe Notrump", tricksNeeded: 6, successPoints: 8, failurePoints: -4 },
-  { label: "Standard Notrump", tricksNeeded: 7, successPoints: 15, failurePoints: -8 },
-  { label: "Ambitious Notrump", tricksNeeded: 8, successPoints: 25, failurePoints: -12 },
-  { label: "Grand Notrump", tricksNeeded: 10, successPoints: 50, failurePoints: -25 },
-];
-
 /** @param {Suit | null} choice */
 function selectTrump(choice) {
-  chosenTrumpChoice = choice;
+  trumpSuit = choice;
+  gamePhase = "play";
+  selectedOracleIndex = -1;
   render();
 }
 
@@ -504,10 +475,8 @@ function renderOracleMode() {
 
   if (oraclesRemaining > 0) {
     renderOraclePicking(section);
-  } else if (chosenTrumpChoice === undefined) {
-    renderTrumpChoice(section);
   } else {
-    renderContractChoice(section);
+    renderTrumpChoice(section);
   }
 
   const layout = el('div', 'oracle-layout');
@@ -614,35 +583,6 @@ function renderTrumpChoice(section) {
   section.appendChild(trumpRow);
 }
 
-/** @param {HTMLElement} section */
-function renderContractChoice(section) {
-  const trumpLabel = chosenTrumpChoice !== null ? capitalize(/** @type {Suit} */ (chosenTrumpChoice)) : 'No Trump';
-  section.appendChild(el('div', 'section-title', 'CHOOSE CONTRACT — ' + trumpLabel));
-
-  const tierRow = el('div', 'card-row');
-  const tiers = chosenTrumpChoice === null ? NOTRUMP_TIERS : CONTRACT_TIERS;
-  for (const tier of tiers) {
-    const cardEl = el('div', 'contract-card');
-    cardEl.appendChild(el('div', 'contract-name', tier.label));
-    cardEl.appendChild(el('div', '', tier.tricksNeeded + ' tricks'));
-    cardEl.appendChild(el('div', 'contract-points', '+' + tier.successPoints + ' / ' + tier.failurePoints));
-    cardEl.addEventListener('click', () => {
-      const label = chosenTrumpChoice !== null
-        ? tier.label + ' ' + capitalize(/** @type {Suit} */ (chosenTrumpChoice))
-        : tier.label;
-      selectContract({
-        label,
-        trumpSuit: /** @type {Suit | null} */ (chosenTrumpChoice),
-        tricksNeeded: tier.tricksNeeded,
-        successPoints: tier.successPoints,
-        failurePoints: tier.failurePoints,
-      });
-    });
-    tierRow.appendChild(cardEl);
-  }
-  section.appendChild(tierRow);
-}
-
 /** @param {number | Suit} [choice] */
 function resolveOracle(choice) {
   if (selectedOracleIndex < 0) return;
@@ -659,15 +599,6 @@ function resolveOracle(choice) {
   render();
 }
 
-/** @param {Contract} contract */
-function selectContract(contract) {
-  chosenContract = contract;
-  trumpSuit = contract.trumpSuit;
-  gamePhase = "play";
-  selectedOracleIndex = -1;
-  render();
-}
-
 // --- play mode ---
 
 function renderPlay() {
@@ -677,7 +608,7 @@ function renderPlay() {
 
   // HUD left (desktop)
   const hudLeft = el('div', 'hud-left');
-  hudLeft.appendChild(el('div', 'score', 'Tricks: ' + tricksWon + '/' + (chosenContract ? chosenContract.tricksNeeded : '?')));
+  hudLeft.appendChild(el('div', 'score', 'Tricks: ' + tricksWon));
   const trumpEl = el('div', 'trump-indicator');
   if (trumpSuit) {
     const label = el('span', '', 'Trump: ');
@@ -689,9 +620,6 @@ function renderPlay() {
     trumpEl.textContent = 'No Trump';
   }
   hudLeft.appendChild(trumpEl);
-  if (chosenContract) {
-    hudLeft.appendChild(el('div', 'contract-indicator', contractPointsLabel(chosenContract)));
-  }
   root.appendChild(hudLeft);
 
   // HUD right (desktop)
@@ -735,23 +663,9 @@ function renderResult() {
 
   const resultEl = el('div', 'result-screen');
 
-  if (chosenContract) {
-    const { made, points } = contractResult(chosenContract);
-    const earlyEnd = hands[0].length > 0;
-
-    resultEl.appendChild(el('div', 'result-title', made ? 'Contract Made!' : 'Contract Failed'));
-    if (earlyEnd && made) {
-      resultEl.appendChild(el('div', '', 'Won ' + tricksWon + ' of ' + chosenContract.tricksNeeded + ' needed — contract secured'));
-    } else if (earlyEnd) {
-      const handsLeft = hands[0].length;
-      resultEl.appendChild(el('div', '', 'Won ' + tricksWon + ' ' + plural('trick', tricksWon) + ' with ' + handsLeft + ' ' + plural('hand', handsLeft) + ' left'));
-      resultEl.appendChild(el('div', '', 'Needed ' + chosenContract.tricksNeeded + ' — not enough tricks remaining'));
-    } else {
-      resultEl.appendChild(el('div', '', chosenContract.label + ': Won ' + tricksWon + ' of ' + chosenContract.tricksNeeded + ' needed'));
-    }
-    resultEl.appendChild(el('div', 'result-points', (points > 0 ? '+' : '') + points + ' points'));
-    resultEl.appendChild(el('div', '', 'Total Score: ' + totalScore));
-  }
+  resultEl.appendChild(el('div', 'result-title', 'Round Complete'));
+  resultEl.appendChild(el('div', '', 'Won ' + tricksWon + ' ' + plural('trick', tricksWon)));
+  resultEl.appendChild(el('div', '', 'Total Score: ' + totalScore));
 
   resultEl.appendChild(el('div', 'result-continue', 'Click to continue'));
 
@@ -770,8 +684,6 @@ function startNewRound() {
   oraclesRemaining = ORACLES_PER_ROUND;
   oracleDeck = generateOracleDeck();
   currentOracles = oracleDeck.splice(0, 3);
-  chosenTrumpChoice = undefined;
-  chosenContract = null;
   oracleResults = [];
   revealedHandCard = [];
   selectedOracleIndex = -1;
@@ -798,7 +710,13 @@ function playCard(player, card) {
 
   hand.splice(idx, 1);
   currentTrick.push(card);
-  animationDelay = 1.0;
+  const cardsLeft = hands[0].length;
+  if (cardsLeft >= 7) {
+    animationDelay = 1.0;
+  } else {
+    // Linear from 1.0 at 7 cards to 0.1 at 1 card
+    animationDelay = 0.1 + (cardsLeft - 1) * (0.9 / 6);
+  }
   render();
 }
 
@@ -827,12 +745,8 @@ function resolveTrick() {
 
   // Check if round is over
   const roundOver = hands.every(h => h.length === 0);
-  const hopeless = chosenContract && tricksWon + hands[0].length < chosenContract.tricksNeeded;
-  const alreadyWon = chosenContract && tricksWon >= chosenContract.tricksNeeded;
-  if (roundOver || hopeless || alreadyWon) {
-    if (chosenContract) {
-      totalScore += contractResult(chosenContract).points;
-    }
+  if (roundOver) {
+    totalScore += tricksWon;
     gamePhase = "result";
   }
 }
