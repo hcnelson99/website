@@ -294,7 +294,7 @@ function renderCard(card, opts = {}) {
   let classes = 'card';
   if (opts.hidden) classes += ' hidden';
   if (!opts.active) classes += ' inactive';
-  if (opts.active && !opts.hidden) classes += ' active';
+  if (opts.active) classes += ' active';
   const cardEl = el('div', classes);
 
   if (!opts.hidden) {
@@ -311,14 +311,19 @@ function renderCard(card, opts = {}) {
 
 /**
  * @param {HTMLElement} root
- * @param {boolean} revealAll
+ * @param {{ revealAll?: boolean, showPartner?: boolean, activePlayer?: number, onPlay?: ((player: number, card: Card) => void) | null }} opts
  */
-function renderHands(root, revealAll) {
+function renderHands(root, { revealAll = false, showPartner = false, activePlayer = -1, onPlay = null } = {}) {
   for (let i = 0; i < 4; i++) {
     const handEl = el('div', 'hand hand-' + POSITIONS[i]);
-    const hidden = !revealAll && i !== 0 && !debugShowAll;
+    const hidden = !revealAll && i !== 0 && !(showPartner && i === 2) && !debugShowAll;
+    const isActive = i === activePlayer;
+    const checkLegal = isActive && isHuman(i);
     for (const card of hands[i]) {
-      handEl.appendChild(renderCard(card, { hidden, active: false }));
+      const legal = checkLegal ? canPlay(card, hands[i]) : false;
+      const active = isActive && (!checkLegal || legal);
+      const onClick = (checkLegal && legal && onPlay) ? () => onPlay(i, card) : null;
+      handEl.appendChild(renderCard(card, { hidden, active, onClick }));
     }
     root.appendChild(handEl);
   }
@@ -426,18 +431,8 @@ function renderOracleStage1() {
   const layout = el('div', 'oracle-layout');
   layout.appendChild(oracleSection);
 
-  // Empty top area placeholder
-  root.appendChild(el('div', 'hand hand-top'));
-
-  // Center content
   root.appendChild(layout);
-
-  // Bottom hand
-  const handEl = el('div', 'hand hand-bottom');
-  for (const card of hands[0]) {
-    handEl.appendChild(renderCard(card, { hidden: false, active: false }));
-  }
-  root.appendChild(handEl);
+  renderHands(root, { activePlayer: 0 });
 }
 
 /** Stage 2: Choose trump suit (all 5 options) */
@@ -472,18 +467,8 @@ function renderOracleStage2() {
   const layout = el('div', 'oracle-layout');
   layout.appendChild(section);
 
-  // Empty top area placeholder
-  root.appendChild(el('div', 'hand hand-top'));
-
-  // Center content
   root.appendChild(layout);
-
-  // Bottom hand
-  const handEl = el('div', 'hand hand-bottom');
-  for (const card of hands[0]) {
-    handEl.appendChild(renderCard(card, { hidden: false, active: false }));
-  }
-  root.appendChild(handEl);
+  renderHands(root, { activePlayer: 0 });
 }
 
 /** Stage 3: Choose contract tier */
@@ -524,18 +509,8 @@ function renderOracleStage3() {
   const layout = el('div', 'oracle-layout');
   layout.appendChild(section);
 
-  // Empty top area placeholder
-  root.appendChild(el('div', 'hand hand-top'));
-
-  // Center content
   root.appendChild(layout);
-
-  // Bottom hand
-  const handEl = el('div', 'hand hand-bottom');
-  for (const card of hands[0]) {
-    handEl.appendChild(renderCard(card, { hidden: false, active: false }));
-  }
-  root.appendChild(handEl);
+  renderHands(root, { activePlayer: 0 });
 }
 
 /** @param {number | Suit} choice */
@@ -604,17 +579,6 @@ function renderPlay() {
   const cp = currentPlayer();
   const trickComplete = currentTrick.length === 4;
 
-  // Top hand (partner)
-  const topHand = el('div', 'hand hand-top');
-  const topActive = !trickComplete && cp === 2;
-  for (const card of hands[2]) {
-    const legal = canPlay(card, hands[2]);
-    const cardActive = topActive && legal;
-    const onClick = (topActive && legal) ? () => playCard(2, card) : null;
-    topHand.appendChild(renderCard(card, { hidden: false, active: cardActive, onClick }));
-  }
-  root.appendChild(topHand);
-
   // Trick area (center)
   const trickEl = el('div', 'trick');
   const trickPositions = ['trick-bottom', 'trick-left', 'trick-top', 'trick-right'];
@@ -629,16 +593,8 @@ function renderPlay() {
   }
   root.appendChild(trickEl);
 
-  // Bottom hand (player)
-  const bottomHand = el('div', 'hand hand-bottom');
-  const bottomActive = !trickComplete && cp === 0;
-  for (const card of hands[0]) {
-    const legal = canPlay(card, hands[0]);
-    const cardActive = bottomActive && legal;
-    const onClick = (bottomActive && legal) ? () => playCard(0, card) : null;
-    bottomHand.appendChild(renderCard(card, { hidden: false, active: cardActive, onClick }));
-  }
-  root.appendChild(bottomHand);
+  const activePlayer = trickComplete ? -1 : cp;
+  renderHands(root, { showPartner: true, activePlayer, onPlay: playCard });
 }
 
 // --- result mode ---
@@ -673,7 +629,7 @@ function renderResult() {
   root.appendChild(resultEl);
 
   root.classList.add('result-mode');
-  renderHands(root, true);
+  renderHands(root, { revealAll: true });
 }
 
 // --- round lifecycle ---
@@ -771,26 +727,30 @@ function aiPickCard(hand) {
   }
 
   let best = currentTrick[0];
+  let winIndex = 0;
   for (let i = 1; i < currentTrick.length; i++) {
-    if (cardBeats(currentTrick[i], best)) best = currentTrick[i];
+    if (cardBeats(currentTrick[i], best)) { best = currentTrick[i]; winIndex = i; }
   }
+  const partnerWinning = winIndex % 2 === currentTrick.length % 2;
 
   const leadSuit = currentTrick[0].suit;
   const suitCards = hand.filter(c => c.suit === leadSuit);
   const mustFollow = suitCards.length > 0;
 
-  let winners;
-  if (mustFollow) {
-    winners = suitCards.filter(c => cardBeats(c, best));
-  } else {
-    winners = hand.filter(c => c.suit === trumpSuit && cardBeats(c, best));
-  }
-
-  if (winners.length > 0) {
+  if (!partnerWinning) {
+    let winners;
     if (mustFollow) {
-      return winners.reduce((a, b) => a.rank > b.rank ? a : b);
+      winners = suitCards.filter(c => cardBeats(c, best));
+    } else {
+      winners = hand.filter(c => c.suit === trumpSuit && cardBeats(c, best));
     }
-    return winners.reduce((a, b) => a.rank < b.rank ? a : b);
+
+    if (winners.length > 0) {
+      if (mustFollow) {
+        return winners.reduce((a, b) => a.rank > b.rank ? a : b);
+      }
+      return winners.reduce((a, b) => a.rank < b.rank ? a : b);
+    }
   }
 
   if (mustFollow) {
@@ -798,11 +758,7 @@ function aiPickCard(hand) {
   }
   const nonTrump = hand.filter(c => c.suit !== trumpSuit);
   const pool = nonTrump.length > 0 ? nonTrump : hand;
-  const groups = groupBySuit(pool);
-  const minLen = Math.min(...groups.map(g => g.length));
-  const shortests = groups.filter(g => g.length === minLen);
-  const shortest = pickRandom(shortests);
-  return shortest.reduce((a, b) => a.rank < b.rank ? a : b);
+  return pool.reduce((a, b) => a.rank < b.rank ? a : b);
 }
 
 // --- game loop ---
