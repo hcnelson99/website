@@ -54,7 +54,6 @@ let oracleResults = [];
 let totalScore = 0;
 let selectedOracleIndex = -1;
 let debugShowAll = false;
-let showTutorial = true;
 
 // --- utility ---
 
@@ -337,46 +336,6 @@ function render() {
   const root = document.getElementById('root');
   if (!root) return;
 
-  if (showTutorial) renderTutorial(root);
-}
-
-/** @param {HTMLElement} root */
-function renderTutorial(root) {
-  const overlay = el('div', 'tutorial-overlay');
-  const content = el('div', 'tutorial-content');
-
-  // Version from script tag query param
-  const scriptEl = document.querySelector('script[src^="game.js"]');
-  const version = scriptEl ? new URL(/** @type {HTMLScriptElement} */ (scriptEl).src, location.href).searchParams.get('v') : null;
-  if (version) {
-    const versionEl = el('div', 'tutorial-version', 'v' + version);
-    content.appendChild(versionEl);
-  }
-
-  content.appendChild(el('div', 'tutorial-title', 'How to Play'));
-
-  const sections = [
-    ['Overview', 'A "trick-taking" card game. You (bottom of screen) and your teammate (top) play against two opponents (left and right). You play cards for both yourself and your teammate, but your teammate\'s hand will only be revealed once play begins. Each round, you\'ll first use "oracle cards" to learn about your partner\'s and opponents\' hands, then pick a "contract" for how many "tricks" you need to win, then play out the tricks and see if you make your contract.'],
-    ['Oracle Phase', 'Each round starts by selecting 3 oracle cards. Oracle cards tell you something about other players\' hands -- like how many cards of a suit they hold, or their longest suit.'],
-    ['Contracts', 'After using all 3 oracles, you choose a contract in two steps. First, pick a trump suit from the 5 available choices (4 suits + No Trump). Then pick a contract tier -- each tier requires a different number of tricks and has a different point reward/penalty. Higher risk contracts pay more but cost more if you fail. Use your oracle information to choose a trump suit that favors your hand and a tier you\'re confident you can make.'],
-    ['Playing Tricks', 'A trick consists of each player playing one card. You will start by playing the first card; then play proceeds to the left. Each play must follow the "lead suit": the suit that the trick was started with. If you can\'t follow suit, you may play any card. The highest card of the lead suit wins, unless a trump card is played -- then the highest trump wins. The next trick will be led by the winner of the previous trick.'],
-    ['Winning', 'Tricks won by you or your teammate count toward your contract. If you win enough tricks you score the points; if not, you take the penalty.'],
-  ];
-
-  for (const [heading, body] of sections) {
-    content.appendChild(el('div', 'tutorial-heading', heading));
-    content.appendChild(el('div', 'tutorial-body', body));
-  }
-
-  const closeBtn = el('button', 'tutorial-close', 'Got it');
-  closeBtn.addEventListener('click', () => { showTutorial = false; render(); });
-  content.appendChild(closeBtn);
-
-  overlay.appendChild(content);
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) { showTutorial = false; render(); }
-  });
-  root.appendChild(overlay);
 }
 
 // --- oracle mode ---
@@ -642,23 +601,6 @@ function renderPlay() {
   }
   root.appendChild(hudRight);
 
-  // HUD top (mobile) - same info, laid out horizontally
-  const hudTop = el('div', 'hud-top');
-  hudTop.appendChild(el('div', 'score', 'Tricks: ' + tricksWon + '/' + (chosenContract ? chosenContract.tricksNeeded : '?')));
-  const trumpEl2 = el('div', 'trump-indicator');
-  if (trumpSuit) {
-    const label = el('span', '', 'Trump: ');
-    const suitName = el('span', '', capitalize(trumpSuit));
-    suitName.style.color = trumpSuit;
-    trumpEl2.appendChild(label);
-    trumpEl2.appendChild(suitName);
-  } else {
-    trumpEl2.textContent = 'No Trump';
-  }
-  hudTop.appendChild(trumpEl2);
-  hudTop.appendChild(el('div', 'total-score', 'Score: ' + totalScore));
-  root.appendChild(hudTop);
-
   const cp = currentPlayer();
   const trickComplete = currentTrick.length === 4;
 
@@ -730,11 +672,8 @@ function renderResult() {
   resultEl.addEventListener('click', startNewRound);
   root.appendChild(resultEl);
 
-  // Only show hands on desktop (> 600px)
-  if (hands[0].length > 0 && window.innerWidth > 600) {
-    root.classList.add('result-mode');
-    renderHands(root, true);
-  }
+  root.classList.add('result-mode');
+  renderHands(root, true);
 }
 
 // --- round lifecycle ---
@@ -873,10 +812,12 @@ function gameLoop(timestamp) {
   const dt = (timestamp - lastTime) / 1000;
   lastTime = timestamp;
 
+  animationDelay -= dt;
+  if (animationDelay < 0) animationDelay = 0;
+
   if (gamePhase === "play") {
     if (currentTrick.length === 4) {
-      animationDelay -= dt;
-      if (animationDelay <= 0) {
+      if (animationDelay == 0) {
         resolveTrick();
         animationDelay = 1.0;
         render();
@@ -884,15 +825,11 @@ function gameLoop(timestamp) {
     } else {
       const cp = currentPlayer();
       if (!isHuman(cp)) {
-        animationDelay -= dt;
-        if (animationDelay <= 0) {
+        if (animationDelay == 0) {
           const hand = hands[cp];
           if (hand.length > 0) {
             const card = aiPickCard(hand);
-            hand.splice(hand.indexOf(card), 1);
-            currentTrick.push(card);
-            animationDelay = 1.0;
-            render();
+            playCard(cp, card);
           }
         }
       }

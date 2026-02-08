@@ -1,14 +1,13 @@
 :root {
-  --card-w: clamp(45px, 12vw, 60px);
-  --card-h: clamp(63px, 16.8vw, 84px);
-  --spacing: clamp(10px, 2.5vw, 15px);
+  --card-w: 60px;
+  --card-h: 84px;
+  --spacing: 15px;
 }
 
 html, body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -28,7 +27,7 @@ body {
     "center"
     "bottom";
   width: 100%;
-  height: 100dvh;
+  height: 100vh;
   overflow: hidden;
 }
 
@@ -70,15 +69,6 @@ body {
   grid-area: hud-right;
   padding: var(--spacing);
   text-align: right;
-}
-
-.hud-top {
-  grid-area: hud-top;
-  padding: var(--spacing);
-  display: none;
-  flex-wrap: wrap;
-  gap: 6px 18px;
-  justify-content: center;
 }
 
 .score {
@@ -199,7 +189,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(15px, 3vh, 30px);
+  gap: 30px;
   padding: var(--spacing);
   overflow-y: auto;
 }
@@ -217,12 +207,12 @@ body {
 .card-row {
   display: flex;
   flex-wrap: wrap;
-  gap: clamp(12px, 3vw, 24px);
+  gap: 24px;
   justify-content: center;
 }
 
 .oracle-card {
-  width: clamp(100px, 25vw, 180px);
+  width: 180px;
   padding: 18px;
   background: #2a2a4e;
   border: 2px solid #444;
@@ -308,7 +298,7 @@ body {
 }
 
 .trump-card {
-  width: clamp(100px, 25vw, 180px);
+  width: 180px;
   padding: 18px;
   background: #1e2a3e;
   border: 2px solid #444;
@@ -330,7 +320,7 @@ body {
 }
 
 .contract-card {
-  width: clamp(100px, 25vw, 180px);
+  width: 180px;
   padding: 18px;
   background: #1e3a1e;
   border: 2px solid #444;
@@ -387,135 +377,3 @@ body {
   font-size: 21px;
 }
 
-/* Tutorial */
-
-.tutorial-btn {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  width: 36px;
-  height: 36px;
-  background: #333;
-  color: #aaa;
-  border: 1px solid #666;
-  font-family: monospace;
-  font-size: 21px;
-  cursor: pointer;
-  z-index: 10;
-}
-
-.tutorial-btn:hover {
-  background: #555;
-  color: #eee;
-}
-
-.tutorial-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  z-index: 20;
-  overflow-y: auto;
-}
-
-.tutorial-content {
-  position: relative;
-  max-width: min(800px, 90vw);
-  margin: auto;
-  padding: var(--spacing);
-  line-height: 1.6;
-}
-
-.tutorial-version {
-  position: absolute;
-  top: var(--spacing);
-  right: var(--spacing);
-  font-size: 14px;
-  color: #555;
-}
-
-.tutorial-title {
-  font-size: 30px;
-  font-weight: bold;
-  margin-bottom: 24px;
-}
-
-.tutorial-heading {
-  font-size: 21px;
-  font-weight: bold;
-  margin-top: 18px;
-  color: #ccc;
-}
-
-.tutorial-body {
-  font-size: 18px;
-  color: #999;
-  margin-top: 6px;
-}
-
-.tutorial-close {
-  margin-top: 24px;
-  padding: 9px 24px;
-  background: #333;
-  color: #eee;
-  border: 1px solid #666;
-  font-family: monospace;
-  font-size: 21px;
-  cursor: pointer;
-}
-
-.tutorial-close:hover {
-  background: #555;
-}
-
-@media (max-width: 600px) {
-  /* On mobile, play mode uses single column with HUD at top */
-  #root.play-mode {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto 1fr auto;
-    grid-template-areas:
-      "hud-top"
-      "top"
-      "center"
-      "bottom";
-  }
-
-  #root.play-mode .hud-left,
-  #root.play-mode .hud-right {
-    display: none;
-  }
-
-  #root.play-mode .hud-top {
-    display: flex;
-  }
-
-  /* Smaller fonts for HUD */
-  .score, .trump-indicator, .total-score { font-size: 18px; }
-  .contract-indicator { font-size: 16px; }
-
-  /* Smaller fonts for oracle/contract UI */
-  .section-title { font-size: 18px; }
-  .oracle-label { font-size: 18px; }
-  .oracle-results { font-size: 14px; margin-top: 12px; }
-  .contract-name { font-size: 16px; }
-  .contract-points { font-size: 14px; }
-  .choice-btn { font-size: 16px; padding: 8px 16px; }
-
-  /* Smaller tutorial text */
-  .tutorial-title { font-size: 24px; }
-  .tutorial-heading { font-size: 18px; }
-  .tutorial-body { font-size: 16px; }
-
-
-  /* Ensure touch targets are at least 44px */
-  .tutorial-btn { width: 44px; height: 44px; }
-  .tutorial-close { min-height: 44px; }
-
-  /* Smaller result text on mobile */
-  .result-title { font-size: 28px; }
-  .result-screen { font-size: 16px; }
-  .result-points { font-size: 24px; }
-  .result-continue { font-size: 16px; }
-}
