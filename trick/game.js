@@ -5,8 +5,8 @@
  * @typedef {{rank: number, suit: Suit}} Card
  * @typedef {{
  *   label: string,
- *   choiceType: "player" | "suit" | "honor",
- *   resolve: (choice: number | Suit) => string
+ *   choiceType: "none" | "suit" | "honor" | "opponent",
+ *   resolve: (choice?: number | Suit) => string
  * }} OracleCard
  * @typedef {{
  *   label: string,
@@ -56,6 +56,8 @@ let selectedOracleIndex = -1;
 let debugShowAll = false;
 /** @type {Card[]} */
 let revealedHandCard = [];
+/** @type {OracleCard[]} */
+let oracleDeck = [];
 
 // --- utility ---
 
@@ -173,68 +175,35 @@ function canPlay(card, hand) {
 
 // --- oracle templates ---
 
-/** @returns {OracleCard} */
-function oracleSuitCount() {
-  const suit = pickRandom(SUITS);
-  return {
-    label: capitalize(suit) + " Count",
-    choiceType: "player",
-    resolve(choice) {
-      const player = /** @type {number} */ (choice);
-      const count = hands[player].filter(c => c.suit === suit).length;
-      return `${PLAYER_LABELS[player]} has ${count} ${suit} ${plural("card", count)}.`;
-    }
-  };
-}
-
-/** @returns {OracleCard} */
-function oraclePlayerCount() {
-  const player = pickRandom(HIDDEN_PLAYERS);
-  return {
-    label: PLAYER_LABELS[player] + " Count",
-    choiceType: "suit",
-    resolve(choice) {
-      const suit = /** @type {Suit} */ (choice);
-      const count = hands[player].filter(c => c.suit === suit).length;
-      return `${PLAYER_LABELS[player]} has ${count} ${suit} ${plural("card", count)}.`;
-    }
-  };
-}
-
-/**
- * @param {"longest" | "shortest"} which
- * @returns {OracleCard}
- */
-function oracleExtremeSuit(which) {
-  return {
-    label: capitalize(which) + " Suit",
-    choiceType: "player",
-    resolve(choice) {
-      const player = /** @type {number} */ (choice);
-      const counts = SUITS.map(s => ({ suit: s, count: hands[player].filter(c => c.suit === s).length }));
-      const extremeCount = which === "longest" ? Math.max(...counts.map(c => c.count)) : Math.min(...counts.map(c => c.count));
-      const tied = counts.filter(c => c.count === extremeCount);
-      const pick = pickRandom(tied);
-      return `${PLAYER_LABELS[player]}'s ${which} suit is ${pick.suit} (${pick.count} ${plural("card", pick.count)}).`;
-    }
-  };
-}
-
-/** @returns {OracleCard} */
-function oracleHighCardCount() {
-  return {
-    label: "High Card Count",
-    choiceType: "player",
-    resolve(choice) {
-      const player = /** @type {number} */ (choice);
-      const count = hands[player].filter(c => c.rank >= 11).length;
-      return `${PLAYER_LABELS[player]} has ${count} ${plural("card", count)} ranked J or higher.`;
-    }
-  };
-}
-
 /** @type {Record<string, number>} */
 const HONOR_RANKS = { "Aces": 14, "Kings": 13, "Queens": 12, "Jacks": 11 };
+
+/** @returns {OracleCard} */
+function oraclePartnerLongest() {
+  return {
+    label: "Partner Longest Suit",
+    choiceType: "none",
+    resolve() {
+      const counts = SUITS.map(s => ({ suit: s, count: hands[2].filter(c => c.suit === s).length }));
+      const max = Math.max(...counts.map(c => c.count));
+      const tied = counts.filter(c => c.count === max);
+      const pick = pickRandom(tied);
+      return `Partner's longest suit is ${pick.suit} (${pick.count} ${plural("card", pick.count)}).`;
+    }
+  };
+}
+
+/** @returns {OracleCard} */
+function oraclePartnerHighCards() {
+  return {
+    label: "Partner High Cards",
+    choiceType: "none",
+    resolve() {
+      const count = hands[2].filter(c => c.rank >= 11).length;
+      return `Partner has ${count} ${plural("card", count)} ranked J or higher.`;
+    }
+  };
+}
 
 /** @returns {OracleCard} */
 function oracleRevealHonors() {
@@ -251,13 +220,147 @@ function oracleRevealHonors() {
   };
 }
 
-const ORACLE_TEMPLATES = [oracleSuitCount, oraclePlayerCount, () => oracleExtremeSuit("longest"), () => oracleExtremeSuit("shortest"), oracleHighCardCount, oracleRevealHonors];
+/** @returns {OracleCard} */
+function oracleReveal8() {
+  return {
+    label: "Reveal 8 Random",
+    choiceType: "none",
+    resolve() {
+      const pool = [...hands[1], ...hands[2], ...hands[3]];
+      shuffle(pool);
+      const picked = pool.slice(0, 8);
+      for (const c of picked) revealedHandCard.push(c);
+      return `Revealed ${picked.length} random cards from other players.`;
+    }
+  };
+}
 
-/** @param {number} n */
-function drawOracles(n) {
-  const templates = [...ORACLE_TEMPLATES];
-  shuffle(templates);
-  return templates.slice(0, n).map(fn => fn());
+/** @returns {OracleCard} */
+function oracleRevealShortSuits() {
+  return {
+    label: "Reveal Short Suits",
+    choiceType: "none",
+    resolve() {
+      const lines = [];
+      for (const p of [1, 2, 3]) {
+        const shortSuits = SUITS.filter(s => hands[p].filter(c => c.suit === s).length <= 1);
+        if (shortSuits.length > 0) {
+          lines.push(`${PLAYER_LABELS[p]}: short in ${shortSuits.join(", ")}`);
+        } else {
+          lines.push(`${PLAYER_LABELS[p]}: no short suits`);
+        }
+      }
+      return lines.join(". ") + ".";
+    }
+  };
+}
+
+/** @returns {OracleCard} */
+function oracleTakeCard() {
+  return {
+    label: "Take Card",
+    choiceType: "suit",
+    resolve(choice) {
+      const suit = /** @type {Suit} */ (choice);
+      // Find cards of that suit from other players
+      /** @type {{player: number, card: Card}[]} */
+      const candidates = [];
+      for (const p of [1, 2, 3]) {
+        for (const c of hands[p]) {
+          if (c.suit === suit) candidates.push({ player: p, card: c });
+        }
+      }
+      if (candidates.length === 0) return `No other player has a ${suit} card to take.`;
+      const pick = pickRandom(candidates);
+      // Remove from their hand
+      hands[pick.player].splice(hands[pick.player].indexOf(pick.card), 1);
+      // Give them a random card of a different suit from you
+      const myOtherSuit = hands[0].filter(c => c.suit !== suit);
+      if (myOtherSuit.length > 0) {
+        const give = pickRandom(myOtherSuit);
+        hands[0].splice(hands[0].indexOf(give), 1);
+        hands[pick.player].push(give);
+      }
+      hands[0].push(pick.card);
+      return `Took ${rankLabel(pick.card.rank)} of ${suit} from ${PLAYER_LABELS[pick.player]}.`;
+    }
+  };
+}
+
+/** @returns {OracleCard} */
+function oracleCountSuit() {
+  return {
+    label: "Count Suit",
+    choiceType: "suit",
+    resolve(choice) {
+      const suit = /** @type {Suit} */ (choice);
+      const parts = [1, 2, 3].map(p => {
+        const count = hands[p].filter(c => c.suit === suit).length;
+        return `${PLAYER_LABELS[p]}: ${count}`;
+      });
+      return `${capitalize(suit)} count — ${parts.join(", ")}.`;
+    }
+  };
+}
+
+/** @returns {OracleCard} */
+function oracleDiscardSuit() {
+  return {
+    label: "Discard Suit",
+    choiceType: "suit",
+    resolve(choice) {
+      const suit = /** @type {Suit} */ (choice);
+      const removed = hands[0].filter(c => c.suit === suit);
+      if (removed.length === 0) return `You have no ${suit} cards to discard.`;
+      // Remove from hand
+      hands[0] = hands[0].filter(c => c.suit !== suit);
+      // Distribute round-robin to players 1,2,3
+      /** @type {Record<number, number>} */
+      const given = { 1: 0, 2: 0, 3: 0 };
+      for (let i = 0; i < removed.length; i++) {
+        const target = 1 + (i % 3);
+        hands[target].push(removed[i]);
+        given[target]++;
+      }
+      // Take back same count from each
+      for (const p of [1, 2, 3]) {
+        for (let i = 0; i < given[p]; i++) {
+          const pick = pickRandom(hands[p]);
+          hands[p].splice(hands[p].indexOf(pick), 1);
+          hands[0].push(pick);
+        }
+      }
+      return `Discarded ${removed.length} ${suit} ${plural("card", removed.length)}, swapped with other players.`;
+    }
+  };
+}
+
+/** @returns {OracleCard} */
+function oracleScoutOpponent() {
+  return {
+    label: "Scout Opponent",
+    choiceType: "opponent",
+    resolve(choice) {
+      const player = /** @type {number} */ (choice);
+      const counts = SUITS.map(s => {
+        const count = hands[player].filter(c => c.suit === s).length;
+        return `${count} ${s}`;
+      });
+      return `${PLAYER_LABELS[player]}: ${counts.join(", ")}.`;
+    }
+  };
+}
+
+function generateOracleDeck() {
+  const deck = [
+    oraclePartnerLongest(), oraclePartnerHighCards(),
+    oracleRevealHonors(), oracleReveal8(),
+    oracleRevealShortSuits(), oracleTakeCard(),
+    oracleCountSuit(), oracleDiscardSuit(),
+    oracleScoutOpponent()
+  ];
+  shuffle(deck);
+  return deck;
 }
 
 // --- contract generation ---
@@ -301,9 +404,6 @@ function dealHands() {
     hands[i % 4].push(deck[i]);
   }
 
-  for (const hand of hands) {
-    hand.sort((a, b) => SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit) || b.rank - a.rank);
-  }
 }
 
 // --- rendering ---
@@ -336,18 +436,32 @@ function renderCard(card, opts = {}) {
  * @param {{ revealAll?: boolean, showPartner?: boolean, activePlayer?: number, onPlay?: ((player: number, card: Card) => void) | null }} opts
  */
 function renderHands(root, { revealAll = false, showPartner = false, activePlayer = -1, onPlay = null } = {}) {
+  const sortCmp = (/** @type {Card} */ a, /** @type {Card} */ b) => SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit) || b.rank - a.rank;
   for (let i = 0; i < 4; i++) {
     const handEl = el('div', 'hand hand-' + POSITIONS[i]);
     const handHidden = !revealAll && i !== 0 && !(showPartner && i === 2) && !debugShowAll;
     const isActive = i === activePlayer;
     const checkLegal = isActive && isHuman(i);
+
+    // Separate into visible and hidden, sort visible, concat
+    /** @type {Card[]} */
+    const visible = [];
+    /** @type {Card[]} */
+    const hidden = [];
     for (const card of hands[i]) {
       const revealed = revealedHandCard.some(c => c.rank === card.rank && c.suit === card.suit);
-      const hidden = handHidden && !revealed;
+      if (!handHidden || revealed) visible.push(card);
+      else hidden.push(card);
+    }
+    visible.sort(sortCmp);
+    const ordered = [...visible, ...hidden];
+
+    for (const card of ordered) {
+      const isHiddenCard = hidden.includes(card);
       const legal = checkLegal ? canPlay(card, hands[i]) : false;
       const active = isActive && (!checkLegal || legal);
       const onClick = (checkLegal && legal && onPlay) ? () => onPlay(i, card) : null;
-      handEl.appendChild(renderCard(card, { hidden, active, onClick }));
+      handEl.appendChild(renderCard(card, { hidden: isHiddenCard, active, onClick }));
     }
     root.appendChild(handEl);
   }
@@ -412,12 +526,20 @@ function renderOraclePicking(section) {
     const oracle = currentOracles[i];
     const oracleEl = el('div', 'oracle-card' + (selectedOracleIndex === i ? ' selected' : ''));
     oracleEl.appendChild(el('div', 'oracle-label', oracle.label));
-    const choiceLabel = oracle.choiceType === 'player' ? '[choose player]' : oracle.choiceType === 'honor' ? '[choose honor]' : '[choose suit]';
+    const choiceLabel = oracle.choiceType === 'none' ? '[auto]'
+      : oracle.choiceType === 'opponent' ? '[choose opponent]'
+      : oracle.choiceType === 'honor' ? '[choose honor]'
+      : '[choose suit]';
     oracleEl.appendChild(el('div', 'oracle-choice-type', choiceLabel));
     const idx = i;
     oracleEl.addEventListener('click', () => {
       selectedOracleIndex = idx;
-      render();
+      // "none" oracles resolve immediately
+      if (oracle.choiceType === 'none') {
+        resolveOracle();
+      } else {
+        render();
+      }
     });
     oracleRow.appendChild(oracleEl);
   }
@@ -430,18 +552,16 @@ function renderOraclePicking(section) {
   const oracle = hasSelection ? currentOracles[selectedOracleIndex] : null;
   const choiceRow = el('div', 'choice-row');
 
-  if (!oracle || oracle.choiceType === 'player') {
-    for (const p of HIDDEN_PLAYERS) {
-      const btn = el('button', 'choice-btn' + (hasSelection ? '' : ' disabled'), PLAYER_LABELS[p]);
-      if (hasSelection) {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          resolveOracle(p);
-        });
-      }
+  if (oracle && oracle.choiceType === 'opponent') {
+    for (const p of [1, 3]) {
+      const btn = el('button', 'choice-btn', PLAYER_LABELS[p]);
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resolveOracle(p);
+      });
       choiceRow.appendChild(btn);
     }
-  } else if (oracle.choiceType === 'honor') {
+  } else if (oracle && oracle.choiceType === 'honor') {
     for (const [label, rank] of Object.entries(HONOR_RANKS)) {
       const btn = el('button', 'choice-btn', label);
       btn.addEventListener('click', (e) => {
@@ -450,7 +570,7 @@ function renderOraclePicking(section) {
       });
       choiceRow.appendChild(btn);
     }
-  } else {
+  } else if (oracle && oracle.choiceType === 'suit') {
     for (const suit of SUITS) {
       const btn = el('button', 'choice-btn suit-btn', suit);
       btn.style.color = suit;
@@ -458,6 +578,13 @@ function renderOraclePicking(section) {
         e.stopPropagation();
         resolveOracle(suit);
       });
+      choiceRow.appendChild(btn);
+    }
+  } else {
+    // Default: suit buttons (most common), disabled if no selection
+    for (const suit of SUITS) {
+      const btn = el('button', 'choice-btn suit-btn disabled', suit);
+      btn.style.color = suit;
       choiceRow.appendChild(btn);
     }
   }
@@ -516,7 +643,7 @@ function renderContractChoice(section) {
   section.appendChild(tierRow);
 }
 
-/** @param {number | Suit} choice */
+/** @param {number | Suit} [choice] */
 function resolveOracle(choice) {
   if (selectedOracleIndex < 0) return;
   const oracle = currentOracles[selectedOracleIndex];
@@ -525,7 +652,7 @@ function resolveOracle(choice) {
   oraclesRemaining--;
   selectedOracleIndex = -1;
   if (oraclesRemaining > 0) {
-    currentOracles = drawOracles(ORACLES_PER_ROUND);
+    currentOracles = oracleDeck.splice(0, 3);
   } else {
     currentOracles = [];
   }
@@ -641,7 +768,8 @@ function startNewRound() {
   dealHands();
   gamePhase = "oracle";
   oraclesRemaining = ORACLES_PER_ROUND;
-  currentOracles = drawOracles(ORACLES_PER_ROUND);
+  oracleDeck = generateOracleDeck();
+  currentOracles = oracleDeck.splice(0, 3);
   chosenTrumpChoice = undefined;
   chosenContract = null;
   oracleResults = [];
@@ -809,7 +937,8 @@ document.addEventListener('keydown', (e) => {
 // --- setup ---
 
 dealHands();
-currentOracles = drawOracles(ORACLES_PER_ROUND);
+oracleDeck = generateOracleDeck();
+currentOracles = oracleDeck.splice(0, 3);
 render();
 requestAnimationFrame((timestamp) => {
   lastTime = timestamp;
