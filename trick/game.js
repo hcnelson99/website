@@ -212,8 +212,10 @@ function oracleExtremeSuit(which) {
     resolve(choice) {
       const player = /** @type {number} */ (choice);
       const counts = SUITS.map(s => ({ suit: s, count: hands[player].filter(c => c.suit === s).length }));
-      counts.sort((a, b) => which === "longest" ? b.count - a.count : a.count - b.count);
-      return `${PLAYER_LABELS[player]}'s ${which} suit is ${counts[0].suit} (${counts[0].count} ${plural("card", counts[0].count)}).`;
+      const extremeCount = which === "longest" ? Math.max(...counts.map(c => c.count)) : Math.min(...counts.map(c => c.count));
+      const tied = counts.filter(c => c.count === extremeCount);
+      const pick = pickRandom(tied);
+      return `${PLAYER_LABELS[player]}'s ${which} suit is ${pick.suit} (${pick.count} ${plural("card", pick.count)}).`;
     }
   };
 }
