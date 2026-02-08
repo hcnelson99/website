@@ -357,28 +357,31 @@ function renderOracleResults(container) {
 }
 
 function renderOracleMode() {
-  // Stage detection:
-  // Stage 1: oraclesRemaining > 0
-  // Stage 2: oraclesRemaining === 0 && chosenTrumpChoice === undefined
-  // Stage 3: chosenTrumpChoice !== undefined
-
-  if (oraclesRemaining > 0) {
-    renderOracleStage1();
-  } else if (chosenTrumpChoice === undefined) {
-    renderOracleStage2();
-  } else {
-    renderOracleStage3();
-  }
-}
-
-/** Stage 1: Pick oracle cards */
-function renderOracleStage1() {
   const root = clearRoot();
   if (!root) return;
 
-  const oracleSection = el('div', 'oracle-section');
+  const section = el('div', 'oracle-section');
 
-  oracleSection.appendChild(el('div', 'section-title', 'ORACLE CARDS (pick one)'));
+  renderOracleResults(section);
+
+  if (oraclesRemaining > 0) {
+    renderOraclePicking(section);
+  } else if (chosenTrumpChoice === undefined) {
+    renderTrumpChoice(section);
+  } else {
+    renderContractChoice(section);
+  }
+
+  const layout = el('div', 'oracle-layout');
+  layout.appendChild(section);
+
+  root.appendChild(layout);
+  renderHands(root, { activePlayer: 0 });
+}
+
+/** @param {HTMLElement} section */
+function renderOraclePicking(section) {
+  section.appendChild(el('div', 'section-title', 'ORACLE CARDS (pick one)'));
 
   const oracleRow = el('div', 'card-row');
   for (let i = 0; i < currentOracles.length; i++) {
@@ -393,9 +396,9 @@ function renderOracleStage1() {
     });
     oracleRow.appendChild(oracleEl);
   }
-  oracleSection.appendChild(oracleRow);
+  section.appendChild(oracleRow);
 
-  oracleSection.appendChild(el('div', 'oracle-remaining', 'Oracles remaining: ' + oraclesRemaining));
+  section.appendChild(el('div', 'oracle-remaining', 'Oracles remaining: ' + oraclesRemaining));
 
   // Choice buttons (always visible, but disabled if no selection)
   const hasSelection = selectedOracleIndex >= 0 && selectedOracleIndex < currentOracles.length;
@@ -424,26 +427,11 @@ function renderOracleStage1() {
       choiceRow.appendChild(btn);
     }
   }
-  oracleSection.appendChild(choiceRow);
-
-  renderOracleResults(oracleSection);
-
-  const layout = el('div', 'oracle-layout');
-  layout.appendChild(oracleSection);
-
-  root.appendChild(layout);
-  renderHands(root, { activePlayer: 0 });
+  section.appendChild(choiceRow);
 }
 
-/** Stage 2: Choose trump suit (all 5 options) */
-function renderOracleStage2() {
-  const root = clearRoot();
-  if (!root) return;
-
-  const section = el('div', 'oracle-section');
-
-  renderOracleResults(section);
-
+/** @param {HTMLElement} section */
+function renderTrumpChoice(section) {
   section.appendChild(el('div', 'section-title', 'CHOOSE TRUMP'));
   const trumpRow = el('div', 'card-row');
 
@@ -463,23 +451,10 @@ function renderOracleStage2() {
     trumpRow.appendChild(cardEl);
   }
   section.appendChild(trumpRow);
-
-  const layout = el('div', 'oracle-layout');
-  layout.appendChild(section);
-
-  root.appendChild(layout);
-  renderHands(root, { activePlayer: 0 });
 }
 
-/** Stage 3: Choose contract tier */
-function renderOracleStage3() {
-  const root = clearRoot();
-  if (!root) return;
-
-  const section = el('div', 'oracle-section');
-
-  renderOracleResults(section);
-
+/** @param {HTMLElement} section */
+function renderContractChoice(section) {
   const trumpLabel = chosenTrumpChoice !== null ? capitalize(/** @type {Suit} */ (chosenTrumpChoice)) : 'No Trump';
   section.appendChild(el('div', 'section-title', 'CHOOSE CONTRACT — ' + trumpLabel));
 
@@ -505,12 +480,6 @@ function renderOracleStage3() {
     tierRow.appendChild(cardEl);
   }
   section.appendChild(tierRow);
-
-  const layout = el('div', 'oracle-layout');
-  layout.appendChild(section);
-
-  root.appendChild(layout);
-  renderHands(root, { activePlayer: 0 });
 }
 
 /** @param {number | Suit} choice */
