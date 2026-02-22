@@ -6,14 +6,36 @@
  * @typedef {"play" | "result"} GamePhase
  */
 
+// --- global styles ---
+
+globalCss`
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body { background: #1a1a2e; color: #eee; font-family: monospace; font-size: 24px; }
+`;
+
+const rootStyle = css`
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas:
+    "left top right"
+    "left center right"
+    "left bottom right";
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+`;
+
+// --- constants ---
+
 /** @type {Suit[]} */
 const SUITS = ["red", "blue", "green", "orange"];
 const CARDS_PER_SUIT = 6;
 const MIN_RANK = 1;
 const MAX_RANK = CARDS_PER_SUIT;
-const PLAYER_LABELS = ["You", "Left Opponent", "Partner", "Right Opponent"];
-const HIDDEN_PLAYERS = [1, 2, 3];
-const POSITIONS = ['bottom', 'left', 'top', 'right'];
+
+// --- state ---
 
 /** @type {Card[][]} */
 const hands = [[], [], [], []];
@@ -39,24 +61,11 @@ let debugShowAll = false;
 
 // --- utility ---
 
-/**
- * @param {string} tag
- * @param {string} [className]
- * @param {string | number | null} [text]
- * @returns {HTMLElement}
- */
-function el(tag, className, text) {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (text != null) e.textContent = String(text);
-  return e;
-}
-
 function clearRoot() {
   const root = document.getElementById('root');
   if (!root) return null;
   root.innerHTML = '';
-  root.classList.remove('play-mode', 'result-mode');
+  root.className = rootStyle;
   return root;
 }
 
@@ -151,30 +160,51 @@ function dealHands() {
   }
 }
 
-// --- rendering ---
+// --- rendering: cards ---
+
+const cardStyle = css`
+  width: 60px;
+  height: 84px;
+  border: none;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 27px;
+  font-weight: bold;
+  box-sizing: border-box;
+  outline: none;
+`;
+const cardInactiveStyle = css`background: #AAA;`;
+const cardActiveStyle = css`background: white; cursor: pointer;`;
+const sideCardStyle = css`width: 84px; height: 60px;`;
 
 /**
  * @param {Card} card
- * @param {{hidden?: boolean, active?: boolean, onClick?: (() => void) | null}} opts
+ * @param {{hidden?: boolean, active?: boolean, sideCard?: boolean, onClick?: (() => void) | null}} opts
  */
 function renderCard(card, opts = {}) {
-  let classes = 'card';
-  if (opts.hidden) classes += ' hidden';
-  if (!opts.active) classes += ' inactive';
-  if (opts.active) classes += ' active';
-  const cardEl = el('div', classes);
-
-  if (!opts.hidden) {
-    cardEl.textContent = rankLabel(card.rank);
-    cardEl.style.color = card.suit;
-  }
-
-  if (opts.onClick) {
-    cardEl.addEventListener('click', opts.onClick);
-  }
-
-  return cardEl;
+  return div({
+    class: [cardStyle, opts.active ? cardActiveStyle : cardInactiveStyle, opts.sideCard && sideCardStyle],
+    style: opts.hidden ? undefined : { color: card.suit },
+    onclick: opts.onClick,
+  }, opts.hidden ? null : rankLabel(card.rank));
 }
+
+// --- rendering: hands ---
+
+const handStyle = css`
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 15px;
+`;
+const handBottomStyle = css`grid-area: bottom;`;
+const handTopStyle = css`grid-area: top;`;
+const handLeftStyle = css`grid-area: left; flex-direction: column;`;
+const handRightStyle = css`grid-area: right; flex-direction: column; justify-self: end;`;
+const HAND_POS_STYLES = [handBottomStyle, handLeftStyle, handTopStyle, handRightStyle];
 
 /**
  * @param {HTMLElement} root
@@ -183,7 +213,7 @@ function renderCard(card, opts = {}) {
 function renderHands(root, { revealAll = false, showPartner = false, activePlayer = -1, onPlay = null } = {}) {
   const sortCmp = (/** @type {Card} */ a, /** @type {Card} */ b) => SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit) || b.rank - a.rank;
   for (let i = 0; i < 4; i++) {
-    const handEl = el('div', 'hand hand-' + POSITIONS[i]);
+    const isSide = i === 1 || i === 3;
     const handHidden = !revealAll && i !== 0 && !(showPartner && i === 2) && !debugShowAll;
     const isActive = i === activePlayer;
     const checkLegal = isActive && isHuman(i);
@@ -191,31 +221,80 @@ function renderHands(root, { revealAll = false, showPartner = false, activePlaye
     const sorted = [...hands[i]];
     if (!handHidden) sorted.sort(sortCmp);
 
-    for (const card of sorted) {
-      const legal = checkLegal ? canPlay(card, hands[i]) : false;
-      const active = isActive && (!checkLegal || legal);
-      const onClick = (checkLegal && legal && onPlay) ? () => onPlay(i, card) : null;
-      handEl.appendChild(renderCard(card, { hidden: handHidden, active, onClick }));
-    }
-    root.appendChild(handEl);
+    root.appendChild(
+      div({ class: [handStyle, HAND_POS_STYLES[i]] },
+        ...sorted.map(card => {
+          const legal = checkLegal ? canPlay(card, hands[i]) : false;
+          const active = isActive && (!checkLegal || legal);
+          const onClick = (checkLegal && legal && onPlay) ? () => onPlay(i, card) : null;
+          return renderCard(card, { hidden: handHidden, active, onClick, sideCard: isSide });
+        })
+      )
+    );
   }
 }
 
-/** @param {HTMLElement} container */
-function renderChecklist(container) {
-  const checklist = el('div', 'checklist');
-  checklist.appendChild(el('div', 'checklist-title', 'Deal ' + dealNumber + '/' + (CARDS_PER_SUIT + 1)));
+// --- rendering: checklist ---
+
+const checklistStyle = css`font-size: 18px; line-height: 1.8;`;
+const checklistTitleStyle = css`font-size: 21px; color: #aaa; margin-bottom: 6px;`;
+const checklistItemStyle = css`color: #888;`;
+const checklistScoredStyle = css`text-decoration: line-through; color: #4a4;`;
+const checklistBonusStyle = css`color: #ee2;`;
+
+function renderChecklist() {
+  const items = [];
   for (let i = 0; i <= CARDS_PER_SUIT; i++) {
     const scored = scoredTricks.has(i);
     const isBonus = !scored && i === bonusTrickCount;
-    let cls = 'checklist-item';
-    if (scored) cls += ' scored';
-    if (isBonus) cls += ' bonus';
-    const label = i + ' ' + plural('trick', i) + (isBonus ? ' *BONUS*' : '');
-    checklist.appendChild(el('div', cls, label));
+    items.push(div(
+      { class: [checklistItemStyle, scored && checklistScoredStyle, isBonus && checklistBonusStyle] },
+      i + ' ' + plural('trick', i) + (isBonus ? ' *BONUS*' : '')
+    ));
   }
-  container.appendChild(checklist);
+  return div({ class: checklistStyle },
+    div({ class: checklistTitleStyle }, 'Deal ' + dealNumber + '/' + (CARDS_PER_SUIT + 1)),
+    ...items
+  );
 }
+
+// --- rendering: play mode ---
+
+const hudLeftStyle = css`
+  grid-area: left;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+const hudRightStyle = css`
+  grid-area: right;
+  padding: 15px;
+  text-align: right;
+  justify-self: end;
+`;
+const scoreStyle = css`font-size: 24px;`;
+const trumpIndicatorStyle = css`
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+`;
+
+const trickStyle = css`
+  grid-area: center;
+  justify-self: center;
+  align-self: center;
+  position: relative;
+  width: 240px;
+  height: 270px;
+`;
+const trickSlotStyle = css`position: absolute;`;
+const trickBottomStyle = css`bottom: 0; left: 50%; transform: translateX(-50%);`;
+const trickTopStyle = css`top: 0; left: 50%; transform: translateX(-50%);`;
+const trickLeftStyle = css`left: 0; top: 50%; transform: translateY(-50%);`;
+const trickRightStyle = css`right: 0; top: 50%; transform: translateY(-50%);`;
+const TRICK_POS_STYLES = [trickBottomStyle, trickLeftStyle, trickTopStyle, trickRightStyle];
 
 function render() {
   if (gamePhase === "play") {
@@ -225,86 +304,88 @@ function render() {
   }
 }
 
-// --- play mode ---
-
 function renderPlay() {
   const root = clearRoot();
   if (!root) return;
-  root.classList.add('play-mode');
 
   // HUD left
-  const hudLeft = el('div', 'hud-left');
-  hudLeft.appendChild(el('div', 'score', 'Tricks: ' + tricksWon));
-  const trumpEl = el('div', 'trump-indicator');
-  if (trumpSuit) {
-    const label = el('span', '', 'Trump: ');
-    const suitName = el('span', '', capitalize(trumpSuit));
-    suitName.style.color = trumpSuit;
-    trumpEl.appendChild(label);
-    trumpEl.appendChild(suitName);
-  } else {
-    trumpEl.textContent = 'No Trump';
-  }
-  hudLeft.appendChild(trumpEl);
-  root.appendChild(hudLeft);
+  root.appendChild(
+    div({ class: hudLeftStyle },
+      div({ class: scoreStyle }, 'Tricks: ' + tricksWon),
+      trumpSuit
+        ? div({ class: trumpIndicatorStyle },
+            span({}, 'Trump: '),
+            span({ style: { color: trumpSuit } }, capitalize(trumpSuit))
+          )
+        : div({ class: trumpIndicatorStyle }, 'No Trump')
+    )
+  );
 
   // HUD right
-  const hudRight = el('div', 'hud-right');
-  renderChecklist(hudRight);
-  root.appendChild(hudRight);
-
-  const cp = currentPlayer();
-  const trickComplete = currentTrick.length === 4;
+  root.appendChild(
+    div({ class: hudRightStyle }, renderChecklist())
+  );
 
   // Trick area (center)
-  const trickEl = el('div', 'trick');
-  const trickPositions = ['trick-bottom', 'trick-left', 'trick-top', 'trick-right'];
+  const trickEl = div({ class: trickStyle });
   for (let i = 0; i < 4; i++) {
-    const slot = el('div', 'trick-slot ' + trickPositions[i]);
     const trickIndex = (i - leadPlayer + 4) % 4;
-    if (trickIndex < currentTrick.length) {
-      const card = currentTrick[trickIndex];
-      slot.appendChild(renderCard(card, { active: true }));
-    }
-    trickEl.appendChild(slot);
+    trickEl.appendChild(
+      div({ class: [trickSlotStyle, TRICK_POS_STYLES[i]] },
+        trickIndex < currentTrick.length
+          ? renderCard(currentTrick[trickIndex], { active: true })
+          : null
+      )
+    );
   }
   root.appendChild(trickEl);
 
-  const activePlayer = trickComplete ? -1 : cp;
+  const cp = currentPlayer();
+  const activePlayer = currentTrick.length === 4 ? -1 : cp;
   renderHands(root, { showPartner: true, activePlayer, onPlay: playCard });
 }
 
-// --- result mode ---
+// --- rendering: result mode ---
+
+const resultScreenStyle = css`
+  grid-area: center;
+  justify-self: center;
+  align-self: center;
+  text-align: center;
+  cursor: pointer;
+  line-height: 2;
+  padding: 15px;
+`;
+const resultTitleStyle = css`font-size: 42px; font-weight: bold;`;
+const resultContinueStyle = css`margin-top: 30px; color: #888; font-size: 21px;`;
 
 function renderResult() {
   const root = clearRoot();
   if (!root) return;
 
-  const resultEl = el('div', 'result-screen');
-
+  let title, subtitle;
   if (gameOver && gameWon) {
-    resultEl.appendChild(el('div', 'result-title', 'You Win!'));
-    resultEl.appendChild(el('div', '', 'Scored all ' + (CARDS_PER_SUIT + 1) + ' trick counts!'));
+    title = 'You Win!';
+    subtitle = 'Scored all ' + (CARDS_PER_SUIT + 1) + ' trick counts!';
   } else if (gameOver) {
-    resultEl.appendChild(el('div', 'result-title', 'Game Over'));
-    resultEl.appendChild(el('div', '', 'Got ' + tricksWon + ' ' + plural('trick', tricksWon) + ' again!'));
+    title = 'Game Over';
+    subtitle = 'Got ' + tricksWon + ' ' + plural('trick', tricksWon) + ' again!';
   } else {
-    resultEl.appendChild(el('div', 'result-title', 'Deal Complete'));
-    resultEl.appendChild(el('div', '', 'Won ' + tricksWon + ' ' + plural('trick', tricksWon)));
+    title = 'Deal Complete';
+    subtitle = 'Won ' + tricksWon + ' ' + plural('trick', tricksWon);
   }
 
-  renderChecklist(resultEl);
-
-  if (gameOver) {
-    resultEl.appendChild(el('div', 'result-continue', 'Click to start new game'));
-    resultEl.addEventListener('click', startNewGame);
-  } else {
-    resultEl.appendChild(el('div', 'result-continue', 'Click to continue'));
-    resultEl.addEventListener('click', startNewRound);
-  }
+  const resultEl = div({
+    class: resultScreenStyle,
+    onclick: gameOver ? startNewGame : startNewRound,
+  },
+    div({ class: resultTitleStyle }, title),
+    div({}, subtitle),
+    renderChecklist(),
+    div({ class: resultContinueStyle }, gameOver ? 'Click to start new game' : 'Click to continue'),
+  );
 
   root.appendChild(resultEl);
-  root.classList.add('result-mode');
   renderHands(root, { revealAll: true });
 }
 
@@ -379,7 +460,7 @@ function resolveTrick() {
   currentTrick = [];
 
   // Check if round is over
-  const roundOver = hands.every(h => h.length === 0);
+  const roundOver = hands.every(hand => hand.length === 0);
   if (roundOver) {
     if (scoredTricks.has(tricksWon)) {
       gameOver = true;
