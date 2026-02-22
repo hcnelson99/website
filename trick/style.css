@@ -68,15 +68,6 @@ body {
   gap: 9px;
 }
 
-.contract-indicator {
-  font-size: 21px;
-  color: #aaa;
-}
-
-.total-score {
-  font-size: 24px;
-}
-
 .card {
   width: var(--card-w);
   height: var(--card-h);
@@ -94,7 +85,6 @@ body {
 .card.inactive {
   background: #AAA;
 }
-
 
 .card.active {
   background: white;
@@ -160,173 +150,30 @@ body {
   transform: translateY(-50%);
 }
 
-/* Oracle mode */
+/* Checklist */
 
-.oracle-layout {
-  grid-area: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 30px;
-  padding: var(--spacing);
-  overflow-y: auto;
-}
-
-.oracle-section {
-  text-align: center;
-}
-
-.section-title {
-  font-size: 24px;
-  margin-bottom: 15px;
-  color: #aaa;
-}
-
-.card-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  justify-content: center;
-}
-
-.oracle-card {
-  width: 180px;
-  padding: 18px;
-  background: #2a2a4e;
-  border: 2px solid #444;
-  cursor: pointer;
-  text-align: center;
-  position: relative;
-  padding-bottom: 42px;
-  outline: none;
-}
-
-.oracle-card:hover {
-  border-color: #888;
-}
-
-.oracle-card.selected {
-  border-color: #fff;
-}
-
-.oracle-label {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 12px;
-}
-
-.oracle-choice-type {
+.checklist {
   font-size: 18px;
-  color: #888;
-  position: absolute;
-  bottom: 18px;
-  left: 0;
-  right: 0;
+  line-height: 1.8;
 }
 
-.oracle-remaining {
-  margin-top: 12px;
+.checklist-title {
   font-size: 21px;
-  color: #888;
-}
-
-.choice-row {
-  margin-top: 18px;
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.choice-btn {
-  padding: 9px 21px;
-  background: #333;
-  color: #eee;
-  border: 1px solid #666;
-  font-family: monospace;
-  font-size: 21px;
-  cursor: pointer;
-  outline: none;
-}
-
-.choice-btn:hover:not(.disabled) {
-  background: #555;
-}
-
-.choice-btn.disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.suit-btn {
-  font-weight: bold;
-}
-
-.oracle-results {
-  margin-top: 21px;
-  margin-bottom: 30px;
-  font-size: 21px;
-  color: #ccc;
-  line-height: 1.6;
-}
-
-/* Contract section */
-
-.contract-section {
-  text-align: center;
-}
-
-.trump-card {
-  width: 180px;
-  padding: 18px;
-  background: #1e2a3e;
-  border: 2px solid #444;
-  cursor: pointer;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-}
-
-.trump-card:hover:not(.contract-locked) {
-  border-color: #88f;
-}
-
-.trump-card-suit {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.contract-card {
-  width: 180px;
-  padding: 18px;
-  background: #1e3a1e;
-  border: 2px solid #444;
-  cursor: pointer;
-  text-align: center;
-  line-height: 1.6;
-  outline: none;
-}
-
-.contract-card:hover:not(.contract-locked) {
-  border-color: #8f8;
-}
-
-.contract-locked {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.contract-name {
-  font-size: 21px;
-  font-weight: bold;
+  color: #aaa;
   margin-bottom: 6px;
 }
 
-.contract-points {
-  color: #aaa;
-  font-size: 20px;
+.checklist-item {
+  color: #888;
+}
+
+.checklist-item.scored {
+  text-decoration: line-through;
+  color: #4a4;
+}
+
+.checklist-item.bonus {
+  color: #ee2;
 }
 
 /* Result screen */
@@ -346,13 +193,8 @@ body {
   font-weight: bold;
 }
 
-.result-points {
-  font-size: 33px;
-}
-
 .result-continue {
   margin-top: 30px;
   color: #888;
   font-size: 21px;
 }
-
