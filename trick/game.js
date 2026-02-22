@@ -562,6 +562,8 @@ function gameLoop(timestamp) {
             playCard(cp, card);
           }
         }
+      } else if (hands[cp].length === 1 && animationDelay == 0) {
+        playCard(cp, hands[cp][0]);
       }
     }
   }
