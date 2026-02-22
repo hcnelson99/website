@@ -1,5 +1,7 @@
 // @ts-check
 
+import { globalCss, css, div, span } from './ui.js';
+
 /**
  * @typedef {"red" | "blue" | "green" | "orange"} Suit
  * @typedef {{rank: number, suit: Suit}} Card

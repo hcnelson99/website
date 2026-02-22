@@ -23,7 +23,7 @@ let _uiId = 0;
  * @param {TemplateStringsArray} strings
  * @param {(string | number)[]} values
  */
-function globalCss(strings, ...values) {
+export function globalCss(strings, ...values) {
   let body = '';
   for (let i = 0; i < strings.length; i++) {
     body += strings[i];
@@ -47,7 +47,7 @@ function globalCss(strings, ...values) {
  * @param {(string | number)[]} values
  * @returns {string} Generated class name
  */
-function css(strings, ...values) {
+export function css(strings, ...values) {
   const name = `_${_uiId++}`;
   let body = '';
   for (let i = 0; i < strings.length; i++) {
@@ -79,7 +79,7 @@ function css(strings, ...values) {
  * @param {...Children} children
  * @returns {HTMLElementTagNameMap[K]}
  */
-function h(tag, attrs, ...children) {
+export function h(tag, attrs, ...children) {
   const el = document.createElement(tag);
   if (attrs) {
     for (const [k, v] of Object.entries(attrs)) {
@@ -122,43 +122,43 @@ function _appendChildren(parent, children) {
 // Always pass attrs first ({} if none needed).
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLDivElement} */
-const div = (attrs, ...ch) => h('div', attrs, ...ch);
+export const div = (attrs, ...ch) => h('div', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLSpanElement} */
-const span = (attrs, ...ch) => h('span', attrs, ...ch);
+export const span = (attrs, ...ch) => h('span', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLParagraphElement} */
-const p = (attrs, ...ch) => h('p', attrs, ...ch);
+export const p = (attrs, ...ch) => h('p', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLAnchorElement} */
-const a = (attrs, ...ch) => h('a', attrs, ...ch);
+export const a = (attrs, ...ch) => h('a', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLButtonElement} */
-const button = (attrs, ...ch) => h('button', attrs, ...ch);
+export const button = (attrs, ...ch) => h('button', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLHeadingElement} */
-const h1 = (attrs, ...ch) => h('h1', attrs, ...ch);
+export const h1 = (attrs, ...ch) => h('h1', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLHeadingElement} */
-const h2 = (attrs, ...ch) => h('h2', attrs, ...ch);
+export const h2 = (attrs, ...ch) => h('h2', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLHeadingElement} */
-const h3 = (attrs, ...ch) => h('h3', attrs, ...ch);
+export const h3 = (attrs, ...ch) => h('h3', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLUListElement} */
-const ul = (attrs, ...ch) => h('ul', attrs, ...ch);
+export const ul = (attrs, ...ch) => h('ul', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLLIElement} */
-const li = (attrs, ...ch) => h('li', attrs, ...ch);
+export const li = (attrs, ...ch) => h('li', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLInputElement} */
-const input = (attrs, ...ch) => h('input', attrs, ...ch);
+export const input = (attrs, ...ch) => h('input', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLLabelElement} */
-const label = (attrs, ...ch) => h('label', attrs, ...ch);
+export const label = (attrs, ...ch) => h('label', attrs, ...ch);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLImageElement} */
-const img = (attrs) => h('img', attrs);
+export const img = (attrs) => h('img', attrs);
 
 /** @type {(attrs: Record<string, any>, ...children: Children[]) => HTMLCanvasElement} */
-const canvas = (attrs, ...ch) => h('canvas', attrs, ...ch);
+export const canvas = (attrs, ...ch) => h('canvas', attrs, ...ch);
