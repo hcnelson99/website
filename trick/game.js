@@ -1,6 +1,6 @@
 // @ts-check
 
-import { globalCss, css, div, span } from './ui.js';
+import { globalCss, css, div } from './ui.js';
 
 /**
  * @typedef {"red" | "blue" | "green" | "orange"} Suit
@@ -36,6 +36,7 @@ const SUITS = ["red", "blue", "green", "orange"];
 const CARDS_PER_SUIT = 6;
 const MIN_RANK = 1;
 const MAX_RANK = CARDS_PER_SUIT;
+const TRICK_GOALS = [3, 4, 5];
 
 // --- state ---
 
@@ -58,8 +59,10 @@ let dealNumber = 1;
 let scoredTricks = new Set();
 let gameOver = false;
 let gameWon = false;
-let bonusTrickCount = -1;
 let debugShowAll = false;
+/** @type {number | null} */
+let bidGoal = null;
+let gotBonus = false;
 
 // --- utility ---
 
@@ -208,12 +211,14 @@ const handLeftStyle = css`grid-area: left; flex-direction: column;`;
 const handRightStyle = css`grid-area: right; flex-direction: column; justify-self: end;`;
 const HAND_POS_STYLES = [handBottomStyle, handLeftStyle, handTopStyle, handRightStyle];
 
+/** @type {(a: Card, b: Card) => number} */
+const handSortCmp = (a, b) => SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit) || b.rank - a.rank;
+
 /**
  * @param {HTMLElement} root
  * @param {{ revealAll?: boolean, showPartner?: boolean, activePlayer?: number, onPlay?: ((player: number, card: Card) => void) | null }} opts
  */
 function renderHands(root, { revealAll = false, showPartner = false, activePlayer = -1, onPlay = null } = {}) {
-  const sortCmp = (/** @type {Card} */ a, /** @type {Card} */ b) => SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit) || b.rank - a.rank;
   for (let i = 0; i < 4; i++) {
     const isSide = i === 1 || i === 3;
     const handHidden = !revealAll && i !== 0 && !(showPartner && i === 2) && !debugShowAll;
@@ -221,7 +226,7 @@ function renderHands(root, { revealAll = false, showPartner = false, activePlaye
     const checkLegal = isActive && isHuman(i);
 
     const sorted = [...hands[i]];
-    if (!handHidden) sorted.sort(sortCmp);
+    if (!handHidden) sorted.sort(handSortCmp);
 
     root.appendChild(
       div({ class: [handStyle, HAND_POS_STYLES[i]] },
@@ -242,20 +247,20 @@ const checklistStyle = css`font-size: 18px; line-height: 1.8;`;
 const checklistTitleStyle = css`font-size: 21px; color: #aaa; margin-bottom: 6px;`;
 const checklistItemStyle = css`color: #888;`;
 const checklistScoredStyle = css`text-decoration: line-through; color: #4a4;`;
-const checklistBonusStyle = css`color: #ee2;`;
+const checklistBidStyle = css`color: #ee2;`;
 
 function renderChecklist() {
   const items = [];
-  for (let i = 0; i <= CARDS_PER_SUIT; i++) {
-    const scored = scoredTricks.has(i);
-    const isBonus = !scored && i === bonusTrickCount;
+  for (const goal of TRICK_GOALS) {
+    const scored = scoredTricks.has(goal);
+    const isBid = !scored && goal === bidGoal;
     items.push(div(
-      { class: [checklistItemStyle, scored && checklistScoredStyle, isBonus && checklistBonusStyle] },
-      i + ' ' + plural('trick', i) + (isBonus ? ' *BONUS*' : '')
+      { class: [checklistItemStyle, scored && checklistScoredStyle, isBid && checklistBidStyle] },
+      goal + ' ' + plural('trick', goal) + (isBid ? ' *' : '')
     ));
   }
   return div({ class: checklistStyle },
-    div({ class: checklistTitleStyle }, 'Deal ' + dealNumber + '/' + (CARDS_PER_SUIT + 1)),
+    div({ class: checklistTitleStyle }, 'Deal ' + dealNumber + '/' + TRICK_GOALS.length),
     ...items
   );
 }
@@ -268,6 +273,7 @@ const hudLeftStyle = css`
   display: flex;
   flex-direction: column;
   gap: 6px;
+  z-index: 1;
 `;
 const hudRightStyle = css`
   grid-area: right;
@@ -306,6 +312,37 @@ function render() {
   }
 }
 
+const bidStyle = css`
+  grid-area: center;
+  justify-self: center;
+  align-self: center;
+  text-align: center;
+`;
+const bidTitleStyle = css`font-size: 24px; margin-bottom: 15px;`;
+const bidBtnStyle = css`
+  display: inline-block;
+  padding: 12px 24px;
+  margin: 6px;
+  background: #333;
+  color: #eee;
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 24px;
+`;
+const bidBtnRowStyle = css`display: flex; gap: 12px; justify-content: center;`;
+
+const trumpBtnStyle = css`
+  padding: 3px 9px;
+  border: none;
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 18px;
+  font-weight: bold;
+  background: #ddd;
+`;
+const trumpBtnActiveStyle = css`outline: 2px solid #fff; background: #fff;`;
+const trumpBtnRowStyle = css`display: flex; gap: 6px;`;
+
 function renderPlay() {
   const root = clearRoot();
   if (!root) return;
@@ -314,12 +351,21 @@ function renderPlay() {
   root.appendChild(
     div({ class: hudLeftStyle },
       div({ class: scoreStyle }, 'Tricks: ' + tricksWon),
-      trumpSuit
-        ? div({ class: trumpIndicatorStyle },
-            span({}, 'Trump: '),
-            span({ style: { color: trumpSuit } }, capitalize(trumpSuit))
-          )
-        : div({ class: trumpIndicatorStyle }, 'No Trump')
+      div({ class: trumpIndicatorStyle }, 'Trump:'),
+      div({ class: trumpBtnRowStyle },
+        div({
+          class: [trumpBtnStyle, trumpSuit === null && trumpBtnActiveStyle],
+          style: { color: '#888' },
+          onclick: () => { trumpSuit = null; render(); },
+        }, 'None'),
+        ...SUITS.map(suit =>
+          div({
+            class: [trumpBtnStyle, suit === trumpSuit && trumpBtnActiveStyle],
+            style: { color: suit },
+            onclick: () => { trumpSuit = suit; render(); },
+          }, capitalize(suit))
+        )
+      )
     )
   );
 
@@ -327,6 +373,26 @@ function renderPlay() {
   root.appendChild(
     div({ class: hudRightStyle }, renderChecklist())
   );
+
+  if (bidGoal === null) {
+    // Bid picker
+    const unscored = TRICK_GOALS.filter(g => !scoredTricks.has(g));
+    root.appendChild(
+      div({ class: bidStyle },
+        div({ class: bidTitleStyle }, 'Bid for bonus: which goal will you hit?'),
+        div({ class: bidBtnRowStyle },
+          ...unscored.map(goal =>
+            div({ class: bidBtnStyle, onclick: () => {
+              bidGoal = goal;
+              render();
+            }}, goal + '')
+          )
+        )
+      )
+    );
+    renderHands(root, { showPartner: true });
+    return;
+  }
 
   // Trick area (center)
   const trickEl = div({ class: trickStyle });
@@ -368,13 +434,17 @@ function renderResult() {
   let title, subtitle;
   if (gameOver && gameWon) {
     title = 'You Win!';
-    subtitle = 'Scored all ' + (CARDS_PER_SUIT + 1) + ' trick counts!';
+    subtitle = 'Scored all ' + TRICK_GOALS.length + ' trick counts!';
   } else if (gameOver) {
     title = 'Game Over';
-    subtitle = 'Got ' + tricksWon + ' ' + plural('trick', tricksWon) + ' again!';
+    subtitle = TRICK_GOALS.includes(tricksWon)
+      ? 'Got ' + tricksWon + ' ' + plural('trick', tricksWon) + ' again!'
+      : 'Got ' + tricksWon + ' ' + plural('trick', tricksWon) + ' — not a goal!';
   } else {
     title = 'Deal Complete';
-    subtitle = 'Won ' + tricksWon + ' ' + plural('trick', tricksWon);
+    subtitle = gotBonus
+      ? 'Won ' + tricksWon + ' ' + plural('trick', tricksWon) + ' — bonus!'
+      : 'Won ' + tricksWon + ' ' + plural('trick', tricksWon);
   }
 
   const resultEl = div({
@@ -403,17 +473,13 @@ function startNewGame() {
 
 function startNewRound() {
   dealHands();
-  trumpSuit = pickRandom(SUITS);
-  gamePhase = "play";
+  trumpSuit = null;
   tricksWon = 0;
   currentTrick = [];
   leadPlayer = 0;
-  // Pick a random unscored trick count as the bonus
-  const unscored = [];
-  for (let i = 0; i <= CARDS_PER_SUIT; i++) {
-    if (!scoredTricks.has(i)) unscored.push(i);
-  }
-  bonusTrickCount = pickRandom(unscored);
+  bidGoal = null;
+  gotBonus = false;
+  gamePhase = "play";
   render();
 }
 
@@ -464,12 +530,13 @@ function resolveTrick() {
   // Check if round is over
   const roundOver = hands.every(hand => hand.length === 0);
   if (roundOver) {
-    if (scoredTricks.has(tricksWon)) {
+    if (!TRICK_GOALS.includes(tricksWon) || scoredTricks.has(tricksWon)) {
       gameOver = true;
       gameWon = false;
     } else {
+      gotBonus = tricksWon === bidGoal;
       scoredTricks.add(tricksWon);
-      if (scoredTricks.size === CARDS_PER_SUIT + 1) {
+      if (scoredTricks.size === TRICK_GOALS.length) {
         gameOver = true;
         gameWon = true;
       }
@@ -545,7 +612,7 @@ function gameLoop(timestamp) {
   animationDelay -= dt;
   if (animationDelay < 0) animationDelay = 0;
 
-  if (gamePhase === "play") {
+  if (gamePhase === "play" && bidGoal !== null) {
     if (currentTrick.length === 4) {
       if (animationDelay == 0) {
         resolveTrick();
