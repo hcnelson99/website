@@ -39,7 +39,7 @@ const MAX_RANK = CARDS_PER_SUIT;
 const TRICK_GOALS = [0, 1, 2, 3, 4, 5, 6, 7];
 const BONUS_REWARD = 5;
 const COST_TRUMP = 10;
-const COST_REDEAL = 5;
+const COST_REDEAL = 3;
 const COST_DRAW_DISCARD = 2;
 
 // --- state ---
