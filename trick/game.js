@@ -70,6 +70,8 @@ let boughtTrump = false;
 let discardTarget = null;
 /** @type {number | null} */
 let justScored = null;
+/** @type {Card | null} */
+let highlightedCard = null;
 
 // --- utility ---
 
@@ -189,15 +191,16 @@ const cardStyle = css`
 `;
 const cardInactiveStyle = css`background: #AAA;`;
 const cardActiveStyle = css`background: white; cursor: pointer;`;
+const cardHighlightStyle = css`background: #ffa; cursor: pointer;`;
 const sideCardStyle = css`width: 84px; height: 60px;`;
 
 /**
  * @param {Card} card
- * @param {{hidden?: boolean, active?: boolean, sideCard?: boolean, onClick?: (() => void) | null}} opts
+ * @param {{hidden?: boolean, active?: boolean, highlighted?: boolean, sideCard?: boolean, onClick?: (() => void) | null}} opts
  */
 function renderCard(card, opts = {}) {
   return div({
-    class: [cardStyle, opts.active ? cardActiveStyle : cardInactiveStyle, opts.sideCard && sideCardStyle],
+    class: [cardStyle, opts.highlighted ? cardHighlightStyle : opts.active ? cardActiveStyle : cardInactiveStyle, opts.sideCard && sideCardStyle],
     style: opts.hidden ? undefined : { color: card.suit },
     onclick: opts.onClick,
   }, opts.hidden ? null : rankLabel(card.rank));
@@ -241,7 +244,8 @@ function renderHands(root, { revealAll = false, showPartner = false, activePlaye
           const legal = checkLegal ? (allPlayable || canPlay(card, hands[i])) : false;
           const active = isActive && (!checkLegal || legal);
           const onClick = (checkLegal && legal && onPlay) ? () => onPlay(i, card) : null;
-          return renderCard(card, { hidden: handHidden, active, onClick, sideCard: isSide });
+          const highlighted = card === highlightedCard;
+          return renderCard(card, { hidden: handHidden, active, highlighted, onClick, sideCard: isSide });
         })
       )
     );
@@ -384,6 +388,7 @@ function renderPlay() {
         hands[0].splice(idx, 1);
         hands[dt].push(card);
         discardTarget = null;
+        highlightedCard = null;
         render();
       }});
       return;
@@ -450,6 +455,7 @@ function renderPlay() {
             const card = pickRandom(hands[opponent]);
             hands[opponent].splice(hands[opponent].indexOf(card), 1);
             hands[0].push(card);
+            highlightedCard = card;
             discardTarget = opponent;
             render();
           },
