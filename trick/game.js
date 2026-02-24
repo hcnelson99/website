@@ -37,6 +37,10 @@ const CARDS_PER_SUIT = 7;
 const MIN_RANK = 1;
 const MAX_RANK = CARDS_PER_SUIT;
 const TRICK_GOALS = [0, 1, 2, 3, 4, 5, 6, 7];
+const BONUS_REWARD = 5;
+const COST_TRUMP = 10;
+const COST_REDEAL = 5;
+const COST_DRAW_DISCARD = 2;
 
 // --- state ---
 
@@ -275,7 +279,7 @@ function renderChecklist() {
       label = '💀 ' + goal + ' ' + plural('trick', goal);
       itemClass = [checklistItemStyle, checklistScoredStyle];
     } else {
-      label = goal + ' ' + plural('trick', goal) + (isBonus ? ' — $' + (goal + 5) : ' — $' + goal);
+      label = goal + ' ' + plural('trick', goal) + (isBonus ? ' — $' + (goal + BONUS_REWARD) : ' — $' + goal);
       itemClass = [checklistItemStyle, isBonus && checklistBonusStyle];
     }
     items.push(div({ class: itemClass }, label));
@@ -400,15 +404,15 @@ function renderPlay() {
     // Trump purchase
     if (!boughtTrump) {
       shopItems.push(
-        div({ class: bidTitleStyle }, 'Trump ($10)'),
+        div({ class: bidTitleStyle }, 'Trump ($' + COST_TRUMP + ')'),
         div({ class: bidBtnRowStyle },
           ...SUITS.map(suit =>
             div({
-              class: [bidBtnStyle, money < 10 && css`opacity: 0.4; cursor: default;`],
+              class: [bidBtnStyle, money < COST_TRUMP && css`opacity: 0.4; cursor: default;`],
               style: { color: suit },
               onclick: () => {
-                if (money < 10) return;
-                money -= 10;
+                if (money < COST_TRUMP) return;
+                money -= COST_TRUMP;
                 boughtTrump = true;
                 trumpSuit = suit;
                 render();
@@ -436,21 +440,21 @@ function renderPlay() {
     shopItems.push(
       div({ class: bidBtnRowStyle, style: { marginTop: '18px' } },
         div({
-          class: [bidBtnStyle, money < 5 && css`opacity: 0.4; cursor: default;`],
+          class: [bidBtnStyle, money < COST_REDEAL && css`opacity: 0.4; cursor: default;`],
           onclick: () => {
-            if (money < 5) return;
-            money -= 5;
+            if (money < COST_REDEAL) return;
+            money -= COST_REDEAL;
             dealHands();
             boughtTrump = false;
             trumpSuit = null;
             render();
           },
-        }, 'Redeal ($5)'),
+        }, 'Redeal ($' + COST_REDEAL + ')'),
         div({
-          class: [bidBtnStyle, money < 2 && css`opacity: 0.4; cursor: default;`],
+          class: [bidBtnStyle, money < COST_DRAW_DISCARD && css`opacity: 0.4; cursor: default;`],
           onclick: () => {
-            if (money < 2) return;
-            money -= 2;
+            if (money < COST_DRAW_DISCARD) return;
+            money -= COST_DRAW_DISCARD;
             const opponent = pickRandom([1, 3]);
             const card = pickRandom(hands[opponent]);
             hands[opponent].splice(hands[opponent].indexOf(card), 1);
@@ -459,7 +463,7 @@ function renderPlay() {
             discardTarget = opponent;
             render();
           },
-        }, 'Draw & Discard ($2)'),
+        }, 'Draw & Discard ($' + COST_DRAW_DISCARD + ')'),
         div({
           class: [bidBtnStyle, css`background: #484;`],
           onclick: () => { showShop = false; render(); },
@@ -522,7 +526,7 @@ function renderResult() {
     title = 'Deal Complete';
     subtitle = 'Won ' + tricksWon + ' ' + plural('trick', tricksWon);
     moneyInfo = '+$' + tricksWon;
-    if (gotBonus) moneyInfo += ' +$5 bonus';
+    if (gotBonus) moneyInfo += ' +$' + BONUS_REWARD + ' bonus';
   }
 
   const resultEl = div({
@@ -624,7 +628,7 @@ function resolveTrick() {
       gameWon = false;
     } else {
       gotBonus = tricksWon === bonusGoal;
-      if (gotBonus) money += 5;
+      if (gotBonus) money += BONUS_REWARD;
       justScored = tricksWon;
       scoredTricks.add(tricksWon);
       if (scoredTricks.size === TRICK_GOALS.length) {
