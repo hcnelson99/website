@@ -33,10 +33,10 @@ const rootStyle = css`
 
 /** @type {Suit[]} */
 const SUITS = ["red", "blue", "green", "orange"];
-const CARDS_PER_SUIT = 6;
+const CARDS_PER_SUIT = 7;
 const MIN_RANK = 1;
 const MAX_RANK = CARDS_PER_SUIT;
-const TRICK_GOALS = [3, 4, 5];
+const TRICK_GOALS = [0, 1, 2, 3, 4, 5, 6, 7];
 
 // --- state ---
 
@@ -61,8 +61,15 @@ let gameOver = false;
 let gameWon = false;
 let debugShowAll = false;
 /** @type {number | null} */
-let bidGoal = null;
+let bonusGoal = null;
 let gotBonus = false;
+let money = 0;
+let showShop = true;
+let boughtTrump = false;
+/** @type {number | null} */
+let discardTarget = null;
+/** @type {number | null} */
+let justScored = null;
 
 // --- utility ---
 
@@ -216,9 +223,9 @@ const handSortCmp = (a, b) => SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit) || b
 
 /**
  * @param {HTMLElement} root
- * @param {{ revealAll?: boolean, showPartner?: boolean, activePlayer?: number, onPlay?: ((player: number, card: Card) => void) | null }} opts
+ * @param {{ revealAll?: boolean, showPartner?: boolean, activePlayer?: number, onPlay?: ((player: number, card: Card) => void) | null, allPlayable?: boolean }} opts
  */
-function renderHands(root, { revealAll = false, showPartner = false, activePlayer = -1, onPlay = null } = {}) {
+function renderHands(root, { revealAll = false, showPartner = false, activePlayer = -1, onPlay = null, allPlayable = false } = {}) {
   for (let i = 0; i < 4; i++) {
     const isSide = i === 1 || i === 3;
     const handHidden = !revealAll && i !== 0 && !(showPartner && i === 2) && !debugShowAll;
@@ -231,7 +238,7 @@ function renderHands(root, { revealAll = false, showPartner = false, activePlaye
     root.appendChild(
       div({ class: [handStyle, HAND_POS_STYLES[i]] },
         ...sorted.map(card => {
-          const legal = checkLegal ? canPlay(card, hands[i]) : false;
+          const legal = checkLegal ? (allPlayable || canPlay(card, hands[i])) : false;
           const active = isActive && (!checkLegal || legal);
           const onClick = (checkLegal && legal && onPlay) ? () => onPlay(i, card) : null;
           return renderCard(card, { hidden: handHidden, active, onClick, sideCard: isSide });
@@ -246,18 +253,28 @@ function renderHands(root, { revealAll = false, showPartner = false, activePlaye
 const checklistStyle = css`font-size: 18px; line-height: 1.8;`;
 const checklistTitleStyle = css`font-size: 21px; color: #aaa; margin-bottom: 6px;`;
 const checklistItemStyle = css`color: #888;`;
-const checklistScoredStyle = css`text-decoration: line-through; color: #4a4;`;
-const checklistBidStyle = css`color: #ee2;`;
+const checklistScoredStyle = css`color: #c44;`;
+const checklistJustScoredStyle = css`color: #4a4;`;
+const checklistBonusStyle = css`color: #ee2;`;
 
 function renderChecklist() {
   const items = [];
   for (const goal of TRICK_GOALS) {
     const scored = scoredTricks.has(goal);
-    const isBid = !scored && goal === bidGoal;
-    items.push(div(
-      { class: [checklistItemStyle, scored && checklistScoredStyle, isBid && checklistBidStyle] },
-      goal + ' ' + plural('trick', goal) + (isBid ? ' *' : '')
-    ));
+    const isJustScored = goal === justScored;
+    const isBonus = !scored && goal === bonusGoal;
+    let label, itemClass;
+    if (isJustScored) {
+      label = '✓ ' + goal + ' ' + plural('trick', goal);
+      itemClass = [checklistItemStyle, checklistJustScoredStyle];
+    } else if (scored) {
+      label = '💀 ' + goal + ' ' + plural('trick', goal);
+      itemClass = [checklistItemStyle, checklistScoredStyle];
+    } else {
+      label = goal + ' ' + plural('trick', goal) + (isBonus ? ' — $' + (goal + 5) : ' — $' + goal);
+      itemClass = [checklistItemStyle, isBonus && checklistBonusStyle];
+    }
+    items.push(div({ class: itemClass }, label));
   }
   return div({ class: checklistStyle },
     div({ class: checklistTitleStyle }, 'Deal ' + dealNumber + '/' + TRICK_GOALS.length),
@@ -331,17 +348,6 @@ const bidBtnStyle = css`
 `;
 const bidBtnRowStyle = css`display: flex; gap: 12px; justify-content: center;`;
 
-const trumpBtnStyle = css`
-  padding: 3px 9px;
-  border: none;
-  cursor: pointer;
-  font-family: monospace;
-  font-size: 18px;
-  font-weight: bold;
-  background: #ddd;
-`;
-const trumpBtnActiveStyle = css`outline: 2px solid #fff; background: #fff;`;
-const trumpBtnRowStyle = css`display: flex; gap: 6px;`;
 
 function renderPlay() {
   const root = clearRoot();
@@ -351,21 +357,10 @@ function renderPlay() {
   root.appendChild(
     div({ class: hudLeftStyle },
       div({ class: scoreStyle }, 'Tricks: ' + tricksWon),
-      div({ class: trumpIndicatorStyle }, 'Trump:'),
-      div({ class: trumpBtnRowStyle },
-        div({
-          class: [trumpBtnStyle, trumpSuit === null && trumpBtnActiveStyle],
-          style: { color: '#888' },
-          onclick: () => { trumpSuit = null; render(); },
-        }, 'None'),
-        ...SUITS.map(suit =>
-          div({
-            class: [trumpBtnStyle, suit === trumpSuit && trumpBtnActiveStyle],
-            style: { color: suit },
-            onclick: () => { trumpSuit = suit; render(); },
-          }, capitalize(suit))
-        )
-      )
+      div({ class: scoreStyle }, '$' + money),
+      trumpSuit
+        ? div({ class: trumpIndicatorStyle }, 'Trump: ', div({ style: { color: trumpSuit, fontWeight: 'bold' } }, capitalize(trumpSuit)))
+        : div({ class: trumpIndicatorStyle }, 'Trump: None'),
     )
   );
 
@@ -374,21 +369,100 @@ function renderPlay() {
     div({ class: hudRightStyle }, renderChecklist())
   );
 
-  if (bidGoal === null) {
-    // Bid picker
-    const unscored = TRICK_GOALS.filter(g => !scoredTricks.has(g));
-    root.appendChild(
-      div({ class: bidStyle },
-        div({ class: bidTitleStyle }, 'Bid for bonus: which goal will you hit?'),
+  if (showShop) {
+    if (discardTarget !== null) {
+      // Discard mode: pick a card to give back
+      root.appendChild(
+        div({ class: bidStyle },
+          div({ class: bidTitleStyle }, 'Pick a card to discard'),
+        )
+      );
+      const dt = discardTarget;
+      renderHands(root, { showPartner: true, activePlayer: 0, allPlayable: true, onPlay: (_player, card) => {
+        const idx = hands[0].indexOf(card);
+        if (idx === -1) return;
+        hands[0].splice(idx, 1);
+        hands[dt].push(card);
+        discardTarget = null;
+        render();
+      }});
+      return;
+    }
+
+    // Shop
+    const shopItems = [];
+
+    // Trump purchase
+    if (!boughtTrump) {
+      shopItems.push(
+        div({ class: bidTitleStyle }, 'Trump ($10)'),
         div({ class: bidBtnRowStyle },
-          ...unscored.map(goal =>
-            div({ class: bidBtnStyle, onclick: () => {
-              bidGoal = goal;
-              render();
-            }}, goal + '')
+          ...SUITS.map(suit =>
+            div({
+              class: [bidBtnStyle, money < 10 && css`opacity: 0.4; cursor: default;`],
+              style: { color: suit },
+              onclick: () => {
+                if (money < 10) return;
+                money -= 10;
+                boughtTrump = true;
+                trumpSuit = suit;
+                render();
+              },
+            }, capitalize(suit))
           )
         )
+      );
+    } else {
+      shopItems.push(
+        div({ class: bidTitleStyle }, 'Trump'),
+        div({ class: bidBtnRowStyle },
+          ...SUITS.map(suit =>
+            div({
+              class: [bidBtnStyle, suit === trumpSuit && css`outline: 2px solid #fff;`],
+              style: { color: suit },
+              onclick: () => { trumpSuit = suit; render(); },
+            }, capitalize(suit))
+          )
+        )
+      );
+    }
+
+    // Redeal and Draw & Discard
+    shopItems.push(
+      div({ class: bidBtnRowStyle, style: { marginTop: '18px' } },
+        div({
+          class: [bidBtnStyle, money < 5 && css`opacity: 0.4; cursor: default;`],
+          onclick: () => {
+            if (money < 5) return;
+            money -= 5;
+            dealHands();
+            boughtTrump = false;
+            trumpSuit = null;
+            render();
+          },
+        }, 'Redeal ($5)'),
+        div({
+          class: [bidBtnStyle, money < 2 && css`opacity: 0.4; cursor: default;`],
+          onclick: () => {
+            if (money < 2) return;
+            money -= 2;
+            const opponent = pickRandom([1, 3]);
+            const card = pickRandom(hands[opponent]);
+            hands[opponent].splice(hands[opponent].indexOf(card), 1);
+            hands[0].push(card);
+            discardTarget = opponent;
+            render();
+          },
+        }, 'Draw & Discard ($2)'),
+        div({
+          class: [bidBtnStyle, css`background: #484;`],
+          onclick: () => { showShop = false; render(); },
+        }, 'Play'),
       )
+    );
+
+    root.appendChild(
+      div({ class: bidStyle }, ...shopItems)
     );
     renderHands(root, { showPartner: true });
     return;
@@ -431,20 +505,18 @@ function renderResult() {
   const root = clearRoot();
   if (!root) return;
 
-  let title, subtitle;
+  let title, subtitle, moneyInfo = '';
   if (gameOver && gameWon) {
     title = 'You Win!';
     subtitle = 'Scored all ' + TRICK_GOALS.length + ' trick counts!';
   } else if (gameOver) {
     title = 'Game Over';
-    subtitle = TRICK_GOALS.includes(tricksWon)
-      ? 'Got ' + tricksWon + ' ' + plural('trick', tricksWon) + ' again!'
-      : 'Got ' + tricksWon + ' ' + plural('trick', tricksWon) + ' — not a goal!';
+    subtitle = 'Got ' + tricksWon + ' ' + plural('trick', tricksWon) + ' again!';
   } else {
     title = 'Deal Complete';
-    subtitle = gotBonus
-      ? 'Won ' + tricksWon + ' ' + plural('trick', tricksWon) + ' — bonus!'
-      : 'Won ' + tricksWon + ' ' + plural('trick', tricksWon);
+    subtitle = 'Won ' + tricksWon + ' ' + plural('trick', tricksWon);
+    moneyInfo = '+$' + tricksWon;
+    if (gotBonus) moneyInfo += ' +$5 bonus';
   }
 
   const resultEl = div({
@@ -453,6 +525,7 @@ function renderResult() {
   },
     div({ class: resultTitleStyle }, title),
     div({}, subtitle),
+    moneyInfo ? div({ style: { color: '#4a4', fontSize: '24px' } }, moneyInfo) : null,
     renderChecklist(),
     div({ class: resultContinueStyle }, gameOver ? 'Click to start new game' : 'Click to continue'),
   );
@@ -466,6 +539,7 @@ function renderResult() {
 function startNewGame() {
   scoredTricks = new Set();
   dealNumber = 1;
+  money = 0;
   gameOver = false;
   gameWon = false;
   startNewRound();
@@ -477,8 +551,16 @@ function startNewRound() {
   tricksWon = 0;
   currentTrick = [];
   leadPlayer = 0;
-  bidGoal = null;
   gotBonus = false;
+  showShop = money > 0;
+  boughtTrump = false;
+  discardTarget = null;
+  justScored = null;
+
+  // Auto-pick random bonus goal (no bonus if only 1 goal left)
+  const unscored = TRICK_GOALS.filter(g => !scoredTricks.has(g));
+  bonusGoal = unscored.length > 1 ? pickRandom(unscored) : null;
+
   gamePhase = "play";
   render();
 }
@@ -530,11 +612,14 @@ function resolveTrick() {
   // Check if round is over
   const roundOver = hands.every(hand => hand.length === 0);
   if (roundOver) {
+    money += tricksWon;
     if (!TRICK_GOALS.includes(tricksWon) || scoredTricks.has(tricksWon)) {
       gameOver = true;
       gameWon = false;
     } else {
-      gotBonus = tricksWon === bidGoal;
+      gotBonus = tricksWon === bonusGoal;
+      if (gotBonus) money += 5;
+      justScored = tricksWon;
       scoredTricks.add(tricksWon);
       if (scoredTricks.size === TRICK_GOALS.length) {
         gameOver = true;
@@ -612,7 +697,7 @@ function gameLoop(timestamp) {
   animationDelay -= dt;
   if (animationDelay < 0) animationDelay = 0;
 
-  if (gamePhase === "play" && bidGoal !== null) {
+  if (gamePhase === "play" && !showShop) {
     if (currentTrick.length === 4) {
       if (animationDelay == 0) {
         resolveTrick();
