@@ -252,6 +252,9 @@ function renderReading() {
 // ── Init ───────────────────────────────────────────────────
 
 async function init() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+  }
   await loadBooks();
   await selectBook(books[0]);
 }
