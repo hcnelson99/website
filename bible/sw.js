@@ -1,5 +1,6 @@
 // @ts-check
-const CACHE = 'bible-v1';
+const APP_CACHE = 'bible-app-v1';
+const DATA_CACHE = 'bible-data-v1';
 
 const APP_FILES = [
   './',
@@ -23,33 +24,36 @@ const BOOK_IDS = [
   '3john', 'jude', 'revelation',
 ];
 
-const ALL_FILES = [...APP_FILES, ...BOOK_IDS.map(id => `./data/${id}.txt`)];
+const DATA_FILES = BOOK_IDS.map(id => `./data/${id}.txt`);
+const KEEP_CACHES = new Set([APP_CACHE, DATA_CACHE]);
 
-// Pre-cache everything on install
 self.addEventListener('install', (/** @type {any} */ e) => {
-  e.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(ALL_FILES))
-  );
+  e.waitUntil(Promise.all([
+    caches.open(APP_CACHE).then(cache => cache.addAll(APP_FILES)),
+    caches.open(DATA_CACHE).then(cache => cache.addAll(DATA_FILES)),
+  ]));
   /** @type {any} */ (self).skipWaiting();
 });
 
-// Clean up old caches on activate
+// Clean up old caches, then reload all clients
 self.addEventListener('activate', (/** @type {any} */ e) => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => !KEEP_CACHES.has(k)).map(k => caches.delete(k))))
+      .then(() => /** @type {any} */ (self).clients.claim())
+      .then(() => /** @type {any} */ (self).clients.matchAll())
+      .then((/** @type {any[]} */ clients) => clients.forEach(c => c.navigate(c.url)))
   );
-  /** @type {any} */ (self).clients.claim();
 });
 
 // Network-first: try network, fall back to cache
 self.addEventListener('fetch', (/** @type {any} */ e) => {
+  const cacheName = e.request.url.includes('/data/') ? DATA_CACHE : APP_CACHE;
   e.respondWith(
     fetch(e.request)
       .then(res => {
         const clone = res.clone();
-        caches.open(CACHE).then(cache => cache.put(e.request, clone));
+        caches.open(cacheName).then(cache => cache.put(e.request, clone));
         return res;
       })
       .catch(() => caches.match(e.request))
