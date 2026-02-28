@@ -84,6 +84,19 @@ const loadingCls = css`
   font-style: italic;
 `;
 
+const nextChapterBtn = css`
+  display: block;
+  margin: 32px auto 0;
+  padding: 10px 24px;
+  font: inherit;
+  font-size: 0.9rem;
+  background: #f0ece4;
+  border: 1px solid #c5bfb0;
+  border-radius: 4px;
+  color: #3a3226;
+  cursor: pointer;
+`;
+
 // ── State ──────────────────────────────────────────────────
 
 /** @typedef {{ id: string, name: string, testament: string }} BookInfo */
@@ -168,7 +181,7 @@ function parseBook(text) {
     if (!flat) continue;
 
     // Split on verse refs, keeping delimiters
-    const parts = flat.split(/(?=\d+:\d+\s)/);
+    const parts = flat.split(/(?<!\d)(?=\d+:\d+\s)/);
     /** @type {Verse[]} */
     const verses = [];
     let ch = 0;
@@ -296,6 +309,22 @@ function renderReading() {
     );
   }
 
+  const chapterNums = Object.keys(/** @type {ParsedBook} */ (parsed)).map(Number).sort((a, b) => a - b);
+  const nextCh = chapterNums[chapterNums.indexOf(currentChapter) + 1];
+  const nextBook = nextCh == null
+    ? books[books.indexOf(/** @type {BookInfo} */ (currentBook)) + 1]
+    : null;
+
+  /** @type {HTMLElement | null} */
+  let nextBtn = null;
+  if (nextCh != null) {
+    nextBtn = h('button', { class: nextChapterBtn, onclick: () => selectChapter(nextCh) },
+      `Chapter ${nextCh} →`);
+  } else if (nextBook) {
+    nextBtn = h('button', { class: nextChapterBtn, onclick: () => selectBook(nextBook) },
+      `${nextBook.name} →`);
+  }
+
   return div({ class: readingPane },
     h2({ class: chapterHeading }, `${/** @type {BookInfo} */ (currentBook).name} ${currentChapter}`),
     ...paragraphs.map(verses =>
@@ -306,6 +335,7 @@ function renderReading() {
         ]),
       )
     ),
+    nextBtn,
   );
 }
 

@@ -1648,8 +1648,6 @@ the brethren with many words, and confirmed them.
 15:33 And after they had tarried there a space, they were let go in
 peace from the brethren unto the apostles.
 
-15:34 Notwithstanding it pleased Silas to abide there still.
-
 15:35 Paul also and Barnabas continued in Antioch, teaching and
 preaching the word of the Lord, with many others also.
 
@@ -2603,11 +2601,7 @@ thee that thou wouldest hear us of thy clemency a few words.
 24:5 For we have found this man a pestilent fellow, and a mover of
 sedition among all the Jews throughout the world, and a ringleader of
 the sect of the Nazarenes: 24:6 Who also hath gone about to profane
-the temple: whom we took, and would have judged according to our law.
-
-24:7 But the chief captain Lysias came upon us, and with great
-violence took him away out of our hands, 24:8 Commanding his accusers
-to come unto thee: by examining of whom thyself mayest take knowledge
+the temple: 24:8 by examining of whom thyself mayest take knowledge
 of all these things, whereof we accuse him.
 
 24:9 And the Jews also assented, saying that these things were so.
@@ -3094,9 +3088,6 @@ should heal them.
 
 28:28 Be it known therefore unto you, that the salvation of God is
 sent unto the Gentiles, and that they will hear it.
-
-28:29 And when he had said these words, the Jews departed, and had
-great reasoning among themselves.
 
 28:30 And Paul dwelt two whole years in his own hired house, and
 received all that came in unto him, 28:31 Preaching the kingdom of
