@@ -180,8 +180,8 @@ function parseBook(text) {
     const flat = para.replace(/\n/g, ' ').trim();
     if (!flat) continue;
 
-    // Split on verse refs, keeping delimiters
-    const parts = flat.split(/(?<!\d)(?=\d+:\d+\s)/);
+    // Split on verse refs like "10:1 ..." (preceded by start-of-string or space)
+    const parts = flat.split(/(?:^|\s)(?=\d+:\d+\s)/);
     /** @type {Verse[]} */
     const verses = [];
     let ch = 0;
