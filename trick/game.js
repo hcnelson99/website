@@ -1,6 +1,6 @@
 // @ts-check
 
-import { globalCss, css, div } from './ui.js';
+import { globalCss, css, div } from '../ui.js';
 
 /**
  * @typedef {"red" | "blue" | "green" | "orange"} Suit
