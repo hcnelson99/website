@@ -1,0 +1,3 @@
+- Follow the KISS methodology
+- Use vanilla typescript with JSDoc syntax
+- Just run `tsc` to typecheck
