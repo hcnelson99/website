@@ -98,8 +98,59 @@ let currentBook = null;
 let currentChapter = 1;
 /** @type {ParsedBook | null} */
 let parsed = null;
+/** @type {number} */
+let currentVerse = 1;
 /** @type {Map<string, ParsedBook>} */
 const cache = new Map();
+
+// ── Place persistence ────────────────────────────────────
+
+const PLACE_KEY = 'bible-place';
+
+function savePlace() {
+  if (!currentBook) return;
+  localStorage.setItem(PLACE_KEY, JSON.stringify({
+    bookId: currentBook.id,
+    chapter: currentChapter,
+    verse: currentVerse,
+  }));
+}
+
+/** @returns {{ bookId: string, chapter: number, verse: number } | null} */
+function loadPlace() {
+  try {
+    const raw = localStorage.getItem(PLACE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+/** @param {number} verse */
+function scrollToVerse(verse) {
+  const el = document.querySelector(`[data-verse="${verse}"]`);
+  if (el) el.scrollIntoView({ block: 'start' });
+}
+
+/** @type {number} */
+let scrollTimer = 0;
+
+function onReadingScroll() {
+  clearTimeout(scrollTimer);
+  scrollTimer = window.setTimeout(() => {
+    const pane = document.querySelector('.' + mainPane);
+    if (!pane) return;
+    const spans = Array.from(pane.querySelectorAll('[data-verse]'));
+    const paneTop = pane.getBoundingClientRect().top;
+    let best = 1;
+    for (const s of spans) {
+      if (s.getBoundingClientRect().top >= paneTop) {
+        best = Number(s.getAttribute('data-verse'));
+        break;
+      }
+    }
+    currentVerse = best;
+    savePlace();
+  }, 300);
+}
 
 // ── Parsing ────────────────────────────────────────────────
 
@@ -142,15 +193,18 @@ async function loadBooks() {
   books = await res.json();
 }
 
-/** @param {BookInfo} book */
-async function selectBook(book) {
+/** @param {BookInfo} book @param {{ chapter?: number, verse?: number }} [restore] */
+async function selectBook(book, restore) {
   currentBook = book;
-  currentChapter = 1;
+  currentChapter = restore?.chapter ?? 1;
+  currentVerse = restore?.verse ?? 1;
   render();
 
   if (cache.has(book.id)) {
     parsed = /** @type {ParsedBook} */ (cache.get(book.id));
     render();
+    if (restore?.verse) scrollToVerse(restore.verse);
+    savePlace();
     return;
   }
 
@@ -162,14 +216,18 @@ async function selectBook(book) {
   parsed = parseBook(text);
   cache.set(book.id, parsed);
   render();
+  if (restore?.verse) scrollToVerse(restore.verse);
+  savePlace();
 }
 
 /** @param {number} ch */
 function selectChapter(ch) {
   currentChapter = ch;
+  currentVerse = 1;
   render();
   const pane = document.querySelector('.' + mainPane);
   if (pane) pane.scrollTop = 0;
+  savePlace();
 }
 
 // ── Rendering ──────────────────────────────────────────────
@@ -219,7 +277,9 @@ function render() {
   ) : null;
 
   root.appendChild(div({ class: topBar }, bookSelect, chapterSelect));
-  root.appendChild(div({ class: mainPane }, renderReading()));
+  const pane = div({ class: mainPane }, renderReading());
+  pane.addEventListener('scroll', onReadingScroll);
+  root.appendChild(pane);
 }
 
 function renderReading() {
@@ -237,11 +297,11 @@ function renderReading() {
   }
 
   return div({ class: readingPane },
-    h2({ class: chapterHeading }, `${currentBook.name} ${currentChapter}`),
+    h2({ class: chapterHeading }, `${/** @type {BookInfo} */ (currentBook).name} ${currentChapter}`),
     ...paragraphs.map(verses =>
       h('p', { class: paraCls },
         ...verses.flatMap(v => [
-          span({ class: verseNum }, String(v.vs)),
+          span({ class: verseNum, 'data-verse': String(v.vs) }, String(v.vs)),
           v.text + ' ',
         ]),
       )
@@ -256,7 +316,13 @@ async function init() {
     navigator.serviceWorker.register('./sw.js');
   }
   await loadBooks();
-  await selectBook(books[0]);
+  const place = loadPlace();
+  const saved = place && books.find(b => b.id === place.bookId);
+  if (saved) {
+    await selectBook(saved, { chapter: place.chapter, verse: place.verse });
+  } else {
+    await selectBook(books[0]);
+  }
 }
 
 init();
