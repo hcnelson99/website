@@ -169,32 +169,26 @@ function onReadingScroll() {
 
 /** @param {string} text @returns {ParsedBook} */
 function parseBook(text) {
-  // Split into paragraphs (separated by blank lines), then parse verses within each
-  const paragraphs = text.split(/\n\s*\n/);
-
   /** @type {ParsedBook} */
   const chapters = {};
 
-  for (const para of paragraphs) {
-    // Collapse newlines within a paragraph into spaces
+  for (const para of text.split(/\n\s*\n/)) {
     const flat = para.replace(/\n/g, ' ').trim();
     if (!flat) continue;
 
-    // Split on verse refs like "10:1 ..." (preceded by start-of-string or space)
-    const parts = flat.split(/(?:^|\s)(?=\d+:\d+\s)/);
-    /** @type {Verse[]} */
-    const verses = [];
-    let ch = 0;
-    for (const part of parts) {
-      const m = part.match(/^(\d+):(\d+)\s([\s\S]*)/);
-      if (!m) continue;
-      ch = +m[1];
-      verses.push({ vs: +m[2], text: m[3].trim() });
-    }
-    if (ch && verses.length) {
-      if (!chapters[ch]) chapters[ch] = [];
-      chapters[ch].push(verses);
-    }
+    // Find all verse markers (e.g. "10:1 ") and extract text between them
+    const matches = [...flat.matchAll(/(\d+):(\d+) /g)];
+    if (!matches.length) continue;
+
+    const ch = +matches[0][1];
+    const verses = matches.map((m, i) => {
+      const start = /** @type {number} */ (m.index) + m[0].length;
+      const end = i + 1 < matches.length ? matches[i + 1].index : flat.length;
+      return { vs: +m[2], text: flat.slice(start, end).trim() };
+    });
+
+    if (!chapters[ch]) chapters[ch] = [];
+    chapters[ch].push(verses);
   }
   return chapters;
 }
