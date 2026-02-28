@@ -65,10 +65,8 @@ const chapterHeading = css`
   font-weight: 300;
 `;
 
-const verseLine = css`
-  margin-bottom: 4px;
-  text-indent: -0.5em;
-  padding-left: 0.5em;
+const paraCls = css`
+  margin-bottom: 12px;
 `;
 
 const verseNum = css`
@@ -89,7 +87,8 @@ const loadingCls = css`
 // ── State ──────────────────────────────────────────────────
 
 /** @typedef {{ id: string, name: string, testament: string }} BookInfo */
-/** @typedef {Record<number, Record<number, string>>} ParsedBook */
+/** @typedef {{ vs: number, text: string }} Verse */
+/** @typedef {Record<number, Verse[][]>} ParsedBook */
 
 /** @type {BookInfo[]} */
 let books = [];
@@ -106,36 +105,31 @@ const cache = new Map();
 
 /** @param {string} text @returns {ParsedBook} */
 function parseBook(text) {
+  // Split into paragraphs (separated by blank lines), then parse verses within each
+  const paragraphs = text.split(/\n\s*\n/);
+
   /** @type {ParsedBook} */
   const chapters = {};
-  let currentCh = 0;
-  let currentVs = 0;
 
-  for (const line of text.split('\n')) {
-    const m = line.match(/^(\d+):(\d+)\s/);
-    if (m) {
-      currentCh = parseInt(m[1]);
-      currentVs = parseInt(m[2]);
-      if (!chapters[currentCh]) chapters[currentCh] = {};
-      chapters[currentCh][currentVs] = line.slice(m[0].length);
+  for (const para of paragraphs) {
+    // Collapse newlines within a paragraph into spaces
+    const flat = para.replace(/\n/g, ' ').trim();
+    if (!flat) continue;
 
-      // Handle inline verses (e.g. "1:2 text 1:3 more text")
-      let rest = chapters[currentCh][currentVs];
-      const inlineRe = /\s(\d+):(\d+)\s/g;
-      let im;
-      while ((im = inlineRe.exec(rest)) !== null) {
-        const inCh = parseInt(im[1]);
-        const inVs = parseInt(im[2]);
-        if (inCh === currentCh && inVs > currentVs) {
-          chapters[currentCh][currentVs] = rest.slice(0, im.index);
-          currentVs = inVs;
-          chapters[currentCh][currentVs] = rest.slice(im.index + im[0].length);
-          rest = chapters[currentCh][currentVs];
-          inlineRe.lastIndex = 0;
-        }
-      }
-    } else if (currentCh && currentVs && line.trim()) {
-      chapters[currentCh][currentVs] += ' ' + line.trim();
+    // Split on verse refs, keeping delimiters
+    const parts = flat.split(/(?=\d+:\d+\s)/);
+    /** @type {Verse[]} */
+    const verses = [];
+    let ch = 0;
+    for (const part of parts) {
+      const m = part.match(/^(\d+):(\d+)\s([\s\S]*)/);
+      if (!m) continue;
+      ch = +m[1];
+      verses.push({ vs: +m[2], text: m[3].trim() });
+    }
+    if (ch && verses.length) {
+      if (!chapters[ch]) chapters[ch] = [];
+      chapters[ch].push(verses);
     }
   }
   return chapters;
@@ -200,7 +194,6 @@ function render() {
       if (book) selectBook(book);
     },
   },
-    h('option', { value: '' }, '-- Book --'),
     h('optgroup', { label: 'Old Testament' },
       ...books.filter(b => b.testament === 'OT').map(b =>
         h('option', { value: b.id, selected: currentBook?.id === b.id || undefined }, b.name)
@@ -230,33 +223,29 @@ function render() {
 }
 
 function renderReading() {
-  if (!currentBook) {
-    return div({ class: readingPane },
-      div({ class: loadingCls }, 'Select a book to begin reading.'),
-    );
-  }
-
   if (!parsed) {
     return div({ class: readingPane },
       div({ class: loadingCls }, 'Loading...'),
     );
   }
 
-  const chapter = parsed[currentChapter];
-  if (!chapter) {
+  const paragraphs = parsed[currentChapter];
+  if (!paragraphs) {
     return div({ class: readingPane },
       div({ class: loadingCls }, 'Chapter not found.'),
     );
   }
 
-  const verses = Object.keys(chapter).map(Number).sort((a, b) => a - b);
-
   return div({ class: readingPane },
     h2({ class: chapterHeading }, `${currentBook.name} ${currentChapter}`),
-    ...verses.map(v => div({ class: verseLine },
-      span({ class: verseNum }, String(v)),
-      chapter[v],
-    )),
+    ...paragraphs.map(verses =>
+      h('p', { class: paraCls },
+        ...verses.flatMap(v => [
+          span({ class: verseNum }, String(v.vs)),
+          v.text + ' ',
+        ]),
+      )
+    ),
   );
 }
 
@@ -264,7 +253,7 @@ function renderReading() {
 
 async function init() {
   await loadBooks();
-  render();
+  await selectBook(books[0]);
 }
 
 init();
