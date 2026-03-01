@@ -1,6 +1,6 @@
 // @ts-check
-const APP_CACHE = 'bible-app-v1';
-const DATA_CACHE = 'bible-data-v1';
+const APP_CACHE = 'bible-app-v1772389500';
+const DATA_CACHE = 'bible-data-v2';
 const CACHES = [APP_CACHE, DATA_CACHE];
 
 const APP_FILES = ['./', './index.html', './app.js', '../ui.js', './data/books.json'];
