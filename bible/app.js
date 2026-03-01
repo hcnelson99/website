@@ -43,6 +43,8 @@ const selectCls = css`
   border-radius: 4px;
   background: white;
   color: #3a3226;
+  height: 34px;
+  line-height: 20px;
 `;
 
 const mainPane = css`

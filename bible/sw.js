@@ -1,5 +1,5 @@
 // @ts-check
-const APP_CACHE = 'bible-app-v1772389500';
+const APP_CACHE = 'bible-app-v1772389801';
 const DATA_CACHE = 'bible-data-v2';
 const CACHES = [APP_CACHE, DATA_CACHE];
 
