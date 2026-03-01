@@ -16,7 +16,10 @@ self.addEventListener('install', (/** @type {any} */ e) => {
       await cache.addAll(APP_FILES);
       const res = /** @type {Response} */ (await cache.match('./data/books.json'));
       const books = /** @type {{ id: string }[]} */ (await res.json());
-      return caches.open(DATA_CACHE).then(dc => dc.addAll(books.map(b => `./data/${b.id}.txt`)));
+      return caches.open(DATA_CACHE).then(dc => dc.addAll([
+        ...books.map(b => `./data/kjv/${b.id}.txt`),
+        ...books.map(b => `./data/niv/${b.id}.txt`),
+      ]));
     })
   );
   /** @type {any} */ (self).skipWaiting();

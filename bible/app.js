@@ -218,7 +218,7 @@ async function selectBook(book, restore) {
   parsed = null;
   render();
 
-  const res = await fetch(`data/${book.id}.txt`);
+  const res = await fetch(`data/kjv/${book.id}.txt`);
   const text = await res.text();
   parsed = parseBook(text);
   cache.set(book.id, parsed);
