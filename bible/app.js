@@ -113,6 +113,8 @@ let currentChapter = 1;
 let parsed = null;
 /** @type {number} */
 let currentVerse = 1;
+/** @type {'kjv' | 'niv'} */
+let currentTranslation = 'kjv';
 /** @type {Map<string, ParsedBook>} */
 const cache = new Map();
 
@@ -126,10 +128,11 @@ function savePlace() {
     bookId: currentBook.id,
     chapter: currentChapter,
     verse: currentVerse,
+    translation: currentTranslation,
   }));
 }
 
-/** @returns {{ bookId: string, chapter: number, verse: number } | null} */
+/** @returns {{ bookId: string, chapter: number, verse: number, translation?: string } | null} */
 function loadPlace() {
   try {
     const raw = localStorage.getItem(PLACE_KEY);
@@ -207,8 +210,9 @@ async function selectBook(book, restore) {
   currentVerse = restore?.verse ?? 1;
   render();
 
-  if (cache.has(book.id)) {
-    parsed = /** @type {ParsedBook} */ (cache.get(book.id));
+  const cacheKey = `${currentTranslation}:${book.id}`;
+  if (cache.has(cacheKey)) {
+    parsed = /** @type {ParsedBook} */ (cache.get(cacheKey));
     render();
     if (restore?.verse) scrollToVerse(restore.verse);
     savePlace();
@@ -218,10 +222,10 @@ async function selectBook(book, restore) {
   parsed = null;
   render();
 
-  const res = await fetch(`data/kjv/${book.id}.txt`);
+  const res = await fetch(`data/${currentTranslation}/${book.id}.txt`);
   const text = await res.text();
   parsed = parseBook(text);
-  cache.set(book.id, parsed);
+  cache.set(cacheKey, parsed);
   render();
   if (restore?.verse) scrollToVerse(restore.verse);
   savePlace();
@@ -235,6 +239,12 @@ function selectChapter(ch) {
   const pane = document.querySelector('.' + mainPane);
   if (pane) pane.scrollTop = 0;
   savePlace();
+}
+
+function toggleTranslation() {
+  currentTranslation = currentTranslation === 'kjv' ? 'niv' : 'kjv';
+  parsed = null;
+  if (currentBook) selectBook(currentBook, { chapter: currentChapter, verse: currentVerse });
 }
 
 // ── Rendering ──────────────────────────────────────────────
@@ -283,7 +293,12 @@ function render() {
     ),
   ) : null;
 
-  root.appendChild(div({ class: topBar }, bookSelect, chapterSelect));
+  const translationBtn = h('button', {
+    class: selectCls,
+    onclick: toggleTranslation,
+  }, currentTranslation.toUpperCase());
+
+  root.appendChild(div({ class: topBar }, bookSelect, chapterSelect, translationBtn));
   const pane = div({ class: mainPane }, renderReading());
   pane.addEventListener('scroll', onReadingScroll);
   root.appendChild(pane);
@@ -341,6 +356,9 @@ async function init() {
   }
   await loadBooks();
   const place = loadPlace();
+  if (place?.translation === 'kjv' || place?.translation === 'niv') {
+    currentTranslation = place.translation;
+  }
   const saved = place && books.find(b => b.id === place.bookId);
   if (saved) {
     await selectBook(saved, { chapter: place.chapter, verse: place.verse });
