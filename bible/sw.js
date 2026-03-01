@@ -36,18 +36,9 @@ self.addEventListener('activate', (/** @type {any} */ e) => {
   );
 });
 
-// Stale-while-revalidate: serve from cache, refresh in background
+// Cache-first: serve from cache, only fetch if not cached
 self.addEventListener('fetch', (/** @type {any} */ e) => {
-  const cacheName = cacheFor(e.request);
   e.respondWith(
-    caches.open(cacheName).then(cache =>
-      cache.match(e.request).then(cached => {
-        const fetched = fetch(e.request).then(res => {
-          cache.put(e.request, res.clone());
-          return res;
-        });
-        return cached || fetched;
-      })
-    )
+    caches.match(e.request).then(cached => cached || fetch(e.request))
   );
 });
