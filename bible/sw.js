@@ -1,15 +1,22 @@
 // @ts-check
-const CACHE = 'bible-v1';
+const APP_CACHE = 'bible-app-v1';
+const DATA_CACHE = 'bible-data-v1';
+const CACHES = [APP_CACHE, DATA_CACHE];
 
 const APP_FILES = ['./', './index.html', './app.js', '../ui.js', './data/books.json'];
 
+/** @param {Request} req */
+function cacheFor(req) {
+  return new URL(req.url).pathname.match(/\/data\/.*\.txt$/) ? DATA_CACHE : APP_CACHE;
+}
+
 self.addEventListener('install', (/** @type {any} */ e) => {
   e.waitUntil(
-    caches.open(CACHE).then(async cache => {
+    caches.open(APP_CACHE).then(async cache => {
       await cache.addAll(APP_FILES);
       const res = /** @type {Response} */ (await cache.match('./data/books.json'));
       const books = /** @type {{ id: string }[]} */ (await res.json());
-      await cache.addAll(books.map(b => `./data/${b.id}.txt`));
+      return caches.open(DATA_CACHE).then(dc => dc.addAll(books.map(b => `./data/${b.id}.txt`)));
     })
   );
   /** @type {any} */ (self).skipWaiting();
@@ -19,7 +26,7 @@ self.addEventListener('install', (/** @type {any} */ e) => {
 self.addEventListener('activate', (/** @type {any} */ e) => {
   e.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => !CACHES.includes(k)).map(k => caches.delete(k))))
       .then(() => /** @type {any} */ (self).clients.claim())
       .then(() => /** @type {any} */ (self).clients.matchAll())
       .then((/** @type {any[]} */ clients) => clients.forEach(c => c.navigate(c.url)))
@@ -28,8 +35,9 @@ self.addEventListener('activate', (/** @type {any} */ e) => {
 
 // Stale-while-revalidate: serve from cache, refresh in background
 self.addEventListener('fetch', (/** @type {any} */ e) => {
+  const cacheName = cacheFor(e.request);
   e.respondWith(
-    caches.open(CACHE).then(cache =>
+    caches.open(cacheName).then(cache =>
       cache.match(e.request).then(cached => {
         const fetched = fetch(e.request).then(res => {
           cache.put(e.request, res.clone());

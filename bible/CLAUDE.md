@@ -1,3 +1,7 @@
+A simple, lightweight offline bible reader
+
+## Rules
+
 - Follow the KISS methodology
 - Use vanilla typescript with JSDoc syntax
 - Just run `tsc` to typecheck, not `npx tsc`.
