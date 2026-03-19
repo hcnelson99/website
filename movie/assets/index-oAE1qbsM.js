@@ -20,16 +20,19 @@ Error generating stack: `+e.message+`
   background: #111114;
   border-bottom: 1px solid #2e2e36;
   flex-shrink: 0;
-`,ir=M.div`
+`,ir=M.span`
+  font-size: 11px;
+  color: #555;
+`;function ar(e){if(e<1024)return`${e} B`;let t=e/1024;return t<1024?`${t.toFixed(0)} KB`:`${(t/1024).toFixed(1)} MB`}var or=M.div`
   display: flex;
   align-items: center;
   gap: 10px;
-`,ar=M.h1`
+`,sr=M.h1`
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.05em;
   color: #f5a623;
-`,or=M.select`
+`,cr=M.select`
   background: #222228;
   border: 1px solid #3a3a46;
   color: #e0e0e0;
@@ -38,11 +41,11 @@ Error generating stack: `+e.message+`
   font-size: 12px;
   cursor: pointer;
   &:focus { outline: none; border-color: #f5a623; }
-`,sr=M.div`
+`,lr=M.div`
   display: flex;
   align-items: center;
   gap: 10px;
-`,cr=M.button`
+`,ur=M.button`
   background: none;
   border: 1px solid #3a3a46;
   color: #aaa;
@@ -53,7 +56,7 @@ Error generating stack: `+e.message+`
   cursor: pointer;
   letter-spacing: 0.03em;
   &:hover { border-color: #f5a623; color: #f5a623; }
-`,lr=M.button`
+`,dr=M.button`
   background: #f5a623;
   color: #111;
   border: none;
@@ -65,7 +68,7 @@ Error generating stack: `+e.message+`
   letter-spacing: 0.04em;
   &:hover { background: #ffc043; }
   &:disabled { opacity: 0.4; cursor: not-allowed; }
-`,ur=M.div`
+`,fr=M.div`
   flex: 1;
   display: flex;
   align-items: center;
@@ -73,9 +76,9 @@ Error generating stack: `+e.message+`
   padding: 24px;
   overflow-x: auto;
   overflow-y: hidden;
-`,dr=240,fr=135,pr=M.div`
+`,pr=240,mr=135,hr=M.div`
   flex-shrink: 0;
-  width: ${dr}px;
+  width: ${pr}px;
   background: #22222a;
   border-radius: 8px;
   overflow: hidden;
@@ -83,13 +86,13 @@ Error generating stack: `+e.message+`
   cursor: pointer;
   transition: border-color 0.15s;
   &:hover { border-color: #f5a623; }
-`,mr=M.div`
-  width: ${dr}px;
-  height: ${fr}px;
+`,gr=M.div`
+  width: ${pr}px;
+  height: ${mr}px;
   background: #2a2a2e;
   overflow: hidden;
   position: relative;
-`,hr=M.div`
+`,_r=M.div`
   width: 100%;
   height: 100%;
   display: flex;
@@ -98,7 +101,7 @@ Error generating stack: `+e.message+`
   font-size: 11px;
   color: #333;
   letter-spacing: 0.05em;
-`,gr=M.div`
+`,vr=M.div`
   position: absolute;
   inset: 0;
   padding: 8px;
@@ -107,7 +110,7 @@ Error generating stack: `+e.message+`
   justify-content: flex-end;
   background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 60%);
   pointer-events: none;
-`,_r=M.div`
+`,yr=M.div`
   font-size: 10px;
   color: #e0e0e0;
   line-height: 1.3;
@@ -115,12 +118,12 @@ Error generating stack: `+e.message+`
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-`,vr=M.div`
+`,br=M.div`
   padding: 6px 8px;
   display: flex;
   align-items: center;
   gap: 4px;
-`,yr=M.span`
+`,xr=M.span`
   font-size: 10px;
   color: #f5a623;
   background: rgba(245,166,35,0.1);
@@ -130,14 +133,14 @@ Error generating stack: `+e.message+`
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 90px;
-`,br=M.span`
+`,Sr=M.span`
   flex: 1;
   font-size: 11px;
   color: #666;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-`,xr=M.button`
+`,Cr=M.button`
   background: none;
   border: none;
   color: #555;
@@ -147,10 +150,10 @@ Error generating stack: `+e.message+`
   border-radius: 4px;
   line-height: 1;
   &:hover { color: #e0e0e0; background: #33333d; }
-`,Sr=M.button`
+`,wr=M.button`
   flex-shrink: 0;
-  width: ${dr}px;
-  height: ${fr+44}px;
+  width: ${pr}px;
+  height: ${mr+44}px;
   background: #1e1e26;
   border: 2px dashed #3a3a46;
   border-radius: 8px;
@@ -162,13 +165,13 @@ Error generating stack: `+e.message+`
   justify-content: center;
   transition: border-color 0.15s, color 0.15s;
   &:hover { border-color: #f5a623; color: #f5a623; }
-`,Cr=M.div`
+`,Tr=M.div`
   color: #444;
   font-size: 14px;
   margin: auto;
   text-align: center;
   line-height: 2.2;
-`,wr=M.button`
+`,Er=M.button`
   background: none;
   border: 1px solid #3a3a46;
   color: #888;
@@ -178,22 +181,22 @@ Error generating stack: `+e.message+`
   cursor: pointer;
   margin-top: 8px;
   &:hover { border-color: #f5a623; color: #f5a623; }
-`;function Tr({project:e,allProjects:t,onSwitchProject:n,onNewProject:r,onDeleteProject:i,onRenameProject:a,onAddShot:o,onDeleteShot:s,onMoveShot:c,onOpenShot:l,onPlayAll:u,onPlanScene:d}){let[f,p]=(0,_.useState)(!1),[m,h]=(0,_.useState)(0),g=async()=>{p(!0),h(0);try{await $n(e.shots,e=>h(e))}finally{p(!1)}},v=t=>{let n=e.shots.find(e=>e.id===t);return n?n.layers.some(e=>e.imageData):!1};return(0,N.jsxs)(nr,{children:[(0,N.jsxs)(rr,{children:[(0,N.jsxs)(ir,{children:[(0,N.jsx)(ar,{children:`MOTION COMIC`}),(0,N.jsx)(or,{value:e.id,onChange:e=>n(e.target.value),children:t.map(e=>(0,N.jsx)(`option`,{value:e.id,children:e.name},e.id))}),(0,N.jsx)(cr,{onClick:r,children:`+ New`}),(0,N.jsx)(cr,{onClick:()=>{let t=prompt(`Rename project:`,e.name);t&&a(e.id,t)},children:`Rename`}),t.length>1&&(0,N.jsx)(cr,{onClick:()=>{confirm(`Delete "${e.name}"?`)&&i(e.id)},children:`Delete`})]}),(0,N.jsxs)(sr,{children:[(0,N.jsx)(cr,{onClick:d,children:`+ Plan a Scene`}),(0,N.jsx)(lr,{onClick:u,disabled:e.shots.length===0,children:`▶ Play All`}),(0,N.jsx)(cr,{onClick:g,disabled:e.shots.length===0||f,children:f?`Exporting ${Math.round(m*100)}%`:`⬇ Export Video`})]})]}),(0,N.jsxs)(ur,{children:[e.shots.length===0&&(0,N.jsxs)(Cr,{children:[`No shots yet.`,(0,N.jsx)(`br`,{}),`Plan a scene to get started.`,(0,N.jsx)(`br`,{}),(0,N.jsx)(wr,{onClick:d,children:`Plan a Scene`})]}),e.shots.map((t,n)=>(0,N.jsxs)(pr,{onClick:()=>l(t.id),children:[(0,N.jsxs)(mr,{children:[v(t.id)?(0,N.jsx)(tr,{shot:t,width:dr,height:fr}):(0,N.jsx)(hr,{children:`UNDRAWN`}),t.plan?.prompt&&(0,N.jsx)(gr,{children:(0,N.jsx)(_r,{children:t.plan.prompt})})]}),(0,N.jsxs)(vr,{onClick:e=>e.stopPropagation(),children:[t.plan?.emotion?(0,N.jsx)(yr,{title:t.plan.emotion,children:t.plan.emotion}):null,(0,N.jsx)(br,{children:t.name}),(0,N.jsx)(xr,{disabled:n===0,onClick:()=>c(t.id,`left`),style:{opacity:n===0?.25:1},children:`‹`}),(0,N.jsx)(xr,{disabled:n===e.shots.length-1,onClick:()=>c(t.id,`right`),style:{opacity:n===e.shots.length-1?.25:1},children:`›`}),(0,N.jsx)(xr,{onClick:()=>s(t.id),children:`×`})]})]},t.id)),(0,N.jsx)(Sr,{onClick:o,title:`Add blank shot`,children:`+`})]})]})}var Er={static:{label:`Static, held`,kf0:{zoom:1,panX:0,panY:0},kf1:{zoom:1,panX:0,panY:0}},"slow-zoom-in":{label:`Slow zoom in`,kf0:{zoom:1,panX:0,panY:0},kf1:{zoom:1.6,panX:0,panY:0}},"pull-back":{label:`Pull back to reveal`,kf0:{zoom:1.5,panX:0,panY:0},kf1:{zoom:1,panX:0,panY:0}},"push-forward":{label:`Push forward`,kf0:{zoom:1,panX:0,panY:0},kf1:{zoom:1.3,panX:0,panY:0}},"zoom-in-fast":{label:`Zoom in fast`,kf0:{zoom:1,panX:0,panY:0},kf1:{zoom:2.2,panX:0,panY:0}},"pan-left":{label:`Pan left`,kf0:{zoom:1,panX:10,panY:0},kf1:{zoom:1,panX:-10,panY:0}},"pan-right":{label:`Pan right`,kf0:{zoom:1,panX:-10,panY:0},kf1:{zoom:1,panX:10,panY:0}},"tilt-up":{label:`Tilt up`,kf0:{zoom:1,panX:0,panY:12},kf1:{zoom:1,panX:0,panY:-12}},"tilt-down":{label:`Tilt down`,kf0:{zoom:1,panX:0,panY:-12},kf1:{zoom:1,panX:0,panY:12}},drift:{label:`Drift (barely moving)`,kf0:{zoom:1.05,panX:3,panY:3},kf1:{zoom:1,panX:-3,panY:-3}}},Dr=[{id:`the-reveal`,name:`The Reveal`,shots:[{prompt:`[Person]'s face — reacting to something unseen`,emotion:`Shock`,cameraMove:`slow-zoom-in`},{prompt:`Something unrelated — build the pause`,emotion:`Tension`,cameraMove:`static`},{prompt:`What [Person] was looking at`,emotion:`Dread / wonder`,cameraMove:`slow-zoom-in`}]},{id:`the-chase`,name:`The Chase`,shots:[{prompt:`[Person] moving — urgently`,emotion:`Panic`,cameraMove:`pan-right`},{prompt:`[Pursuer] closing in`,emotion:`Dread`,cameraMove:`zoom-in-fast`},{prompt:`An obstacle or a boundary blocking [Person]`,emotion:`Tension`,cameraMove:`static`},{prompt:`The outcome — without showing it directly`,emotion:`Relief / despair`,cameraMove:`pull-back`}]},{id:`the-realization`,name:`The Realization`,shots:[{prompt:`[Person] doing something ordinary in [Place]`,emotion:`Neutral`,cameraMove:`static`},{prompt:`[Object] — a detail that changes everything`,emotion:`Unease`,cameraMove:`slow-zoom-in`},{prompt:`[Person]'s face — the moment it lands`,emotion:`Dread / wonder`,cameraMove:`static`},{prompt:`[Place] — the same, but different now`,emotion:`Changed`,cameraMove:`pull-back`}]},{id:`the-wait`,name:`The Wait`,shots:[{prompt:`[Person] waiting in [Place]`,emotion:`Anticipation`,cameraMove:`static`},{prompt:`A detail in [Place] that shows time passing`,emotion:`Restlessness`,cameraMove:`pan-left`},{prompt:`[Person] — still waiting, something has shifted`,emotion:`Doubt`,cameraMove:`drift`},{prompt:`[Thing] arriving — or the realization it won't come`,emotion:`Relief / emptiness`,cameraMove:`static`}]},{id:`the-observation`,name:`The Observation`,shots:[{prompt:`[Subject] — unaware of being watched`,emotion:`Oblivious`,cameraMove:`static`},{prompt:`[Watcher] — partially hidden`,emotion:`Tension`,cameraMove:`push-forward`},{prompt:`What [Watcher] notices about [Subject]`,emotion:`Suspicion`,cameraMove:`slow-zoom-in`},{prompt:`[Watcher]'s face — something has been decided`,emotion:`Resolve`,cameraMove:`static`}]},{id:`the-threshold`,name:`The Threshold`,shots:[{prompt:`A boundary — [Place] on one side, the unknown on the other`,emotion:`Hesitation`,cameraMove:`static`},{prompt:`[Person] on one side of the boundary`,emotion:`Fear / longing`,cameraMove:`slow-zoom-in`},{prompt:`[Person] crossing`,emotion:`Commitment`,cameraMove:`pan-right`},{prompt:`[Person] on the other side`,emotion:`Changed`,cameraMove:`pull-back`}]},{id:`the-aftermath`,name:`The Aftermath`,shots:[{prompt:`[Place] — evidence of what happened, no people`,emotion:`Shock`,cameraMove:`static`},{prompt:`Something still moving or settling in [Place]`,emotion:`Dread`,cameraMove:`pan-left`},{prompt:`[Object] — one small detail that carries the weight`,emotion:`Grief`,cameraMove:`slow-zoom-in`},{prompt:`[Place] — the full picture`,emotion:`Emptiness`,cameraMove:`pull-back`}]},{id:`the-confrontation`,name:`The Confrontation`,shots:[{prompt:`[Person 1] and [Person 2] facing each other — neither moving`,emotion:`Tension`,cameraMove:`static`},{prompt:`[Person 1], close`,emotion:`Fury / fear`,cameraMove:`push-forward`},{prompt:`[Person 2], close`,emotion:`Defiance / dread`,cameraMove:`push-forward`},{prompt:`The space between [Person 1] and [Person 2]`,emotion:`Dread`,cameraMove:`slow-zoom-in`}]},{id:`the-return`,name:`The Return`,shots:[{prompt:`[Place] — familiar, no one there`,emotion:`Nostalgia`,cameraMove:`pan-left`},{prompt:`[Person] arriving at [Place]`,emotion:`Anticipation`,cameraMove:`static`},{prompt:`Something in [Place] that has changed`,emotion:`Unease`,cameraMove:`slow-zoom-in`},{prompt:`Something in [Place] that hasn't changed`,emotion:`Relief / grief`,cameraMove:`pull-back`}]},{id:`the-trap`,name:`The Trap`,shots:[{prompt:`[Person] in open [Place] — many options visible`,emotion:`False calm`,cameraMove:`pull-back`},{prompt:`[Threat] closing in`,emotion:`Unease`,cameraMove:`slow-zoom-in`},{prompt:`[Person]'s options vanishing`,emotion:`Panic`,cameraMove:`push-forward`},{prompt:`[Person] — one way out, or none`,emotion:`Desperation`,cameraMove:`static`}]},{id:`the-spiral`,name:`The Spiral`,shots:[{prompt:`[Person] in [Situation]`,emotion:`Discomfort`,cameraMove:`static`},{prompt:`[Situation] gets worse`,emotion:`Anxiety`,cameraMove:`slow-zoom-in`},{prompt:`[Situation] worse still`,emotion:`Dread`,cameraMove:`push-forward`},{prompt:`[Person] at the bottom`,emotion:`Despair / release`,cameraMove:`static`}]},{id:`the-connection`,name:`The Connection`,shots:[{prompt:`[Thing 1] and [Thing 2] — apart`,emotion:`Longing`,cameraMove:`static`},{prompt:`Something drawing [Thing 1] toward [Thing 2]`,emotion:`Hope`,cameraMove:`pan-right`},{prompt:`[Thing 1] and [Thing 2] — the moment of meeting`,emotion:`Relief / tension`,cameraMove:`slow-zoom-in`}]}],Or=[`Dread`,`Longing`,`Fury`,`Tenderness`,`Emptiness`,`Wonder`,`Shame`,`Defiance`,`Grief`,`Suspicion`,`Awe`,`Paranoia`,`Nostalgia`,`Resignation`,`Relief`,`Elation`,`Stillness`,`Hunger`,`Tension`,`Panic`,`Hope`,`Despair`,`Resolve`,`False calm`,`Changed`],kr=[`Subject in extreme corner, vast empty space`,`Foreground object obscuring the subject`,`Frame within a frame (window, doorway, arch)`,`Strong diagonal lines`,`Perfect symmetry broken by one thing`,`Subject emerging from darkness`,`Hard shadow dividing the frame in two`,`Two figures — one near, one far`,`Layered depth (near / mid / far)`,`Silhouette only`,`Reflection in a surface`,`Pattern interrupted by anomaly`,`Natural curves leading the eye`,`Subject very small in large environment`,`Close-up: texture fills the frame`,`Two objects in tension with each other`,`Negative space dominates`,`Subject dead center, nothing else`],Ar=`frog.chalk.diary.money.key.book.large hat.chandelier.dog.balloon.trophy.ladder.mirror.clock.umbrella.candle.fish.camera.glove.briefcase.throne.bucket.flag.rope.cat.piano.crowbar.compass.locket.cane.lantern.cage.gun.sword.map.telescope.radio.suitcase.mask.stamp.egg.kite.dice.whistle.badge.torch.net.hook.boat.anvil.spoon.bottle.coin.bell.chain.wheel.skull.feather.flower.stone.shell.bone.leaf.seed.doll.puppet.drum.horn.flute.harp.violin.tuba.crown.ring.wand.orb.scroll.potion.rune.crystal.rocket.robot.satellite.helmet.visor.antenna.probe.pod.cactus.beehive.mushroom.web.antler.thorn.petal.vine.safe.handcuffs.magnifying glass.fingerprint.syringe.vial.gavel.warrant`.split(`.`);function jr(e){return e[Math.floor(Math.random()*e.length)]}var Mr=M.div`
+`;function Dr({project:e,allProjects:t,onSwitchProject:n,onNewProject:r,onDeleteProject:i,onRenameProject:a,onAddShot:o,onDeleteShot:s,onMoveShot:c,onOpenShot:l,onPlayAll:u,onPlanScene:d}){let[f,p]=(0,_.useState)(!1),[m,h]=(0,_.useState)(0),g=async()=>{p(!0),h(0);try{await $n(e.shots,e=>h(e))}finally{p(!1)}},v=t=>{let n=e.shots.find(e=>e.id===t);return n?n.layers.some(e=>e.imageData):!1};return(0,N.jsxs)(nr,{children:[(0,N.jsxs)(rr,{children:[(0,N.jsxs)(or,{children:[(0,N.jsx)(sr,{children:`MOTION COMIC`}),(0,N.jsx)(cr,{value:e.id,onChange:e=>n(e.target.value),children:t.map(e=>(0,N.jsx)(`option`,{value:e.id,children:e.name},e.id))}),(0,N.jsx)(ur,{onClick:r,children:`+ New`}),(0,N.jsx)(ur,{onClick:()=>{let t=prompt(`Rename project:`,e.name);t&&a(e.id,t)},children:`Rename`}),t.length>1&&(0,N.jsx)(ur,{onClick:()=>{confirm(`Delete "${e.name}"?`)&&i(e.id)},children:`Delete`}),(0,N.jsx)(ir,{children:ar(JSON.stringify(e).length)})]}),(0,N.jsxs)(lr,{children:[(0,N.jsx)(ur,{onClick:d,children:`+ Plan a Scene`}),(0,N.jsx)(dr,{onClick:u,disabled:e.shots.length===0,children:`▶ Play All`}),(0,N.jsx)(ur,{onClick:g,disabled:e.shots.length===0||f,children:f?`Exporting ${Math.round(m*100)}%`:`⬇ Export Video`})]})]}),(0,N.jsxs)(fr,{children:[e.shots.length===0&&(0,N.jsxs)(Tr,{children:[`No shots yet.`,(0,N.jsx)(`br`,{}),`Plan a scene to get started.`,(0,N.jsx)(`br`,{}),(0,N.jsx)(Er,{onClick:d,children:`Plan a Scene`})]}),e.shots.map((t,n)=>(0,N.jsxs)(hr,{onClick:()=>l(t.id),children:[(0,N.jsxs)(gr,{children:[v(t.id)?(0,N.jsx)(tr,{shot:t,width:pr,height:mr}):(0,N.jsx)(_r,{children:`UNDRAWN`}),t.plan?.prompt&&(0,N.jsx)(vr,{children:(0,N.jsx)(yr,{children:t.plan.prompt})})]}),(0,N.jsxs)(br,{onClick:e=>e.stopPropagation(),children:[t.plan?.emotion?(0,N.jsx)(xr,{title:t.plan.emotion,children:t.plan.emotion}):null,(0,N.jsx)(Sr,{children:t.name}),(0,N.jsx)(Cr,{disabled:n===0,onClick:()=>c(t.id,`left`),style:{opacity:n===0?.25:1},children:`‹`}),(0,N.jsx)(Cr,{disabled:n===e.shots.length-1,onClick:()=>c(t.id,`right`),style:{opacity:n===e.shots.length-1?.25:1},children:`›`}),(0,N.jsx)(Cr,{onClick:()=>s(t.id),children:`×`})]})]},t.id)),(0,N.jsx)(wr,{onClick:o,title:`Add blank shot`,children:`+`})]})]})}var Or={static:{label:`Static, held`,kf0:{zoom:1,panX:0,panY:0},kf1:{zoom:1,panX:0,panY:0}},"slow-zoom-in":{label:`Slow zoom in`,kf0:{zoom:1,panX:0,panY:0},kf1:{zoom:1.6,panX:0,panY:0}},"pull-back":{label:`Pull back to reveal`,kf0:{zoom:1.5,panX:0,panY:0},kf1:{zoom:1,panX:0,panY:0}},"push-forward":{label:`Push forward`,kf0:{zoom:1,panX:0,panY:0},kf1:{zoom:1.3,panX:0,panY:0}},"zoom-in-fast":{label:`Zoom in fast`,kf0:{zoom:1,panX:0,panY:0},kf1:{zoom:2.2,panX:0,panY:0}},"pan-left":{label:`Pan left`,kf0:{zoom:1,panX:10,panY:0},kf1:{zoom:1,panX:-10,panY:0}},"pan-right":{label:`Pan right`,kf0:{zoom:1,panX:-10,panY:0},kf1:{zoom:1,panX:10,panY:0}},"tilt-up":{label:`Tilt up`,kf0:{zoom:1,panX:0,panY:12},kf1:{zoom:1,panX:0,panY:-12}},"tilt-down":{label:`Tilt down`,kf0:{zoom:1,panX:0,panY:-12},kf1:{zoom:1,panX:0,panY:12}},drift:{label:`Drift (barely moving)`,kf0:{zoom:1.05,panX:3,panY:3},kf1:{zoom:1,panX:-3,panY:-3}}},kr=[{id:`the-reveal`,name:`The Reveal`,shots:[{prompt:`[Person]'s face — reacting to something unseen`,emotion:`Shock`,cameraMove:`slow-zoom-in`},{prompt:`Something unrelated — build the pause`,emotion:`Tension`,cameraMove:`static`},{prompt:`What [Person] was looking at`,emotion:`Dread / wonder`,cameraMove:`slow-zoom-in`}]},{id:`the-chase`,name:`The Chase`,shots:[{prompt:`[Person] moving — urgently`,emotion:`Panic`,cameraMove:`pan-right`},{prompt:`[Pursuer] closing in`,emotion:`Dread`,cameraMove:`zoom-in-fast`},{prompt:`An obstacle or a boundary blocking [Person]`,emotion:`Tension`,cameraMove:`static`},{prompt:`The outcome — without showing it directly`,emotion:`Relief / despair`,cameraMove:`pull-back`}]},{id:`the-realization`,name:`The Realization`,shots:[{prompt:`[Person] doing something ordinary in [Place]`,emotion:`Neutral`,cameraMove:`static`},{prompt:`[Object] — a detail that changes everything`,emotion:`Unease`,cameraMove:`slow-zoom-in`},{prompt:`[Person]'s face — the moment it lands`,emotion:`Dread / wonder`,cameraMove:`static`},{prompt:`[Place] — the same, but different now`,emotion:`Changed`,cameraMove:`pull-back`}]},{id:`the-wait`,name:`The Wait`,shots:[{prompt:`[Person] waiting in [Place]`,emotion:`Anticipation`,cameraMove:`static`},{prompt:`A detail in [Place] that shows time passing`,emotion:`Restlessness`,cameraMove:`pan-left`},{prompt:`[Person] — still waiting, something has shifted`,emotion:`Doubt`,cameraMove:`drift`},{prompt:`[Thing] arriving — or the realization it won't come`,emotion:`Relief / emptiness`,cameraMove:`static`}]},{id:`the-observation`,name:`The Observation`,shots:[{prompt:`[Subject] — unaware of being watched`,emotion:`Oblivious`,cameraMove:`static`},{prompt:`[Watcher] — partially hidden`,emotion:`Tension`,cameraMove:`push-forward`},{prompt:`What [Watcher] notices about [Subject]`,emotion:`Suspicion`,cameraMove:`slow-zoom-in`},{prompt:`[Watcher]'s face — something has been decided`,emotion:`Resolve`,cameraMove:`static`}]},{id:`the-threshold`,name:`The Threshold`,shots:[{prompt:`A boundary — [Place] on one side, the unknown on the other`,emotion:`Hesitation`,cameraMove:`static`},{prompt:`[Person] on one side of the boundary`,emotion:`Fear / longing`,cameraMove:`slow-zoom-in`},{prompt:`[Person] crossing`,emotion:`Commitment`,cameraMove:`pan-right`},{prompt:`[Person] on the other side`,emotion:`Changed`,cameraMove:`pull-back`}]},{id:`the-aftermath`,name:`The Aftermath`,shots:[{prompt:`[Place] — evidence of what happened, no people`,emotion:`Shock`,cameraMove:`static`},{prompt:`Something still moving or settling in [Place]`,emotion:`Dread`,cameraMove:`pan-left`},{prompt:`[Object] — one small detail that carries the weight`,emotion:`Grief`,cameraMove:`slow-zoom-in`},{prompt:`[Place] — the full picture`,emotion:`Emptiness`,cameraMove:`pull-back`}]},{id:`the-confrontation`,name:`The Confrontation`,shots:[{prompt:`[Person 1] and [Person 2] facing each other — neither moving`,emotion:`Tension`,cameraMove:`static`},{prompt:`[Person 1], close`,emotion:`Fury / fear`,cameraMove:`push-forward`},{prompt:`[Person 2], close`,emotion:`Defiance / dread`,cameraMove:`push-forward`},{prompt:`The space between [Person 1] and [Person 2]`,emotion:`Dread`,cameraMove:`slow-zoom-in`}]},{id:`the-return`,name:`The Return`,shots:[{prompt:`[Place] — familiar, no one there`,emotion:`Nostalgia`,cameraMove:`pan-left`},{prompt:`[Person] arriving at [Place]`,emotion:`Anticipation`,cameraMove:`static`},{prompt:`Something in [Place] that has changed`,emotion:`Unease`,cameraMove:`slow-zoom-in`},{prompt:`Something in [Place] that hasn't changed`,emotion:`Relief / grief`,cameraMove:`pull-back`}]},{id:`the-trap`,name:`The Trap`,shots:[{prompt:`[Person] in open [Place] — many options visible`,emotion:`False calm`,cameraMove:`pull-back`},{prompt:`[Threat] closing in`,emotion:`Unease`,cameraMove:`slow-zoom-in`},{prompt:`[Person]'s options vanishing`,emotion:`Panic`,cameraMove:`push-forward`},{prompt:`[Person] — one way out, or none`,emotion:`Desperation`,cameraMove:`static`}]},{id:`the-spiral`,name:`The Spiral`,shots:[{prompt:`[Person] in [Situation]`,emotion:`Discomfort`,cameraMove:`static`},{prompt:`[Situation] gets worse`,emotion:`Anxiety`,cameraMove:`slow-zoom-in`},{prompt:`[Situation] worse still`,emotion:`Dread`,cameraMove:`push-forward`},{prompt:`[Person] at the bottom`,emotion:`Despair / release`,cameraMove:`static`}]},{id:`the-connection`,name:`The Connection`,shots:[{prompt:`[Thing 1] and [Thing 2] — apart`,emotion:`Longing`,cameraMove:`static`},{prompt:`Something drawing [Thing 1] toward [Thing 2]`,emotion:`Hope`,cameraMove:`pan-right`},{prompt:`[Thing 1] and [Thing 2] — the moment of meeting`,emotion:`Relief / tension`,cameraMove:`slow-zoom-in`}]}],Ar=[`Dread`,`Longing`,`Fury`,`Tenderness`,`Emptiness`,`Wonder`,`Shame`,`Defiance`,`Grief`,`Suspicion`,`Awe`,`Paranoia`,`Nostalgia`,`Resignation`,`Relief`,`Elation`,`Stillness`,`Hunger`,`Tension`,`Panic`,`Hope`,`Despair`,`Resolve`,`False calm`,`Changed`],jr=[`Subject in extreme corner, vast empty space`,`Foreground object obscuring the subject`,`Frame within a frame (window, doorway, arch)`,`Strong diagonal lines`,`Perfect symmetry broken by one thing`,`Subject emerging from darkness`,`Hard shadow dividing the frame in two`,`Two figures — one near, one far`,`Layered depth (near / mid / far)`,`Silhouette only`,`Reflection in a surface`,`Pattern interrupted by anomaly`,`Natural curves leading the eye`,`Subject very small in large environment`,`Close-up: texture fills the frame`,`Two objects in tension with each other`,`Negative space dominates`,`Subject dead center, nothing else`],Mr=`frog.chalk.diary.money.key.book.large hat.chandelier.dog.balloon.trophy.ladder.mirror.clock.umbrella.candle.fish.camera.glove.briefcase.throne.bucket.flag.rope.cat.piano.crowbar.compass.locket.cane.lantern.cage.gun.sword.map.telescope.radio.suitcase.mask.stamp.egg.kite.dice.whistle.badge.torch.net.hook.boat.anvil.spoon.bottle.coin.bell.chain.wheel.skull.feather.flower.stone.shell.bone.leaf.seed.doll.puppet.drum.horn.flute.harp.violin.tuba.crown.ring.wand.orb.scroll.potion.rune.crystal.rocket.robot.satellite.helmet.visor.antenna.probe.pod.cactus.beehive.mushroom.web.antler.thorn.petal.vine.safe.handcuffs.magnifying glass.fingerprint.syringe.vial.gavel.warrant`.split(`.`);function Nr(e){return e[Math.floor(Math.random()*e.length)]}var Pr=M.div`
   width: 100%;
   aspect-ratio: 16 / 9;
   position: relative;
   overflow: hidden;
   background: #ffffff;
-`,Nr=M.img`
+`,Fr=M.img`
   position: absolute;
   pointer-events: none;
   filter: ${e=>e.$blur>0?`blur(${e.$blur}px)`:`none`};
-`;function Pr({layers:e,zoom:t=1,panX:n=0,panY:r=0,overrideBlurs:i}){return(0,N.jsx)(Mr,{children:[...e].sort((e,t)=>e.zIndex-t.zIndex).map(e=>{if(!e.imageData)return null;let a=i?.[e.id]??0;return(0,N.jsx)(`div`,{style:{position:`absolute`,inset:0,transform:`scale(${t}) translate(${n*(e.parallax??1)}%, ${r*(e.parallax??1)}%)`,transformOrigin:`center center`},children:(0,N.jsx)(Nr,{src:e.imageData,$blur:a,style:{left:`${e.position.x}%`,top:`${e.position.y}%`,transform:`translate(-50%, -50%) scale(${e.scale})`,zIndex:e.zIndex,width:`100%`,height:`100%`,objectFit:`contain`}})},e.id)})})}var Fr=M.div`
+`;function Ir({layers:e,zoom:t=1,panX:n=0,panY:r=0,overrideBlurs:i}){return(0,N.jsx)(Pr,{children:[...e].sort((e,t)=>e.zIndex-t.zIndex).map(e=>{if(!e.imageData)return null;let a=i?.[e.id]??0;return(0,N.jsx)(`div`,{style:{position:`absolute`,inset:0,transform:`scale(${t}) translate(${n*(e.parallax??1)}%, ${r*(e.parallax??1)}%)`,transformOrigin:`center center`},children:(0,N.jsx)(Fr,{src:e.imageData,$blur:a,style:{left:`${e.position.x}%`,top:`${e.position.y}%`,transform:`translate(-50%, -50%) scale(${e.scale})`,zIndex:e.zIndex,width:`100%`,height:`100%`,objectFit:`contain`}})},e.id)})})}var Lr=M.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
   background: #1a1a1e;
-`,Ir=M.div`
+`,Rr=M.div`
   display: flex;
   align-items: center;
   gap: 12px;
@@ -201,7 +204,7 @@ Error generating stack: `+e.message+`
   background: #111114;
   border-bottom: 1px solid #2e2e36;
   flex-shrink: 0;
-`,Lr=M.button`
+`,zr=M.button`
   background: none;
   border: 1px solid #3a3a46;
   color: #aaa;
@@ -210,7 +213,7 @@ Error generating stack: `+e.message+`
   cursor: pointer;
   font-size: 12px;
   &:hover { border-color: #f5a623; color: #f5a623; }
-`,Rr=M.input`
+`,Br=M.input`
   background: none;
   border: none;
   border-bottom: 1px solid #3a3a46;
@@ -220,7 +223,7 @@ Error generating stack: `+e.message+`
   padding: 2px 4px;
   width: 160px;
   &:focus { outline: none; border-bottom-color: #f5a623; }
-`,zr=M.div`flex: 1;`,Br=M.button`
+`,Vr=M.div`flex: 1;`,Hr=M.button`
   background: #f5a623;
   color: #111;
   border: none;
@@ -230,11 +233,11 @@ Error generating stack: `+e.message+`
   font-weight: 700;
   cursor: pointer;
   &:hover { background: #ffc043; }
-`,Vr=M.div`
+`,Ur=M.div`
   flex: 1;
   display: flex;
   overflow: hidden;
-`,Hr=M.div`
+`,Wr=M.div`
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -243,13 +246,13 @@ Error generating stack: `+e.message+`
   padding: 24px;
   gap: 20px;
   overflow: hidden;
-`,Ur=M.div`
+`,Gr=M.div`
   width: 100%;
   max-width: 900px;
   border: 1px solid #3a3a46;
   border-radius: 4px;
   overflow: hidden;
-`,Wr=M.div`
+`,Kr=M.div`
   width: 280px;
   flex-shrink: 0;
   display: flex;
@@ -257,7 +260,7 @@ Error generating stack: `+e.message+`
   border-left: 1px solid #2e2e36;
   background: #18181e;
   overflow: hidden;
-`,Gr=M.div`
+`,qr=M.div`
   padding: 8px 12px;
   border-bottom: 1px solid #2e2e36;
   display: flex;
@@ -265,11 +268,11 @@ Error generating stack: `+e.message+`
   gap: 4px;
   flex-shrink: 0;
   background: #16161c;
-`,Kr=M.div`
+`,Jr=M.div`
   display: flex;
   align-items: baseline;
   gap: 6px;
-`,qr=M.span`
+`,Yr=M.span`
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -277,7 +280,7 @@ Error generating stack: `+e.message+`
   width: 50px;
   flex-shrink: 0;
   padding-top: 4px;
-`,Jr=M.button`
+`,Xr=M.button`
   background: none;
   border: none;
   color: #3a3a46;
@@ -287,7 +290,7 @@ Error generating stack: `+e.message+`
   line-height: 1;
   flex-shrink: 0;
   &:hover { color: #f5a623; }
-`,Yr=M.input`
+`,Zr=M.input`
   flex: 1;
   background: none;
   border: none;
@@ -298,7 +301,7 @@ Error generating stack: `+e.message+`
   min-width: 0;
   &:hover { border-bottom-color: #3a3a46; }
   &:focus { outline: none; border-bottom-color: #f5a623; color: #e0e0e0; }
-`,Xr=M.textarea`
+`,Qr=M.textarea`
   flex: 1;
   background: none;
   border: none;
@@ -313,11 +316,11 @@ Error generating stack: `+e.message+`
   overflow: hidden;
   &:hover { border-bottom-color: #3a3a46; }
   &:focus { outline: none; border-bottom-color: #f5a623; color: #e0e0e0; }
-`,Zr=M.div`
+`,$r=M.div`
   display: flex;
   border-bottom: 1px solid #2e2e36;
   flex-shrink: 0;
-`,Qr=M.button`
+`,ei=M.button`
   flex: 1;
   padding: 10px;
   background: ${e=>e.$active?`#1e1e28`:`none`};
@@ -328,14 +331,14 @@ Error generating stack: `+e.message+`
   font-weight: 600;
   cursor: pointer;
   letter-spacing: 0.03em;
-`,$r=M.div`
+`,ti=M.div`
   flex: 1;
   overflow-y: auto;
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-`,ei=M.button`
+`,ni=M.button`
   width: 100%;
   padding: 8px;
   background: none;
@@ -345,31 +348,31 @@ Error generating stack: `+e.message+`
   font-size: 12px;
   cursor: pointer;
   &:hover { border-color: #f5a623; color: #f5a623; }
-`,ti=M.div`
+`,ri=M.div`
   background: ${e=>e.$selected?`#1e2030`:`#22222a`};
   border: 1px solid ${e=>e.$selected?`#f5a623`:`#2e2e36`};
   border-radius: 6px;
   padding: 8px;
   cursor: pointer;
-`,ni=M.div`
+`,ii=M.div`
   display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 6px;
-`,ri=M.img`
+`,ai=M.img`
   width: 40px;
   height: 22px;
   object-fit: cover;
   border-radius: 3px;
   background: #2a2a2e;
   border: 1px solid #333;
-`,ii=M.div`
+`,oi=M.div`
   width: 40px;
   height: 22px;
   border-radius: 3px;
   background: #2a2a2e;
   border: 1px solid #333;
-`,ai=M.input`
+`,si=M.input`
   flex: 1;
   min-width: 0;
   background: none;
@@ -378,7 +381,7 @@ Error generating stack: `+e.message+`
   color: #c0c0d0;
   font-size: 12px;
   &:focus { outline: none; border-bottom-color: #f5a623; }
-`,oi=M.button`
+`,ci=M.button`
   background: none;
   border: none;
   color: #555;
@@ -387,15 +390,15 @@ Error generating stack: `+e.message+`
   padding: 2px 4px;
   border-radius: 3px;
   &:hover { color: #e0e0e0; background: #33333d; }
-`,si=M.input`
+`,li=M.input`
   width: 100%;
   accent-color: #f5a623;
-`,ci=M.div`
+`,ui=M.div`
   display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 4px;
-`,li=M.label`
+`,di=M.label`
   font-size: 10px;
   color: #666;
   width: 64px;
@@ -403,34 +406,34 @@ Error generating stack: `+e.message+`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-`,ui=M.span`
+`,fi=M.span`
   font-size: 10px;
   color: #888;
   width: 28px;
   text-align: right;
   flex-shrink: 0;
-`,di=M.div`
+`,pi=M.div`
   display: flex;
   flex-direction: column;
   gap: 14px;
-`,fi=M.div`
+`,mi=M.div`
   background: #1e1e28;
   border-radius: 6px;
   padding: 10px;
-`,pi=M.div`
+`,hi=M.div`
   font-size: 10px;
   color: #f5a623;
   font-weight: 700;
   letter-spacing: 0.08em;
   margin-bottom: 8px;
-`;function mi({layer:e,onUpdate:t,onDelete:n,onMoveUp:r,onMoveDown:i,onEdit:a,selected:o,onSelect:s}){return(0,N.jsxs)(ti,{$selected:o,onClick:s,children:[(0,N.jsxs)(ni,{children:[e.imageData?(0,N.jsx)(ri,{src:e.imageData,alt:``}):(0,N.jsx)(ii,{}),(0,N.jsx)(ai,{value:e.name,onChange:e=>t(t=>({...t,name:e.target.value})),onClick:e=>e.stopPropagation()}),(0,N.jsx)(oi,{title:`Move up (foreground)`,onClick:e=>{e.stopPropagation(),r()},children:`▲`}),(0,N.jsx)(oi,{title:`Move down (background)`,onClick:e=>{e.stopPropagation(),i()},children:`▼`}),(0,N.jsx)(oi,{title:`Edit drawing`,onClick:e=>{e.stopPropagation(),a()},children:`✏`}),(0,N.jsx)(oi,{title:`Delete`,onClick:e=>{e.stopPropagation(),n()},children:`×`})]}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`X`}),(0,N.jsx)(si,{type:`range`,min:-50,max:150,step:1,value:e.position.x,onChange:e=>t(t=>({...t,position:{...t.position,x:+e.target.value}}))}),(0,N.jsxs)(ui,{children:[e.position.x,`%`]})]}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`Y`}),(0,N.jsx)(si,{type:`range`,min:-50,max:150,step:1,value:e.position.y,onChange:e=>t(t=>({...t,position:{...t.position,y:+e.target.value}}))}),(0,N.jsxs)(ui,{children:[e.position.y,`%`]})]}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`Scale`}),(0,N.jsx)(si,{type:`range`,min:.1,max:3,step:.05,value:e.scale,onChange:e=>t(t=>({...t,scale:+e.target.value}))}),(0,N.jsx)(ui,{children:e.scale.toFixed(2)})]}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`Parallax`}),(0,N.jsx)(si,{type:`range`,min:0,max:2,step:.05,value:e.parallax??1,onChange:e=>t(t=>({...t,parallax:+e.target.value}))}),(0,N.jsx)(ui,{children:(e.parallax??1).toFixed(2)})]})]})}function hi({shot:e,onUpdateShot:t}){let n=e.camera[0],r=e.camera[1],i=(e,n)=>{t(t=>{let r=[...t.camera];return r[e]={...r[e],...n},{...t,camera:r}})},a=(e,n,r)=>{t(t=>{let i=[...t.camera];return i[e]={...i[e],layerBlurs:{...i[e].layerBlurs,[n]:r}},{...t,camera:i}})};return(0,N.jsxs)(di,{children:[(0,N.jsxs)(fi,{children:[(0,N.jsx)(pi,{children:`DURATION`}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`Secs`}),(0,N.jsx)(si,{type:`range`,min:1,max:10,step:.5,value:e.duration,onChange:e=>t(t=>({...t,duration:+e.target.value}))}),(0,N.jsxs)(ui,{children:[e.duration,`s`]})]})]}),(0,N.jsxs)(fi,{children:[(0,N.jsx)(pi,{children:`START FRAME`}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`Zoom`}),(0,N.jsx)(si,{type:`range`,min:.5,max:4,step:.05,value:n.zoom,onChange:e=>i(0,{zoom:+e.target.value})}),(0,N.jsxs)(ui,{children:[n.zoom.toFixed(2),`×`]})]}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`Pan X`}),(0,N.jsx)(si,{type:`range`,min:-50,max:50,step:1,value:n.panX,onChange:e=>i(0,{panX:+e.target.value})}),(0,N.jsxs)(ui,{children:[n.panX,`%`]})]}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`Pan Y`}),(0,N.jsx)(si,{type:`range`,min:-50,max:50,step:1,value:n.panY,onChange:e=>i(0,{panY:+e.target.value})}),(0,N.jsxs)(ui,{children:[n.panY,`%`]})]}),e.layers.map(e=>(0,N.jsxs)(ci,{children:[(0,N.jsxs)(li,{title:e.name,children:[e.name,` blur`]}),(0,N.jsx)(si,{type:`range`,min:0,max:20,step:.5,value:n.layerBlurs[e.id]??0,onChange:t=>a(0,e.id,+t.target.value)}),(0,N.jsxs)(ui,{children:[n.layerBlurs[e.id]??0,`px`]})]},e.id))]}),(0,N.jsxs)(fi,{children:[(0,N.jsx)(pi,{children:`END FRAME`}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`Zoom`}),(0,N.jsx)(si,{type:`range`,min:.5,max:4,step:.05,value:r.zoom,onChange:e=>i(1,{zoom:+e.target.value})}),(0,N.jsxs)(ui,{children:[r.zoom.toFixed(2),`×`]})]}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`Pan X`}),(0,N.jsx)(si,{type:`range`,min:-50,max:50,step:1,value:r.panX,onChange:e=>i(1,{panX:+e.target.value})}),(0,N.jsxs)(ui,{children:[r.panX,`%`]})]}),(0,N.jsxs)(ci,{children:[(0,N.jsx)(li,{children:`Pan Y`}),(0,N.jsx)(si,{type:`range`,min:-50,max:50,step:1,value:r.panY,onChange:e=>i(1,{panY:+e.target.value})}),(0,N.jsxs)(ui,{children:[r.panY,`%`]})]}),e.layers.map(e=>(0,N.jsxs)(ci,{children:[(0,N.jsxs)(li,{title:e.name,children:[e.name,` blur`]}),(0,N.jsx)(si,{type:`range`,min:0,max:20,step:.5,value:r.layerBlurs[e.id]??0,onChange:t=>a(1,e.id,+t.target.value)}),(0,N.jsxs)(ui,{children:[r.layerBlurs[e.id]??0,`px`]})]},e.id))]})]})}function gi({shot:e,onBack:t,onUpdateShot:n,onAddLayer:r,onUpdateLayer:i,onDeleteLayer:a,onMoveLayer:o,onEditDrawing:s,onPreview:c}){let[l,u]=(0,_.useState)(`layers`),[d,f]=(0,_.useState)(null),p=[...e.layers].sort((e,t)=>t.zIndex-e.zIndex);return(0,N.jsxs)(Fr,{children:[(0,N.jsxs)(Ir,{children:[(0,N.jsx)(Lr,{onClick:t,children:`← Timeline`}),(0,N.jsx)(Rr,{value:e.name,onChange:e=>n(t=>({...t,name:e.target.value}))}),(0,N.jsx)(zr,{}),(0,N.jsx)(Br,{onClick:c,children:`▶ Preview`})]}),(0,N.jsxs)(Vr,{children:[(0,N.jsx)(Hr,{children:(0,N.jsx)(Ur,{children:(0,N.jsx)(Pr,{layers:e.layers,zoom:e.camera[0].zoom,panX:e.camera[0].panX,panY:e.camera[0].panY,overrideBlurs:e.camera[0].layerBlurs})})}),(0,N.jsxs)(Wr,{children:[e.plan&&(0,N.jsxs)(Gr,{children:[(0,N.jsxs)(Kr,{children:[(0,N.jsx)(qr,{children:`DRAW`}),(0,N.jsx)(Xr,{value:e.plan.prompt,rows:2,onChange:e=>n(t=>({...t,plan:{...t.plan,prompt:e.target.value}}))})]}),(0,N.jsxs)(Kr,{children:[(0,N.jsx)(qr,{children:`EMOTION`}),(0,N.jsx)(Yr,{value:e.plan.emotion,placeholder:`—`,onChange:e=>n(t=>({...t,plan:{...t.plan,emotion:e.target.value}}))}),(0,N.jsx)(Jr,{title:`Random emotion`,onClick:()=>n(e=>({...e,plan:{...e.plan,emotion:jr(Or)}})),children:`⚄`})]}),(0,N.jsxs)(Kr,{children:[(0,N.jsx)(qr,{children:`COMP`}),(0,N.jsx)(Yr,{value:e.plan.composition,placeholder:`—`,onChange:e=>n(t=>({...t,plan:{...t.plan,composition:e.target.value}}))}),(0,N.jsx)(Jr,{title:`Random composition`,onClick:()=>n(e=>({...e,plan:{...e.plan,composition:jr(kr)}})),children:`⚄`})]}),(0,N.jsxs)(Kr,{children:[(0,N.jsx)(qr,{children:`CAMERA`}),(0,N.jsx)(Yr,{value:e.plan.cameraNote,placeholder:`—`,onChange:e=>n(t=>({...t,plan:{...t.plan,cameraNote:e.target.value}}))}),(0,N.jsx)(Jr,{title:`Random camera`,onClick:()=>{let e=jr(Object.keys(Er));n(t=>({...t,plan:{...t.plan,cameraNote:Er[e].label}}))},children:`⚄`})]})]}),(0,N.jsxs)(Zr,{children:[(0,N.jsx)(Qr,{$active:l===`layers`,onClick:()=>u(`layers`),children:`LAYERS`}),(0,N.jsx)(Qr,{$active:l===`camera`,onClick:()=>u(`camera`),children:`CAMERA`})]}),(0,N.jsxs)($r,{children:[l===`layers`&&(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(ei,{onClick:r,children:`+ Add Layer`}),p.map(e=>(0,N.jsx)(mi,{layer:e,selected:d===e.id,onSelect:()=>f(e.id),onUpdate:t=>i(e.id,t),onDelete:()=>a(e.id),onMoveUp:()=>o(e.id,`up`),onMoveDown:()=>o(e.id,`down`),onEdit:()=>s(e.id)},e.id))]}),l===`camera`&&(0,N.jsx)(hi,{shot:e,onUpdateShot:n})]})]})]})]})}var _i=1920,vi=1080,yi=[`#000000`,`#ffffff`,`#ff0000`,`#ff6600`,`#ffcc00`,`#33cc33`,`#0099ff`,`#6633cc`,`#cc33cc`,`#996633`,`#666666`,`#cccccc`],bi=M.div`
+`;function gi({layer:e,onUpdate:t,onDelete:n,onMoveUp:r,onMoveDown:i,onEdit:a,selected:o,onSelect:s}){return(0,N.jsxs)(ri,{$selected:o,onClick:s,children:[(0,N.jsxs)(ii,{children:[e.imageData?(0,N.jsx)(ai,{src:e.imageData,alt:``}):(0,N.jsx)(oi,{}),(0,N.jsx)(si,{value:e.name,onChange:e=>t(t=>({...t,name:e.target.value})),onClick:e=>e.stopPropagation()}),(0,N.jsx)(ci,{title:`Move up (foreground)`,onClick:e=>{e.stopPropagation(),r()},children:`▲`}),(0,N.jsx)(ci,{title:`Move down (background)`,onClick:e=>{e.stopPropagation(),i()},children:`▼`}),(0,N.jsx)(ci,{title:`Edit drawing`,onClick:e=>{e.stopPropagation(),a()},children:`✏`}),(0,N.jsx)(ci,{title:`Delete`,onClick:e=>{e.stopPropagation(),n()},children:`×`})]}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`X`}),(0,N.jsx)(li,{type:`range`,min:-50,max:150,step:1,value:e.position.x,onChange:e=>t(t=>({...t,position:{...t.position,x:+e.target.value}}))}),(0,N.jsxs)(fi,{children:[e.position.x,`%`]})]}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`Y`}),(0,N.jsx)(li,{type:`range`,min:-50,max:150,step:1,value:e.position.y,onChange:e=>t(t=>({...t,position:{...t.position,y:+e.target.value}}))}),(0,N.jsxs)(fi,{children:[e.position.y,`%`]})]}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`Scale`}),(0,N.jsx)(li,{type:`range`,min:.1,max:3,step:.05,value:e.scale,onChange:e=>t(t=>({...t,scale:+e.target.value}))}),(0,N.jsx)(fi,{children:e.scale.toFixed(2)})]}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`Parallax`}),(0,N.jsx)(li,{type:`range`,min:0,max:2,step:.05,value:e.parallax??1,onChange:e=>t(t=>({...t,parallax:+e.target.value}))}),(0,N.jsx)(fi,{children:(e.parallax??1).toFixed(2)})]})]})}function _i({shot:e,onUpdateShot:t}){let n=e.camera[0],r=e.camera[1],i=(e,n)=>{t(t=>{let r=[...t.camera];return r[e]={...r[e],...n},{...t,camera:r}})},a=(e,n,r)=>{t(t=>{let i=[...t.camera];return i[e]={...i[e],layerBlurs:{...i[e].layerBlurs,[n]:r}},{...t,camera:i}})};return(0,N.jsxs)(pi,{children:[(0,N.jsxs)(mi,{children:[(0,N.jsx)(hi,{children:`DURATION`}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`Secs`}),(0,N.jsx)(li,{type:`range`,min:1,max:10,step:.5,value:e.duration,onChange:e=>t(t=>({...t,duration:+e.target.value}))}),(0,N.jsxs)(fi,{children:[e.duration,`s`]})]})]}),(0,N.jsxs)(mi,{children:[(0,N.jsx)(hi,{children:`START FRAME`}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`Zoom`}),(0,N.jsx)(li,{type:`range`,min:.5,max:4,step:.05,value:n.zoom,onChange:e=>i(0,{zoom:+e.target.value})}),(0,N.jsxs)(fi,{children:[n.zoom.toFixed(2),`×`]})]}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`Pan X`}),(0,N.jsx)(li,{type:`range`,min:-50,max:50,step:1,value:n.panX,onChange:e=>i(0,{panX:+e.target.value})}),(0,N.jsxs)(fi,{children:[n.panX,`%`]})]}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`Pan Y`}),(0,N.jsx)(li,{type:`range`,min:-50,max:50,step:1,value:n.panY,onChange:e=>i(0,{panY:+e.target.value})}),(0,N.jsxs)(fi,{children:[n.panY,`%`]})]}),e.layers.map(e=>(0,N.jsxs)(ui,{children:[(0,N.jsxs)(di,{title:e.name,children:[e.name,` blur`]}),(0,N.jsx)(li,{type:`range`,min:0,max:20,step:.5,value:n.layerBlurs[e.id]??0,onChange:t=>a(0,e.id,+t.target.value)}),(0,N.jsxs)(fi,{children:[n.layerBlurs[e.id]??0,`px`]})]},e.id))]}),(0,N.jsxs)(mi,{children:[(0,N.jsx)(hi,{children:`END FRAME`}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`Zoom`}),(0,N.jsx)(li,{type:`range`,min:.5,max:4,step:.05,value:r.zoom,onChange:e=>i(1,{zoom:+e.target.value})}),(0,N.jsxs)(fi,{children:[r.zoom.toFixed(2),`×`]})]}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`Pan X`}),(0,N.jsx)(li,{type:`range`,min:-50,max:50,step:1,value:r.panX,onChange:e=>i(1,{panX:+e.target.value})}),(0,N.jsxs)(fi,{children:[r.panX,`%`]})]}),(0,N.jsxs)(ui,{children:[(0,N.jsx)(di,{children:`Pan Y`}),(0,N.jsx)(li,{type:`range`,min:-50,max:50,step:1,value:r.panY,onChange:e=>i(1,{panY:+e.target.value})}),(0,N.jsxs)(fi,{children:[r.panY,`%`]})]}),e.layers.map(e=>(0,N.jsxs)(ui,{children:[(0,N.jsxs)(di,{title:e.name,children:[e.name,` blur`]}),(0,N.jsx)(li,{type:`range`,min:0,max:20,step:.5,value:r.layerBlurs[e.id]??0,onChange:t=>a(1,e.id,+t.target.value)}),(0,N.jsxs)(fi,{children:[r.layerBlurs[e.id]??0,`px`]})]},e.id))]})]})}function vi({shot:e,onBack:t,onUpdateShot:n,onAddLayer:r,onUpdateLayer:i,onDeleteLayer:a,onMoveLayer:o,onEditDrawing:s,onPreview:c}){let[l,u]=(0,_.useState)(`layers`),[d,f]=(0,_.useState)(null),p=[...e.layers].sort((e,t)=>t.zIndex-e.zIndex);return(0,N.jsxs)(Lr,{children:[(0,N.jsxs)(Rr,{children:[(0,N.jsx)(zr,{onClick:t,children:`← Timeline`}),(0,N.jsx)(Br,{value:e.name,onChange:e=>n(t=>({...t,name:e.target.value}))}),(0,N.jsx)(Vr,{}),(0,N.jsx)(Hr,{onClick:c,children:`▶ Preview`})]}),(0,N.jsxs)(Ur,{children:[(0,N.jsx)(Wr,{children:(0,N.jsx)(Gr,{children:(0,N.jsx)(Ir,{layers:e.layers,zoom:e.camera[0].zoom,panX:e.camera[0].panX,panY:e.camera[0].panY,overrideBlurs:e.camera[0].layerBlurs})})}),(0,N.jsxs)(Kr,{children:[e.plan&&(0,N.jsxs)(qr,{children:[(0,N.jsxs)(Jr,{children:[(0,N.jsx)(Yr,{children:`DRAW`}),(0,N.jsx)(Qr,{value:e.plan.prompt,rows:2,onChange:e=>n(t=>({...t,plan:{...t.plan,prompt:e.target.value}}))})]}),(0,N.jsxs)(Jr,{children:[(0,N.jsx)(Yr,{children:`EMOTION`}),(0,N.jsx)(Zr,{value:e.plan.emotion,placeholder:`—`,onChange:e=>n(t=>({...t,plan:{...t.plan,emotion:e.target.value}}))}),(0,N.jsx)(Xr,{title:`Random emotion`,onClick:()=>n(e=>({...e,plan:{...e.plan,emotion:Nr(Ar)}})),children:`⚄`})]}),(0,N.jsxs)(Jr,{children:[(0,N.jsx)(Yr,{children:`COMP`}),(0,N.jsx)(Zr,{value:e.plan.composition,placeholder:`—`,onChange:e=>n(t=>({...t,plan:{...t.plan,composition:e.target.value}}))}),(0,N.jsx)(Xr,{title:`Random composition`,onClick:()=>n(e=>({...e,plan:{...e.plan,composition:Nr(jr)}})),children:`⚄`})]}),(0,N.jsxs)(Jr,{children:[(0,N.jsx)(Yr,{children:`CAMERA`}),(0,N.jsx)(Zr,{value:e.plan.cameraNote,placeholder:`—`,onChange:e=>n(t=>({...t,plan:{...t.plan,cameraNote:e.target.value}}))}),(0,N.jsx)(Xr,{title:`Random camera`,onClick:()=>{let e=Nr(Object.keys(Or));n(t=>({...t,plan:{...t.plan,cameraNote:Or[e].label}}))},children:`⚄`})]})]}),(0,N.jsxs)($r,{children:[(0,N.jsx)(ei,{$active:l===`layers`,onClick:()=>u(`layers`),children:`LAYERS`}),(0,N.jsx)(ei,{$active:l===`camera`,onClick:()=>u(`camera`),children:`CAMERA`})]}),(0,N.jsxs)(ti,{children:[l===`layers`&&(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(ni,{onClick:r,children:`+ Add Layer`}),p.map(e=>(0,N.jsx)(gi,{layer:e,selected:d===e.id,onSelect:()=>f(e.id),onUpdate:t=>i(e.id,t),onDelete:()=>a(e.id),onMoveUp:()=>o(e.id,`up`),onMoveDown:()=>o(e.id,`down`),onEdit:()=>s(e.id)},e.id))]}),l===`camera`&&(0,N.jsx)(_i,{shot:e,onUpdateShot:n})]})]})]})]})}var yi=1920,bi=1080,xi=[`#000000`,`#ffffff`,`#ff0000`,`#ff6600`,`#ffcc00`,`#33cc33`,`#0099ff`,`#6633cc`,`#cc33cc`,`#996633`,`#666666`,`#cccccc`],Si=M.div`
   position: fixed;
   inset: 0;
   background: #111114;
   display: flex;
   flex-direction: column;
   z-index: 100;
-`,xi=M.div`
+`,Ci=M.div`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -439,11 +442,11 @@ Error generating stack: `+e.message+`
   border-bottom: 1px solid #2e2e36;
   flex-shrink: 0;
   flex-wrap: wrap;
-`,Si=M.span`
+`,wi=M.span`
   font-size: 12px;
   color: #888;
   margin-right: 2px;
-`,Ci=M.button`
+`,Ti=M.button`
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -454,12 +457,12 @@ Error generating stack: `+e.message+`
   align-items: center;
   justify-content: center;
   &:hover { border-color: #f5a623; }
-`,wi=M.div`
+`,Ei=M.div`
   width: ${e=>e.$size}px;
   height: ${e=>e.$size}px;
   border-radius: 50%;
   background: ${e=>e.$color??`#e0e0e0`};
-`,Ti=M.button`
+`,Di=M.button`
   padding: 6px 12px;
   border-radius: 5px;
   border: 1px solid ${e=>e.$active?`#f5a623`:`#3a3a46`};
@@ -468,7 +471,7 @@ Error generating stack: `+e.message+`
   font-size: 12px;
   cursor: pointer;
   &:hover { border-color: #f5a623; color: #f5a623; }
-`,Ei=M.button`
+`,Oi=M.button`
   width: 24px;
   height: 24px;
   border-radius: 4px;
@@ -476,7 +479,7 @@ Error generating stack: `+e.message+`
   background: ${e=>e.$color};
   cursor: pointer;
   &:hover { border-color: #f5a623; }
-`,Di=M.label`
+`,ki=M.label`
   width: 24px;
   height: 24px;
   border: 2px solid #3a3a46;
@@ -495,10 +498,10 @@ Error generating stack: `+e.message+`
     opacity: 0;
     pointer-events: none;
   }
-`,Oi=M.input`
+`,Ai=M.input`
   width: 80px;
   accent-color: #f5a623;
-`,ki=M.div`flex: 1;`,Ai=M.div`
+`,ji=M.div`flex: 1;`,Mi=M.div`
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.6);
@@ -507,7 +510,7 @@ Error generating stack: `+e.message+`
   justify-content: center;
   z-index: 200;
   cursor: pointer;
-`,ji=M.div`
+`,Ni=M.div`
   background: #1e1e28;
   border: 1px solid #3a3a46;
   border-radius: 10px;
@@ -518,7 +521,7 @@ Error generating stack: `+e.message+`
   max-height: 90vh;
   box-shadow: 0 24px 80px rgba(0,0,0,0.7);
   cursor: default;
-`,Mi=M.div`
+`,Pi=M.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -526,12 +529,12 @@ Error generating stack: `+e.message+`
   background: #111114;
   border-bottom: 1px solid #2e2e36;
   flex-shrink: 0;
-`,Ni=M.span`
+`,Fi=M.span`
   font-size: 12px;
   font-weight: 600;
   color: #888;
   letter-spacing: 0.05em;
-`,Pi=M.button`
+`,Ii=M.button`
   background: none;
   border: none;
   color: #666;
@@ -540,12 +543,12 @@ Error generating stack: `+e.message+`
   line-height: 1;
   padding: 0 2px;
   &:hover { color: #e0e0e0; }
-`,Fi=M.img`
+`,Li=M.img`
   display: block;
   max-width: 100%;
   max-height: calc(90vh - 44px);
   object-fit: contain;
-`,Ii=M.button`
+`,Ri=M.button`
   padding: 8px 18px;
   border-radius: 6px;
   border: none;
@@ -555,14 +558,14 @@ Error generating stack: `+e.message+`
   background: ${e=>e.$primary?`#f5a623`:`#2e2e36`};
   color: ${e=>e.$primary?`#111`:`#b0b0c0`};
   &:hover { background: ${e=>e.$primary?`#ffc043`:`#3a3a46`}; }
-`,Li=M.div`
+`,P=M.div`
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   background: #111114;
-`,Ri=M.canvas`
+`,F=M.canvas`
   display: block;
   cursor: crosshair;
   touch-action: none;
@@ -575,7 +578,7 @@ Error generating stack: `+e.message+`
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
   background-color: #333;
-`;function P(e,t,n,r,i,a){let o=Math.round(t),s=Math.round(n);if(o<0||s<0||o>=i||s>=a)return;let c=e.getImageData(0,0,i,a),l=c.data,u=document.createElement(`canvas`);u.width=u.height=1;let d=u.getContext(`2d`);d.fillStyle=r,d.fillRect(0,0,1,1);let f=d.getImageData(0,0,1,1).data,p=(s*i+o)*4,m=l[p],h=l[p+1],g=l[p+2],_=l[p+3];if(m===f[0]&&h===f[1]&&g===f[2]&&_===f[3])return;let v=e=>Math.abs(l[e]-m)<=30&&Math.abs(l[e+1]-h)<=30&&Math.abs(l[e+2]-g)<=30&&Math.abs(l[e+3]-_)<=30,y=[o,s],b=new Uint8Array(i*a);for(;y.length>0;){let e=y.pop(),t=y.pop(),n=e*i+t;if(b[n])continue;b[n]=1;let r=n*4;v(r)&&(b[n]=2,l[r]=f[0],l[r+1]=f[1],l[r+2]=f[2],l[r+3]=f[3],t>0&&y.push(t-1,e),t<i-1&&y.push(t+1,e),e>0&&y.push(t,e-1),e<a-1&&y.push(t,e+1))}for(let e=0;e<a;e++)for(let t=0;t<i;t++){let n=e*i+t;if(b[n]===2)continue;let r=n*4;l[r+3]!==0&&(t>0&&b[n-1]===2||t<i-1&&b[n+1]===2||e>0&&b[n-i]===2||e<a-1&&b[n+i]===2)&&(l[r]=f[0],l[r+1]=f[1],l[r+2]=f[2],l[r+3]=f[3])}e.putImageData(c,0,0)}function F({layer:e,onSave:t,onCancel:n}){let r=(0,_.useRef)(null),[i,a]=(0,_.useState)(`pen`),[o,s]=(0,_.useState)(6),[c,l]=(0,_.useState)(`#000000`),[u,d]=(0,_.useState)(!1),[f,p]=(0,_.useState)([]),[m,h]=(0,_.useState)([]),g=(0,_.useRef)(!1),v=(0,_.useRef)(null),[y,b]=(0,_.useState)(1);(0,_.useEffect)(()=>{let e=()=>{let e=window.innerWidth,t=window.innerHeight-60;b(Math.min(e/_i,t/vi))};return e(),window.addEventListener(`resize`,e),()=>window.removeEventListener(`resize`,e)},[]),(0,_.useEffect)(()=>{let t=r.current;if(!t)return;let n=t.getContext(`2d`);if(n&&(n.clearRect(0,0,_i,vi),e.imageData)){let t=new Image;t.onload=()=>n.drawImage(t,0,0),t.src=e.imageData}},[]);let x=()=>r.current?.getContext(`2d`)??null,S=(0,_.useCallback)(()=>{let e=x();if(!e)return;let t=e.getImageData(0,0,_i,vi);p(e=>[...e.slice(-49),t]),h([])},[]),C=e=>{let t=r.current.getBoundingClientRect();return{x:(e.clientX-t.left)/y,y:(e.clientY-t.top)/y}},w=e=>{let t=C(e);if(i===`fill`){let e=x();if(!e)return;S(),P(e,t.x,t.y,c,_i,vi);return}r.current?.setPointerCapture(e.pointerId),S(),g.current=!0,v.current=t;let n=x();n&&(n.beginPath(),n.arc(t.x,t.y,o/2,0,Math.PI*2),i===`eraser`?(n.globalCompositeOperation=`destination-out`,n.fillStyle=`rgba(0,0,0,1)`):(n.globalCompositeOperation=`source-over`,n.fillStyle=c),n.fill())},ee=e=>{if(!g.current||!v.current)return;let t=C(e),n=x();n&&(n.beginPath(),n.moveTo(v.current.x,v.current.y),n.lineTo(t.x,t.y),i===`eraser`?(n.globalCompositeOperation=`destination-out`,n.strokeStyle=`rgba(0,0,0,1)`):(n.globalCompositeOperation=`source-over`,n.strokeStyle=c),n.lineWidth=o,n.lineCap=`round`,n.lineJoin=`round`,n.stroke(),v.current=t)},te=e=>{r.current?.releasePointerCapture(e.pointerId),g.current=!1,v.current=null;let t=x();t&&(t.globalCompositeOperation=`source-over`)},ne=(0,_.useCallback)(()=>{let e=x();if(!e||f.length===0)return;let t=e.getImageData(0,0,_i,vi);h(e=>[...e,t]);let n=f[f.length-1];p(e=>e.slice(0,-1)),e.putImageData(n,0,0)},[f]),T=(0,_.useCallback)(()=>{let e=x();if(!e||m.length===0)return;let t=e.getImageData(0,0,_i,vi);p(e=>[...e,t]);let n=m[m.length-1];h(e=>e.slice(0,-1)),e.putImageData(n,0,0)},[m]),re=(0,_.useCallback)(()=>{let e=x();e&&(S(),e.clearRect(0,0,_i,vi))},[S]);return(0,_.useEffect)(()=>{let e=e=>{e.key===`z`&&(e.metaKey||e.ctrlKey)&&!e.shiftKey&&(e.preventDefault(),ne()),e.key===`z`&&(e.metaKey||e.ctrlKey)&&e.shiftKey&&(e.preventDefault(),T()),e.key===`y`&&(e.metaKey||e.ctrlKey)&&(e.preventDefault(),T()),e.key===`e`&&a(`eraser`),e.key===`p`&&a(`pen`),e.key===`f`&&a(`fill`),e.key===`Escape`&&(d(!1),n())};return window.addEventListener(`keydown`,e),()=>window.removeEventListener(`keydown`,e)},[ne,T,n]),(0,N.jsxs)(bi,{children:[(0,N.jsxs)(xi,{children:[(0,N.jsx)(Si,{children:`Tool:`}),(0,N.jsx)(Ti,{$active:i===`pen`,onClick:()=>a(`pen`),children:`✏ Pen`}),(0,N.jsx)(Ti,{$active:i===`eraser`,onClick:()=>a(`eraser`),children:`◻ Eraser`}),(0,N.jsx)(Ti,{$active:i===`fill`,onClick:()=>a(`fill`),children:`◧ Fill`}),(0,N.jsx)(Si,{style:{marginLeft:8},children:`Size:`}),(0,N.jsx)(Oi,{type:`range`,min:1,max:40,step:1,value:o,onChange:e=>s(+e.target.value)}),(0,N.jsx)(Ci,{$active:!1,$size:o,style:{pointerEvents:`none`},children:(0,N.jsx)(wi,{$size:Math.min(o,24),$color:c})}),(0,N.jsx)(Si,{style:{marginLeft:8},children:`Color:`}),yi.map(e=>(0,N.jsx)(Ei,{$color:e,$active:c===e,onClick:()=>l(e)},e)),(0,N.jsx)(Di,{title:`Custom color`,children:(0,N.jsx)(`input`,{type:`color`,value:c,onChange:e=>l(e.target.value)})}),(0,N.jsx)(Ti,{onClick:ne,style:{marginLeft:8},title:`Ctrl+Z`,children:`↩ Undo`}),(0,N.jsx)(Ti,{onClick:T,title:`Ctrl+Shift+Z`,children:`↪ Redo`}),(0,N.jsx)(Ti,{onClick:re,children:`⊘ Clear`}),(0,N.jsx)(ki,{}),(0,N.jsx)(Ti,{onClick:()=>d(!0),title:`Facial expressions reference`,children:`☺ Expressions`}),(0,N.jsx)(Ii,{onClick:n,children:`Cancel`}),(0,N.jsx)(Ii,{$primary:!0,onClick:()=>{let e=r.current;e&&t(e.toDataURL(`image/png`))},children:`Done`})]}),u&&(0,N.jsx)(Ai,{onClick:()=>d(!1),children:(0,N.jsxs)(ji,{onClick:e=>e.stopPropagation(),children:[(0,N.jsxs)(Mi,{children:[(0,N.jsx)(Ni,{children:`EXPRESSIONS REFERENCE`}),(0,N.jsx)(Pi,{onClick:()=>d(!1),children:`×`})]}),(0,N.jsx)(Fi,{src:`/movie/expressions.jpg`,alt:`Facial expressions reference`})]})}),(0,N.jsx)(Li,{children:(0,N.jsx)(Ri,{ref:r,width:_i,height:vi,style:{width:_i*y,height:vi*y},onPointerDown:w,onPointerMove:ee,onPointerUp:te,onPointerLeave:te})})]})}var zi=M.div`
+`;function zi(e,t,n,r,i,a){let o=Math.round(t),s=Math.round(n);if(o<0||s<0||o>=i||s>=a)return;let c=e.getImageData(0,0,i,a),l=c.data,u=document.createElement(`canvas`);u.width=u.height=1;let d=u.getContext(`2d`);d.fillStyle=r,d.fillRect(0,0,1,1);let f=d.getImageData(0,0,1,1).data,p=(s*i+o)*4,m=l[p],h=l[p+1],g=l[p+2],_=l[p+3];if(m===f[0]&&h===f[1]&&g===f[2]&&_===f[3])return;let v=e=>Math.abs(l[e]-m)<=30&&Math.abs(l[e+1]-h)<=30&&Math.abs(l[e+2]-g)<=30&&Math.abs(l[e+3]-_)<=30,y=[o,s],b=new Uint8Array(i*a);for(;y.length>0;){let e=y.pop(),t=y.pop(),n=e*i+t;if(b[n])continue;b[n]=1;let r=n*4;v(r)&&(b[n]=2,l[r]=f[0],l[r+1]=f[1],l[r+2]=f[2],l[r+3]=f[3],t>0&&y.push(t-1,e),t<i-1&&y.push(t+1,e),e>0&&y.push(t,e-1),e<a-1&&y.push(t,e+1))}for(let e=0;e<a;e++)for(let t=0;t<i;t++){let n=e*i+t;if(b[n]===2)continue;let r=n*4;l[r+3]!==0&&(t>0&&b[n-1]===2||t<i-1&&b[n+1]===2||e>0&&b[n-i]===2||e<a-1&&b[n+i]===2)&&(l[r]=f[0],l[r+1]=f[1],l[r+2]=f[2],l[r+3]=f[3])}e.putImageData(c,0,0)}function Bi({layer:e,onSave:t,onCancel:n}){let r=(0,_.useRef)(null),[i,a]=(0,_.useState)(`pen`),[o,s]=(0,_.useState)(6),[c,l]=(0,_.useState)(`#000000`),[u,d]=(0,_.useState)(!1),[f,p]=(0,_.useState)([]),[m,h]=(0,_.useState)([]),g=(0,_.useRef)(!1),v=(0,_.useRef)(null),[y,b]=(0,_.useState)(1);(0,_.useEffect)(()=>{let e=()=>{let e=window.innerWidth,t=window.innerHeight-60;b(Math.min(e/yi,t/bi))};return e(),window.addEventListener(`resize`,e),()=>window.removeEventListener(`resize`,e)},[]),(0,_.useEffect)(()=>{let t=r.current;if(!t)return;let n=t.getContext(`2d`);if(n&&(n.clearRect(0,0,yi,bi),e.imageData)){let t=new Image;t.onload=()=>n.drawImage(t,0,0),t.src=e.imageData}},[]);let x=()=>r.current?.getContext(`2d`)??null,S=(0,_.useCallback)(()=>{let e=x();if(!e)return;let t=e.getImageData(0,0,yi,bi);p(e=>[...e.slice(-49),t]),h([])},[]),C=e=>{let t=r.current.getBoundingClientRect();return{x:(e.clientX-t.left)/y,y:(e.clientY-t.top)/y}},w=e=>{let t=C(e);if(i===`fill`){let e=x();if(!e)return;S(),zi(e,t.x,t.y,c,yi,bi);return}r.current?.setPointerCapture(e.pointerId),S(),g.current=!0,v.current=t;let n=x();n&&(n.beginPath(),n.arc(t.x,t.y,o/2,0,Math.PI*2),i===`eraser`?(n.globalCompositeOperation=`destination-out`,n.fillStyle=`rgba(0,0,0,1)`):(n.globalCompositeOperation=`source-over`,n.fillStyle=c),n.fill())},ee=e=>{if(!g.current||!v.current)return;let t=C(e),n=x();n&&(n.beginPath(),n.moveTo(v.current.x,v.current.y),n.lineTo(t.x,t.y),i===`eraser`?(n.globalCompositeOperation=`destination-out`,n.strokeStyle=`rgba(0,0,0,1)`):(n.globalCompositeOperation=`source-over`,n.strokeStyle=c),n.lineWidth=o,n.lineCap=`round`,n.lineJoin=`round`,n.stroke(),v.current=t)},te=e=>{r.current?.releasePointerCapture(e.pointerId),g.current=!1,v.current=null;let t=x();t&&(t.globalCompositeOperation=`source-over`)},ne=(0,_.useCallback)(()=>{let e=x();if(!e||f.length===0)return;let t=e.getImageData(0,0,yi,bi);h(e=>[...e,t]);let n=f[f.length-1];p(e=>e.slice(0,-1)),e.putImageData(n,0,0)},[f]),T=(0,_.useCallback)(()=>{let e=x();if(!e||m.length===0)return;let t=e.getImageData(0,0,yi,bi);p(e=>[...e,t]);let n=m[m.length-1];h(e=>e.slice(0,-1)),e.putImageData(n,0,0)},[m]),re=(0,_.useCallback)(()=>{let e=x();e&&(S(),e.clearRect(0,0,yi,bi))},[S]);return(0,_.useEffect)(()=>{let e=e=>{e.key===`z`&&(e.metaKey||e.ctrlKey)&&!e.shiftKey&&(e.preventDefault(),ne()),e.key===`z`&&(e.metaKey||e.ctrlKey)&&e.shiftKey&&(e.preventDefault(),T()),e.key===`y`&&(e.metaKey||e.ctrlKey)&&(e.preventDefault(),T()),e.key===`e`&&a(`eraser`),e.key===`p`&&a(`pen`),e.key===`f`&&a(`fill`),e.key===`Escape`&&(d(!1),n())};return window.addEventListener(`keydown`,e),()=>window.removeEventListener(`keydown`,e)},[ne,T,n]),(0,N.jsxs)(Si,{children:[(0,N.jsxs)(Ci,{children:[(0,N.jsx)(wi,{children:`Tool:`}),(0,N.jsx)(Di,{$active:i===`pen`,onClick:()=>a(`pen`),children:`✏ Pen`}),(0,N.jsx)(Di,{$active:i===`eraser`,onClick:()=>a(`eraser`),children:`◻ Eraser`}),(0,N.jsx)(Di,{$active:i===`fill`,onClick:()=>a(`fill`),children:`◧ Fill`}),(0,N.jsx)(wi,{style:{marginLeft:8},children:`Size:`}),(0,N.jsx)(Ai,{type:`range`,min:1,max:40,step:1,value:o,onChange:e=>s(+e.target.value)}),(0,N.jsx)(Ti,{$active:!1,$size:o,style:{pointerEvents:`none`},children:(0,N.jsx)(Ei,{$size:Math.min(o,24),$color:c})}),(0,N.jsx)(wi,{style:{marginLeft:8},children:`Color:`}),xi.map(e=>(0,N.jsx)(Oi,{$color:e,$active:c===e,onClick:()=>l(e)},e)),(0,N.jsx)(ki,{title:`Custom color`,children:(0,N.jsx)(`input`,{type:`color`,value:c,onChange:e=>l(e.target.value)})}),(0,N.jsx)(Di,{onClick:ne,style:{marginLeft:8},title:`Ctrl+Z`,children:`↩ Undo`}),(0,N.jsx)(Di,{onClick:T,title:`Ctrl+Shift+Z`,children:`↪ Redo`}),(0,N.jsx)(Di,{onClick:re,children:`⊘ Clear`}),(0,N.jsx)(ji,{}),(0,N.jsx)(Di,{onClick:()=>d(!0),title:`Facial expressions reference`,children:`☺ Expressions`}),(0,N.jsx)(Ri,{onClick:n,children:`Cancel`}),(0,N.jsx)(Ri,{$primary:!0,onClick:()=>{let e=r.current;e&&t(e.toDataURL(`image/png`))},children:`Done`})]}),u&&(0,N.jsx)(Mi,{onClick:()=>d(!1),children:(0,N.jsxs)(Ni,{onClick:e=>e.stopPropagation(),children:[(0,N.jsxs)(Pi,{children:[(0,N.jsx)(Fi,{children:`EXPRESSIONS REFERENCE`}),(0,N.jsx)(Ii,{onClick:()=>d(!1),children:`×`})]}),(0,N.jsx)(Li,{src:`/movie/expressions.jpg`,alt:`Facial expressions reference`})]})}),(0,N.jsx)(P,{children:(0,N.jsx)(F,{ref:r,width:yi,height:bi,style:{width:yi*y,height:bi*y},onPointerDown:w,onPointerMove:ee,onPointerUp:te,onPointerLeave:te})})]})}var Vi=M.div`
   position: fixed;
   inset: 0;
   background: #000;
@@ -584,11 +587,11 @@ Error generating stack: `+e.message+`
   align-items: center;
   justify-content: center;
   z-index: 200;
-`,Bi=M.div`
+`,Hi=M.div`
   width: 100%;
   max-width: calc(100vh * 16 / 9);
   max-height: 100vh;
-`,Vi=M.div`
+`,Ui=M.div`
   position: absolute;
   bottom: 20px;
   left: 50%;
@@ -598,36 +601,36 @@ Error generating stack: `+e.message+`
   align-items: center;
   gap: 8px;
   pointer-events: none;
-`,Hi=M.div`
+`,Wi=M.div`
   font-size: 12px;
   color: rgba(255,255,255,0.5);
   letter-spacing: 0.08em;
-`,Ui=M.div`
+`,Gi=M.div`
   width: 200px;
   height: 3px;
   background: rgba(255,255,255,0.15);
   border-radius: 2px;
   overflow: hidden;
-`,Wi=M.div`
+`,Ki=M.div`
   height: 100%;
   width: ${e=>e.$pct*100}%;
   background: #f5a623;
   border-radius: 2px;
   transition: width 0.05s linear;
-`,Gi=M.div`
+`,qi=M.div`
   position: absolute;
   top: 16px;
   right: 20px;
   font-size: 11px;
   color: rgba(255,255,255,0.3);
   pointer-events: none;
-`;function Ki({shots:e,startShotIndex:t,onDone:n}){let r=(0,_.useRef)({shotIdx:t,startTime:null,rafId:null}),[i,a]=(0,_.useState)(()=>{let n=e[t];return{shotIndex:t,elapsed:0,cameraState:qn(n.camera[0],n.camera[1],0),progress:0,label:`${t+1} / ${e.length}`,done:!1}}),o=(0,_.useCallback)(()=>{r.current.rafId!==null&&cancelAnimationFrame(r.current.rafId),n()},[n]);(0,_.useEffect)(()=>{let i=e.slice(t).reduce((e,t)=>e+t.duration,0),o=0,s=c=>{let l=r.current;l.startTime===null&&(l.startTime=c);let u=(c-l.startTime)/1e3;l.startTime=c,o+=u;let d=e[l.shotIdx];if(!d){n();return}let f=0,p=0;for(let n=t;n<=l.shotIdx;n++)n<l.shotIdx&&(p+=e[n].duration);if(f=o-p,f>=d.duration){let t=l.shotIdx+1;if(t>=e.length){n();return}l.shotIdx=t,a(n=>({...n,shotIndex:t,elapsed:0,cameraState:qn(e[t].camera[0],e[t].camera[1],0),label:`${t+1} / ${e.length}`})),l.rafId=requestAnimationFrame(s);return}let m=Math.min(f/d.duration,1),h=qn(d.camera[0],d.camera[1],m),g=o/i;a({shotIndex:l.shotIdx,elapsed:f,cameraState:h,progress:Math.min(g,1),label:`${l.shotIdx+1} / ${e.length}`,done:!1}),l.rafId=requestAnimationFrame(s)};return r.current.rafId=requestAnimationFrame(s),()=>{r.current.rafId!==null&&cancelAnimationFrame(r.current.rafId)}},[e,t,n]),(0,_.useEffect)(()=>{let e=e=>{e.key===`Escape`&&o()};return window.addEventListener(`keydown`,e),()=>window.removeEventListener(`keydown`,e)},[o]);let s=e[i.shotIndex];return s?(0,N.jsxs)(zi,{onClick:o,children:[(0,N.jsx)(Bi,{onClick:e=>e.stopPropagation(),children:(0,N.jsx)(Pr,{layers:s.layers,zoom:i.cameraState.zoom,panX:i.cameraState.panX,panY:i.cameraState.panY,overrideBlurs:i.cameraState.layerBlurs})}),(0,N.jsxs)(Vi,{children:[(0,N.jsxs)(Hi,{children:[s.name,` — `,i.label]}),(0,N.jsx)(Ui,{children:(0,N.jsx)(Wi,{$pct:i.progress})})]}),(0,N.jsx)(Gi,{children:`ESC or click to stop`})]}):null}function qi(e){let t=[];return()=>(t.length===0&&(t=[...e].sort(()=>Math.random()-.5)),t.pop())}var Ji=M.div`
+`;function Ji({shots:e,startShotIndex:t,onDone:n}){let r=(0,_.useRef)({shotIdx:t,startTime:null,rafId:null}),[i,a]=(0,_.useState)(()=>{let n=e[t];return{shotIndex:t,elapsed:0,cameraState:qn(n.camera[0],n.camera[1],0),progress:0,label:`${t+1} / ${e.length}`,done:!1}}),o=(0,_.useCallback)(()=>{r.current.rafId!==null&&cancelAnimationFrame(r.current.rafId),n()},[n]);(0,_.useEffect)(()=>{let i=e.slice(t).reduce((e,t)=>e+t.duration,0),o=0,s=c=>{let l=r.current;l.startTime===null&&(l.startTime=c);let u=(c-l.startTime)/1e3;l.startTime=c,o+=u;let d=e[l.shotIdx];if(!d){n();return}let f=0,p=0;for(let n=t;n<=l.shotIdx;n++)n<l.shotIdx&&(p+=e[n].duration);if(f=o-p,f>=d.duration){let t=l.shotIdx+1;if(t>=e.length){n();return}l.shotIdx=t,a(n=>({...n,shotIndex:t,elapsed:0,cameraState:qn(e[t].camera[0],e[t].camera[1],0),label:`${t+1} / ${e.length}`})),l.rafId=requestAnimationFrame(s);return}let m=Math.min(f/d.duration,1),h=qn(d.camera[0],d.camera[1],m),g=o/i;a({shotIndex:l.shotIdx,elapsed:f,cameraState:h,progress:Math.min(g,1),label:`${l.shotIdx+1} / ${e.length}`,done:!1}),l.rafId=requestAnimationFrame(s)};return r.current.rafId=requestAnimationFrame(s),()=>{r.current.rafId!==null&&cancelAnimationFrame(r.current.rafId)}},[e,t,n]),(0,_.useEffect)(()=>{let e=e=>{e.key===`Escape`&&o()};return window.addEventListener(`keydown`,e),()=>window.removeEventListener(`keydown`,e)},[o]);let s=e[i.shotIndex];return s?(0,N.jsxs)(Vi,{onClick:o,children:[(0,N.jsx)(Hi,{onClick:e=>e.stopPropagation(),children:(0,N.jsx)(Ir,{layers:s.layers,zoom:i.cameraState.zoom,panX:i.cameraState.panX,panY:i.cameraState.panY,overrideBlurs:i.cameraState.layerBlurs})}),(0,N.jsxs)(Ui,{children:[(0,N.jsxs)(Wi,{children:[s.name,` — `,i.label]}),(0,N.jsx)(Gi,{children:(0,N.jsx)(Ki,{$pct:i.progress})})]}),(0,N.jsx)(qi,{children:`ESC or click to stop`})]}):null}function Yi(e){let t=[];return()=>(t.length===0&&(t=[...e].sort(()=>Math.random()-.5)),t.pop())}var Xi=M.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
   background: #1a1a1e;
   overflow: hidden;
-`,Yi=M.div`
+`,Zi=M.div`
   display: flex;
   align-items: center;
   gap: 14px;
@@ -635,7 +638,7 @@ Error generating stack: `+e.message+`
   background: #111114;
   border-bottom: 1px solid #2e2e36;
   flex-shrink: 0;
-`,Xi=M.button`
+`,Qi=M.button`
   background: none;
   border: 1px solid #3a3a46;
   color: #aaa;
@@ -644,12 +647,12 @@ Error generating stack: `+e.message+`
   cursor: pointer;
   font-size: 12px;
   &:hover { border-color: #f5a623; color: #f5a623; }
-`,Zi=M.span`
+`,$i=M.span`
   font-size: 13px;
   font-weight: 700;
   color: #f5a623;
   letter-spacing: 0.08em;
-`,Qi=M.input`
+`,ea=M.input`
   background: #1e1e28;
   border: 1px solid #3a3a46;
   border-radius: 5px;
@@ -659,7 +662,7 @@ Error generating stack: `+e.message+`
   width: 200px;
   &:focus { outline: none; border-color: #f5a623; }
   &::placeholder { color: #444; }
-`,$i=M.div`flex: 1;`,ea=M.button`
+`,ta=M.div`flex: 1;`,na=M.button`
   background: #f5a623;
   color: #111;
   border: none;
@@ -670,24 +673,24 @@ Error generating stack: `+e.message+`
   cursor: pointer;
   &:hover { background: #ffc043; }
   &:disabled { opacity: 0.35; cursor: not-allowed; }
-`,ta=M.div`
+`,ra=M.div`
   flex: 1;
   overflow-y: auto;
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-`,na=M.div`
+`,ia=M.div`
   display: flex;
   align-items: center;
   gap: 10px;
-`,ra=M.div`
+`,aa=M.div`
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: #555;
   white-space: nowrap;
-`,ia=M.button`
+`,oa=M.button`
   padding: 6px 14px;
   border-radius: 6px;
   border: 1px solid #3a3a46;
@@ -697,7 +700,7 @@ Error generating stack: `+e.message+`
   cursor: pointer;
   white-space: nowrap;
   &:hover { border-color: #f5a623; color: #f5a623; }
-`,aa=M.select`
+`,sa=M.select`
   background: #1e1e26;
   border: 1px solid #3a3a46;
   border-radius: 6px;
@@ -707,7 +710,7 @@ Error generating stack: `+e.message+`
   cursor: pointer;
   &:focus { outline: none; border-color: #f5a623; }
   option { background: #1e1e26; }
-`,oa=M.div`
+`,ca=M.div`
   display: grid;
   grid-template-columns: 28px 1fr 28px;
   gap: 1px;
@@ -715,24 +718,24 @@ Error generating stack: `+e.message+`
   border: 1px solid #2e2e36;
   border-radius: 8px;
   overflow: hidden;
-`,sa=M.div`
+`,la=M.div`
   background: #18181e;
   padding: 8px 10px;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: #555;
-`,ca=M.div`
+`,ua=M.div`
   background: #1e1e26;
   padding: 6px 8px;
   display: flex;
   align-items: center;
-`,la=M(ca)`
+`,I=M(ua)`
   justify-content: center;
   font-size: 11px;
   color: #444;
   background: #18181e;
-`,ua=M.input`
+`,da=M.input`
   flex: 1;
   background: none;
   border: none;
@@ -740,7 +743,7 @@ Error generating stack: `+e.message+`
   font-size: 12px;
   &:focus { outline: none; color: #fff; }
   &::placeholder { color: #3a3a46; }
-`,I=M.button`
+`,fa=M.button`
   background: none;
   border: none;
   color: #333;
@@ -750,10 +753,10 @@ Error generating stack: `+e.message+`
   padding: 2px;
   margin: auto;
   &:hover { color: #cc4444; }
-`,da=M.div`
+`,pa=M.div`
   grid-column: 1 / -1;
   background: #18181e;
-`,fa=M.button`
+`,ma=M.button`
   width: 100%;
   padding: 9px;
   background: none;
@@ -764,18 +767,18 @@ Error generating stack: `+e.message+`
   text-align: left;
   padding-left: 14px;
   &:hover { color: #f5a623; background: rgba(245,166,35,0.04); }
-`,pa=M.div`
+`,ha=M.div`
   display: flex;
   align-items: center;
   gap: 10px;
-`,ma=M.span`
+`,ga=M.span`
   font-size: 11px;
   color: #444;
-`,ha=M.span`
+`,_a=M.span`
   font-size: 12px;
   color: #c0b060;
   font-style: italic;
-`;function ga(){return{id:Hn(),prompt:``}}function _a({onCreateShots:e,onBack:t}){let[n,r]=(0,_.useState)(``),[i,a]=(0,_.useState)(Dr.find(e=>e.id===`the-reveal`).shots.map(e=>({id:Hn(),prompt:e.prompt}))),[o,s]=(0,_.useState)(``),c=(0,_.useRef)(qi(Ar)),l=e=>{let t=Dr.find(t=>t.id===e);t&&a(t.shots.map(e=>({id:Hn(),prompt:e.prompt})))},u=()=>l(jr(Dr).id),d=(e,t)=>a(n=>n.map(n=>n.id===e?{...n,prompt:t}:n)),f=()=>a(e=>[...e,ga()]),p=e=>a(t=>t.length>1?t.filter(t=>t.id!==e):t),m=i.some(e=>e.prompt.trim());return(0,N.jsxs)(Ji,{children:[(0,N.jsxs)(Yi,{children:[(0,N.jsx)(Xi,{onClick:t,children:`← Timeline`}),(0,N.jsx)(Zi,{children:`PLAN A SCENE`}),(0,N.jsx)(Qi,{placeholder:`Scene name…`,value:n,onChange:e=>r(e.target.value)}),(0,N.jsx)($i,{}),(0,N.jsx)(ea,{onClick:()=>e(n.trim()||`Untitled Scene`,i),disabled:!m,children:`Create Shots →`})]}),(0,N.jsxs)(ta,{children:[(0,N.jsxs)(na,{children:[(0,N.jsx)(ra,{children:`TEMPLATE`}),(0,N.jsx)(aa,{defaultValue:`the-reveal`,onChange:e=>{e.target.value&&l(e.target.value)},children:Dr.map(e=>(0,N.jsx)(`option`,{value:e.id,children:e.name},e.id))}),(0,N.jsx)(ia,{onClick:u,children:`⚄ Random`})]}),(0,N.jsxs)(`div`,{children:[(0,N.jsx)(ra,{style:{marginBottom:8},children:`WHAT TO DRAW — SHOT BY SHOT`}),(0,N.jsxs)(oa,{children:[(0,N.jsx)(sa,{children:`#`}),(0,N.jsx)(sa,{children:`What this shot shows`}),(0,N.jsx)(sa,{}),i.map((e,t)=>(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(la,{children:t+1},`num-${e.id}`),(0,N.jsx)(ca,{children:(0,N.jsx)(ua,{placeholder:`Describe what to draw…`,value:e.prompt,onChange:t=>d(e.id,t.target.value)})},`prompt-${e.id}`),(0,N.jsx)(ca,{children:(0,N.jsx)(I,{onClick:()=>p(e.id),children:`×`})},`del-${e.id}`)]})),(0,N.jsx)(da,{children:(0,N.jsx)(fa,{onClick:f,children:`+ Add shot`})})]})]}),(0,N.jsxs)(pa,{children:[(0,N.jsx)(ma,{children:`Need something for a [blank]?`}),(0,N.jsx)(ia,{onClick:()=>s(c.current()),style:{padding:`4px 10px`,fontSize:`11px`},children:`⚄ Random object`}),o&&(0,N.jsxs)(ha,{children:[`→ `,o]})]})]})]})}var va=Vn`
+`;function va(){return{id:Hn(),prompt:``}}function ya({onCreateShots:e,onBack:t}){let[n,r]=(0,_.useState)(``),[i,a]=(0,_.useState)(kr.find(e=>e.id===`the-reveal`).shots.map(e=>({id:Hn(),prompt:e.prompt}))),[o,s]=(0,_.useState)(``),c=(0,_.useRef)(Yi(Mr)),l=e=>{let t=kr.find(t=>t.id===e);t&&a(t.shots.map(e=>({id:Hn(),prompt:e.prompt})))},u=()=>l(Nr(kr).id),d=(e,t)=>a(n=>n.map(n=>n.id===e?{...n,prompt:t}:n)),f=()=>a(e=>[...e,va()]),p=e=>a(t=>t.length>1?t.filter(t=>t.id!==e):t),m=i.some(e=>e.prompt.trim());return(0,N.jsxs)(Xi,{children:[(0,N.jsxs)(Zi,{children:[(0,N.jsx)(Qi,{onClick:t,children:`← Timeline`}),(0,N.jsx)($i,{children:`PLAN A SCENE`}),(0,N.jsx)(ea,{placeholder:`Scene name…`,value:n,onChange:e=>r(e.target.value)}),(0,N.jsx)(ta,{}),(0,N.jsx)(na,{onClick:()=>e(n.trim()||`Untitled Scene`,i),disabled:!m,children:`Create Shots →`})]}),(0,N.jsxs)(ra,{children:[(0,N.jsxs)(ia,{children:[(0,N.jsx)(aa,{children:`TEMPLATE`}),(0,N.jsx)(sa,{defaultValue:`the-reveal`,onChange:e=>{e.target.value&&l(e.target.value)},children:kr.map(e=>(0,N.jsx)(`option`,{value:e.id,children:e.name},e.id))}),(0,N.jsx)(oa,{onClick:u,children:`⚄ Random`})]}),(0,N.jsxs)(`div`,{children:[(0,N.jsx)(aa,{style:{marginBottom:8},children:`WHAT TO DRAW — SHOT BY SHOT`}),(0,N.jsxs)(ca,{children:[(0,N.jsx)(la,{children:`#`}),(0,N.jsx)(la,{children:`What this shot shows`}),(0,N.jsx)(la,{}),i.map((e,t)=>(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(I,{children:t+1},`num-${e.id}`),(0,N.jsx)(ua,{children:(0,N.jsx)(da,{placeholder:`Describe what to draw…`,value:e.prompt,onChange:t=>d(e.id,t.target.value)})},`prompt-${e.id}`),(0,N.jsx)(ua,{children:(0,N.jsx)(fa,{onClick:()=>p(e.id),children:`×`})},`del-${e.id}`)]})),(0,N.jsx)(pa,{children:(0,N.jsx)(ma,{onClick:f,children:`+ Add shot`})})]})]}),(0,N.jsxs)(ha,{children:[(0,N.jsx)(ga,{children:`Need something for a [blank]?`}),(0,N.jsx)(oa,{onClick:()=>s(c.current()),style:{padding:`4px 10px`,fontSize:`11px`},children:`⚄ Random object`}),o&&(0,N.jsxs)(_a,{children:[`→ `,o]})]})]})]})}var ba=Vn`
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: #1a1a1e;
@@ -786,4 +789,4 @@ Error generating stack: `+e.message+`
     overflow: hidden;
   }
   #root { height: 100vh; display: flex; flex-direction: column; }
-`,ya=`motion-comic-projects`,ba=`motion-comic-active`;function xa(e){return{id:Hn(),name:e,shots:[]}}function Sa(){try{let e=localStorage.getItem(ya),t=localStorage.getItem(ba)??``;if(e){let n=JSON.parse(e);if(n.length>0)return{projects:n,activeId:n.find(e=>e.id===t)?.id??n[0].id}}}catch{}let e=xa(`Project 1`);return{projects:[e],activeId:e.id}}var Ca=Sa();function wa(){let[e,t]=(0,_.useState)(Ca.projects),[n,r]=(0,_.useState)(Ca.activeId),[i,a]=(0,_.useState)({type:`timeline`}),o=e.find(e=>e.id===n)??e[0],s=(0,_.useRef)(n);s.current=n;let c=(0,_.useCallback)(e=>{let n=s.current;t(t=>t.map(t=>t.id===n?typeof e==`function`?e(t):e:t))},[]);(0,_.useEffect)(()=>{localStorage.setItem(ya,JSON.stringify(e)),localStorage.setItem(ba,n)},[e,n]);let l=(0,_.useCallback)(e=>{r(e),a({type:`timeline`})},[]),u=(0,_.useCallback)(()=>{let n=xa(`Project ${e.length+1}`);t(e=>[...e,n]),r(n.id),a({type:`timeline`})},[]),d=(0,_.useCallback)(e=>{t(t=>{let i=t.filter(t=>t.id!==e);if(i.length===0){let e=xa(`Project 1`);i.push(e)}return e===n&&r(i[0].id),i}),a({type:`timeline`})},[n]),f=(0,_.useCallback)((e,n)=>{t(t=>t.map(t=>t.id===e?{...t,name:n}:t))},[]),p=(0,_.useCallback)(()=>{c(e=>({...e,shots:[...e.shots,Wn(`Shot ${e.shots.length+1}`)]}))},[]),m=(0,_.useCallback)(e=>{c(t=>({...t,shots:t.shots.filter(t=>t.id!==e)}))},[]),h=(0,_.useCallback)((e,t)=>{c(n=>{let r=[...n.shots],i=r.findIndex(t=>t.id===e),a=t===`left`?i-1:i+1;return a<0||a>=r.length?n:([r[i],r[a]]=[r[a],r[i]],{...n,shots:r})})},[]),g=(0,_.useCallback)((e,t)=>{c(n=>({...n,shots:n.shots.map(n=>n.id===e?t(n):n)}))},[]),v=(0,_.useCallback)(e=>{let t=Gn(`Layer ${(o.shots.find(t=>t.id===e)?.layers.length??0)+1}`);g(e,e=>({...e,layers:[...e.layers,{...t,zIndex:e.layers.length}]})),a({type:`drawing-tool`,shotId:e,layerId:t.id})},[g,o.shots]),y=(0,_.useCallback)((e,t,n)=>{g(e,e=>({...e,layers:e.layers.map(e=>e.id===t?n(e):e)}))},[g]),b=(0,_.useCallback)((e,t)=>{g(e,e=>({...e,layers:e.layers.filter(e=>e.id!==t),camera:e.camera.map(e=>{let n={...e.layerBlurs};return delete n[t],{...e,layerBlurs:n}})}))},[g]),x=(0,_.useCallback)((e,t,n)=>{g(e,e=>{let r=[...e.layers].sort((e,t)=>e.zIndex-t.zIndex),i=r.findIndex(e=>e.id===t),a=n===`up`?i+1:i-1;if(a<0||a>=r.length)return e;let o=r[i].zIndex;return r[i]={...r[i],zIndex:r[a].zIndex},r[a]={...r[a],zIndex:o},{...e,layers:r}})},[g]),S=(0,_.useCallback)((e,t,n)=>{y(e,t,e=>({...e,imageData:n})),a({type:`shot-editor`,shotId:e})},[y]),C=(0,_.useCallback)(e=>{a({type:`shot-editor`,shotId:e})},[]),w=(0,_.useCallback)((e,t)=>{a({type:`drawing-tool`,shotId:e,layerId:t})},[]),ee=(0,_.useCallback)(()=>{a({type:`timeline`})},[]),te=(0,_.useCallback)((e,t)=>{let n=t.map((t,n)=>({...Wn(`${e} — ${n+1}`),camera:Un(),plan:{prompt:t.prompt,emotion:``,composition:``,cameraNote:``}}));c(e=>({...e,shots:[...e.shots,...n]})),a({type:`timeline`})},[]),ne=(0,_.useCallback)(()=>{a({type:`playback`,startShotIndex:0})},[]),T=(0,_.useCallback)(e=>{let t=o.shots.findIndex(t=>t.id===e);t>=0&&a({type:`playback`,startShotIndex:t,returnTo:{type:`shot-editor`,shotId:e}})},[o.shots]);if(i.type===`timeline`)return(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(va,{}),(0,N.jsx)(Tr,{project:o,allProjects:e,onSwitchProject:l,onNewProject:u,onDeleteProject:d,onRenameProject:f,onAddShot:p,onDeleteShot:m,onMoveShot:h,onOpenShot:C,onPlayAll:ne,onPlanScene:()=>a({type:`planner`})})]});if(i.type===`planner`)return(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(va,{}),(0,N.jsx)(_a,{onCreateShots:te,onBack:ee})]});if(i.type===`shot-editor`){let e=o.shots.find(e=>e.id===i.shotId);return e?(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(va,{}),(0,N.jsx)(gi,{shot:e,onBack:ee,onUpdateShot:t=>g(e.id,t),onAddLayer:()=>v(e.id),onUpdateLayer:(t,n)=>y(e.id,t,n),onDeleteLayer:t=>b(e.id,t),onMoveLayer:(t,n)=>x(e.id,t,n),onEditDrawing:t=>w(e.id,t),onPreview:()=>T(e.id)})]}):(a({type:`timeline`}),null)}if(i.type===`drawing-tool`){let e=o.shots.find(e=>e.id===i.shotId),t=e?.layers.find(e=>e.id===i.layerId);return!e||!t?(a({type:`timeline`}),null):(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(va,{}),(0,N.jsx)(F,{layer:t,onSave:n=>S(e.id,t.id,n),onCancel:()=>a({type:`shot-editor`,shotId:e.id})})]})}return i.type===`playback`?(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(va,{}),(0,N.jsx)(Ki,{shots:o.shots,startShotIndex:i.startShotIndex,onDone:()=>a(i.returnTo??{type:`timeline`})})]}):null}(0,g.createRoot)(document.getElementById(`root`)).render((0,N.jsx)(_.StrictMode,{children:(0,N.jsx)(wa,{})}));
+`,xa=`motion-comic-projects`,Sa=`motion-comic-active`;function Ca(e){return{id:Hn(),name:e,shots:[]}}function wa(){try{let e=localStorage.getItem(xa),t=localStorage.getItem(Sa)??``;if(e){let n=JSON.parse(e);if(n.length>0)return{projects:n,activeId:n.find(e=>e.id===t)?.id??n[0].id}}}catch{}let e=Ca(`Project 1`);return{projects:[e],activeId:e.id}}var Ta=wa();function Ea(){let[e,t]=(0,_.useState)(Ta.projects),[n,r]=(0,_.useState)(Ta.activeId),[i,a]=(0,_.useState)({type:`timeline`}),o=e.find(e=>e.id===n)??e[0],s=(0,_.useRef)(n);s.current=n;let c=(0,_.useCallback)(e=>{let n=s.current;t(t=>t.map(t=>t.id===n?typeof e==`function`?e(t):e:t))},[]);(0,_.useEffect)(()=>{localStorage.setItem(xa,JSON.stringify(e)),localStorage.setItem(Sa,n)},[e,n]);let l=(0,_.useCallback)(e=>{r(e),a({type:`timeline`})},[]),u=(0,_.useCallback)(()=>{let n=Ca(`Project ${e.length+1}`);t(e=>[...e,n]),r(n.id),a({type:`timeline`})},[]),d=(0,_.useCallback)(e=>{t(t=>{let i=t.filter(t=>t.id!==e);if(i.length===0){let e=Ca(`Project 1`);i.push(e)}return e===n&&r(i[0].id),i}),a({type:`timeline`})},[n]),f=(0,_.useCallback)((e,n)=>{t(t=>t.map(t=>t.id===e?{...t,name:n}:t))},[]),p=(0,_.useCallback)(()=>{c(e=>({...e,shots:[...e.shots,Wn(`Shot ${e.shots.length+1}`)]}))},[]),m=(0,_.useCallback)(e=>{c(t=>({...t,shots:t.shots.filter(t=>t.id!==e)}))},[]),h=(0,_.useCallback)((e,t)=>{c(n=>{let r=[...n.shots],i=r.findIndex(t=>t.id===e),a=t===`left`?i-1:i+1;return a<0||a>=r.length?n:([r[i],r[a]]=[r[a],r[i]],{...n,shots:r})})},[]),g=(0,_.useCallback)((e,t)=>{c(n=>({...n,shots:n.shots.map(n=>n.id===e?t(n):n)}))},[]),v=(0,_.useCallback)(e=>{let t=Gn(`Layer ${(o.shots.find(t=>t.id===e)?.layers.length??0)+1}`);g(e,e=>({...e,layers:[...e.layers,{...t,zIndex:e.layers.length}]})),a({type:`drawing-tool`,shotId:e,layerId:t.id})},[g,o.shots]),y=(0,_.useCallback)((e,t,n)=>{g(e,e=>({...e,layers:e.layers.map(e=>e.id===t?n(e):e)}))},[g]),b=(0,_.useCallback)((e,t)=>{g(e,e=>({...e,layers:e.layers.filter(e=>e.id!==t),camera:e.camera.map(e=>{let n={...e.layerBlurs};return delete n[t],{...e,layerBlurs:n}})}))},[g]),x=(0,_.useCallback)((e,t,n)=>{g(e,e=>{let r=[...e.layers].sort((e,t)=>e.zIndex-t.zIndex),i=r.findIndex(e=>e.id===t),a=n===`up`?i+1:i-1;if(a<0||a>=r.length)return e;let o=r[i].zIndex;return r[i]={...r[i],zIndex:r[a].zIndex},r[a]={...r[a],zIndex:o},{...e,layers:r}})},[g]),S=(0,_.useCallback)((e,t,n)=>{y(e,t,e=>({...e,imageData:n})),a({type:`shot-editor`,shotId:e})},[y]),C=(0,_.useCallback)(e=>{a({type:`shot-editor`,shotId:e})},[]),w=(0,_.useCallback)((e,t)=>{a({type:`drawing-tool`,shotId:e,layerId:t})},[]),ee=(0,_.useCallback)(()=>{a({type:`timeline`})},[]),te=(0,_.useCallback)((e,t)=>{let n=t.map((t,n)=>({...Wn(`${e} — ${n+1}`),camera:Un(),plan:{prompt:t.prompt,emotion:``,composition:``,cameraNote:``}}));c(e=>({...e,shots:[...e.shots,...n]})),a({type:`timeline`})},[]),ne=(0,_.useCallback)(()=>{a({type:`playback`,startShotIndex:0})},[]),T=(0,_.useCallback)(e=>{let t=o.shots.findIndex(t=>t.id===e);t>=0&&a({type:`playback`,startShotIndex:t,returnTo:{type:`shot-editor`,shotId:e}})},[o.shots]);if(i.type===`timeline`)return(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(ba,{}),(0,N.jsx)(Dr,{project:o,allProjects:e,onSwitchProject:l,onNewProject:u,onDeleteProject:d,onRenameProject:f,onAddShot:p,onDeleteShot:m,onMoveShot:h,onOpenShot:C,onPlayAll:ne,onPlanScene:()=>a({type:`planner`})})]});if(i.type===`planner`)return(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(ba,{}),(0,N.jsx)(ya,{onCreateShots:te,onBack:ee})]});if(i.type===`shot-editor`){let e=o.shots.find(e=>e.id===i.shotId);return e?(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(ba,{}),(0,N.jsx)(vi,{shot:e,onBack:ee,onUpdateShot:t=>g(e.id,t),onAddLayer:()=>v(e.id),onUpdateLayer:(t,n)=>y(e.id,t,n),onDeleteLayer:t=>b(e.id,t),onMoveLayer:(t,n)=>x(e.id,t,n),onEditDrawing:t=>w(e.id,t),onPreview:()=>T(e.id)})]}):(a({type:`timeline`}),null)}if(i.type===`drawing-tool`){let e=o.shots.find(e=>e.id===i.shotId),t=e?.layers.find(e=>e.id===i.layerId);return!e||!t?(a({type:`timeline`}),null):(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(ba,{}),(0,N.jsx)(Bi,{layer:t,onSave:n=>S(e.id,t.id,n),onCancel:()=>a({type:`shot-editor`,shotId:e.id})})]})}return i.type===`playback`?(0,N.jsxs)(N.Fragment,{children:[(0,N.jsx)(ba,{}),(0,N.jsx)(Ji,{shots:o.shots,startShotIndex:i.startShotIndex,onDone:()=>a(i.returnTo??{type:`timeline`})})]}):null}(0,g.createRoot)(document.getElementById(`root`)).render((0,N.jsx)(_.StrictMode,{children:(0,N.jsx)(Ea,{})}));
