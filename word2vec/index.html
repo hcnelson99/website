@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>word2vec explorer</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, system-ui, sans-serif;
+    max-width: 720px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    line-height: 1.5;
+  }
+  h1 { font-size: 1.3rem; margin-bottom: 0.2rem; }
+  .hint { color: #888; font-size: 0.85rem; margin-bottom: 1rem; }
+  #expr {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    box-sizing: border-box;
+  }
+  #suggest {
+    border: 1px solid #ccc;
+    background: Canvas;
+    margin-top: -1px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: ui-monospace, monospace;
+    font-size: 0.9rem;
+    display: none;
+  }
+  #suggest div { padding: 0.25rem 0.6rem; cursor: pointer; }
+  #suggest div.active, #suggest div:hover { background: Highlight; color: HighlightText; }
+  #results { margin-top: 1rem; }
+  #results table { width: 100%; border-collapse: collapse; font-family: ui-monospace, monospace; }
+  #results td { padding: 0.2rem 0.4rem; }
+  #results td.score { color: #888; text-align: right; width: 6em; }
+  #status { color: #888; font-size: 0.85rem; }
+  #error { color: #c33; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<h1>word2vec explorer</h1>
+<div class="hint">Type an expression with <code>+</code> and <code>-</code>, e.g. <code>king - man + woman</code>. Top 50k words from GoogleNews-300.</div>
+<input id="expr" placeholder="loading..." disabled autocomplete="off" spellcheck="false" />
+<div id="suggest"></div>
+<div id="status">loading vocab…</div>
+<div id="error"></div>
+<div id="results"></div>
+
+<script>
+const DIM = 300;
+let words = [];
+let wordIndex = new Map();
+let vectors = null; // Float32Array, length = count * DIM, unit-normalized
+
+const exprEl = document.getElementById("expr");
+const suggestEl = document.getElementById("suggest");
+const statusEl = document.getElementById("status");
+const errorEl = document.getElementById("error");
+const resultsEl = document.getElementById("results");
+
+async function load() {
+  const [vocabResp, vecResp] = await Promise.all([
+    fetch("vocab.json"),
+    fetch("vectors.bin"),
+  ]);
+  const vocab = await vocabResp.json();
+  words = vocab.words;
+  wordIndex = new Map(words.map((w, i) => [w, i]));
+  const buf = await vecResp.arrayBuffer();
+  const q = new Int8Array(buf);
+  const scale = vocab.scale;
+  vectors = new Float32Array(q.length);
+  for (let i = 0; i < q.length; i++) vectors[i] = q[i] * scale;
+  // Re-normalize (quantization introduces tiny drift)
+  for (let i = 0; i < vocab.count; i++) {
+    let s = 0;
+    const base = i * DIM;
+    for (let j = 0; j < DIM; j++) s += vectors[base + j] * vectors[base + j];
+    const inv = 1 / Math.sqrt(s);
+    for (let j = 0; j < DIM; j++) vectors[base + j] *= inv;
+  }
+  statusEl.textContent = `loaded ${vocab.count.toLocaleString()} words`;
+  exprEl.disabled = false;
+  exprEl.placeholder = "king - man + woman";
+  exprEl.focus();
+}
+
+// Parse "king - man + woman" into [{sign:+1, word:"king"}, {sign:-1, word:"man"}, {sign:+1, word:"woman"}]
+function parseExpr(s) {
+  const tokens = s.match(/[+\-]|[^\s+\-]+/g);
+  if (!tokens) return [];
+  const out = [];
+  let sign = 1;
+  for (const t of tokens) {
+    if (t === "+") sign = 1;
+    else if (t === "-") sign = -1;
+    else {
+      out.push({ sign, word: t });
+      sign = 1;
+    }
+  }
+  return out;
+}
+
+function computeTarget(terms) {
+  const target = new Float32Array(DIM);
+  const missing = [];
+  for (const { sign, word } of terms) {
+    const idx = wordIndex.get(word);
+    if (idx === undefined) { missing.push(word); continue; }
+    const base = idx * DIM;
+    for (let j = 0; j < DIM; j++) target[j] += sign * vectors[base + j];
+  }
+  return { target, missing };
+}
+
+function topK(target, excludeSet, k = 10) {
+  // Normalize target
+  let s = 0;
+  for (let j = 0; j < DIM; j++) s += target[j] * target[j];
+  if (s === 0) return [];
+  const inv = 1 / Math.sqrt(s);
+  for (let j = 0; j < DIM; j++) target[j] *= inv;
+
+  const count = words.length;
+  const heap = []; // simple: keep array of {i, score}, size k, min at end
+  for (let i = 0; i < count; i++) {
+    if (excludeSet.has(i)) continue;
+    const base = i * DIM;
+    let dot = 0;
+    for (let j = 0; j < DIM; j++) dot += target[j] * vectors[base + j];
+    if (heap.length < k) {
+      heap.push({ i, score: dot });
+      if (heap.length === k) heap.sort((a, b) => b.score - a.score);
+    } else if (dot > heap[k - 1].score) {
+      heap[k - 1] = { i, score: dot };
+      // insertion: bubble up
+      for (let p = k - 1; p > 0 && heap[p].score > heap[p - 1].score; p--) {
+        const tmp = heap[p]; heap[p] = heap[p - 1]; heap[p - 1] = tmp;
+      }
+    }
+  }
+  return heap;
+}
+
+function runQuery() {
+  errorEl.textContent = "";
+  resultsEl.innerHTML = "";
+  const raw = exprEl.value.trim();
+  if (!raw || !vectors) return;
+  const terms = parseExpr(raw);
+  if (terms.length === 0) return;
+  const { target, missing } = computeTarget(terms);
+  if (missing.length) {
+    errorEl.textContent = `not in vocab: ${missing.join(", ")}`;
+    return;
+  }
+  const exclude = new Set();
+  for (const { word } of terms) {
+    const i = wordIndex.get(word);
+    if (i !== undefined) exclude.add(i);
+  }
+  const top = topK(target, exclude, 10);
+  const tbl = document.createElement("table");
+  for (const { i, score } of top) {
+    const tr = document.createElement("tr");
+    const wtd = document.createElement("td"); wtd.textContent = words[i];
+    const std = document.createElement("td"); std.className = "score"; std.textContent = score.toFixed(4);
+    tr.appendChild(wtd); tr.appendChild(std); tbl.appendChild(tr);
+  }
+  resultsEl.appendChild(tbl);
+}
+
+// --- Autocomplete ---
+let suggestions = [];
+let suggestActive = -1;
+
+function currentTokenRange() {
+  // Find the word token the caret is inside/adjacent to.
+  const pos = exprEl.selectionStart ?? exprEl.value.length;
+  const s = exprEl.value;
+  let start = pos;
+  while (start > 0 && /[^\s+\-]/.test(s[start - 1])) start--;
+  let end = pos;
+  while (end < s.length && /[^\s+\-]/.test(s[end])) end++;
+  return { start, end, token: s.slice(start, end) };
+}
+
+function updateSuggest() {
+  const { token } = currentTokenRange();
+  if (!token) { hideSuggest(); return; }
+  const lower = token.toLowerCase();
+  // Frequency-ordered scan (words[] is already frequency-sorted).
+  const matches = [];
+  for (let i = 0; i < words.length && matches.length < 10; i++) {
+    const w = words[i];
+    if (w.length >= token.length && w.toLowerCase().startsWith(lower)) {
+      matches.push(w);
+    }
+  }
+  suggestions = matches;
+  suggestActive = matches.length ? 0 : -1;
+  renderSuggest();
+}
+
+function renderSuggest() {
+  if (!suggestions.length) { hideSuggest(); return; }
+  suggestEl.innerHTML = "";
+  suggestions.forEach((w, i) => {
+    const d = document.createElement("div");
+    d.textContent = w;
+    if (i === suggestActive) d.className = "active";
+    d.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      applySuggestion(w);
+    });
+    suggestEl.appendChild(d);
+  });
+  suggestEl.style.display = "block";
+}
+
+function hideSuggest() {
+  suggestEl.style.display = "none";
+  suggestions = [];
+  suggestActive = -1;
+}
+
+function applySuggestion(w) {
+  const { start, end } = currentTokenRange();
+  const s = exprEl.value;
+  const newVal = s.slice(0, start) + w + s.slice(end);
+  exprEl.value = newVal;
+  const caret = start + w.length;
+  exprEl.setSelectionRange(caret, caret);
+  hideSuggest();
+  exprEl.focus();
+}
+
+exprEl.addEventListener("input", updateSuggest);
+exprEl.addEventListener("keydown", (e) => {
+  if (suggestEl.style.display === "block" && suggestions.length) {
+    if (e.key === "ArrowDown") { e.preventDefault(); suggestActive = (suggestActive + 1) % suggestions.length; renderSuggest(); return; }
+    if (e.key === "ArrowUp") { e.preventDefault(); suggestActive = (suggestActive - 1 + suggestions.length) % suggestions.length; renderSuggest(); return; }
+    if (e.key === "Tab" || (e.key === "Enter" && suggestActive >= 0 && !e.shiftKey && document.activeElement === exprEl && e.key === "Tab")) {
+      // fallthrough
+    }
+    if (e.key === "Tab") { e.preventDefault(); applySuggestion(suggestions[suggestActive]); return; }
+    if (e.key === "Escape") { hideSuggest(); return; }
+  }
+  if (e.key === "Enter") { e.preventDefault(); hideSuggest(); runQuery(); }
+});
+exprEl.addEventListener("blur", () => setTimeout(hideSuggest, 100));
+
+load().catch((err) => {
+  statusEl.textContent = "";
+  errorEl.textContent = "failed to load: " + err.message;
+});
+</script>
+</body>
+</html>
