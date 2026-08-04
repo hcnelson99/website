@@ -1,18 +1,21 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "plants-push",
-  "main": "src/index.js",
-  "compatibility_date": "2026-08-04",
-  "observability": { "enabled": true },
-  "kv_namespaces": [
-    {
-      "binding": "PLANTS_KV",
-      // Replace with the id printed by: npx wrangler kv namespace create PLANTS_KV
-      "id": "REPLACE_ME"
-    }
-  ],
-  "triggers": {
-    // 22:00 UTC = 6pm America/New_York during EDT (shifts to 5pm in winter).
-    "crons": ["0 22 * * *"]
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "plants-push",
+	"main": "src/index.js",
+	"compatibility_date": "2026-08-04",
+	"observability": {
+		"enabled": true
+	},
+	"kv_namespaces": [
+		{
+			"binding": "PLANTS_KV",
+			"id": "b312490479ef404aac4a12c1b2852e39"
+		}
+	],
+	"triggers": {
+		// 22:00 UTC = 6pm America/New_York during EDT (shifts to 5pm in winter).
+		"crons": [
+			"0 22 * * *"
+		]
+	}
 }

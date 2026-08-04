@@ -2,8 +2,7 @@
 // All plant data (including photos) lives in localStorage on this device.
 // The Cloudflare Worker only mirrors names + schedule so it can send push.
 
-// Set after deploying the worker (see worker/README.md):
-const WORKER_URL = "https://plants-push.YOUR_SUBDOMAIN.workers.dev";
+const WORKER_URL = "https://plants-push.hcnelson-plants.workers.dev";
 
 const STORAGE_KEY = "plants-v1";
 
