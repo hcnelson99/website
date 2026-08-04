@@ -51,6 +51,23 @@ export default {
         return json({ ok: true, plants: plants.length, hasSubscription: !!subscription });
       }
 
+      // Sends a test push to the stored subscription, regardless of due plants.
+      if (url.pathname === "/test" && request.method === "POST") {
+        if (!(await tokenValid(request.headers.get("X-Sync-Token"), env.SYNC_TOKEN))) {
+          return json({ error: "bad token" }, 401);
+        }
+        const state = await readState(env);
+        if (!state?.subscription) {
+          return json({ error: "no subscription synced yet — enable notifications first" }, 400);
+        }
+        const status = await sendWebPush(
+          state.subscription,
+          JSON.stringify({ title: "🪴 Test notification", body: "Push is working! 🎉", count: 1 }),
+          env
+        );
+        return json({ ok: status >= 200 && status < 300, pushStatus: status });
+      }
+
       return json({ error: "not found" }, 404);
     } catch (err) {
       console.log(JSON.stringify({ event: "fetch_error", message: err.message }));

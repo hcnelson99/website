@@ -155,7 +155,7 @@ dialog input[type="number"] { width: 80px; display: inline-block; }
 .dialog-buttons .primary, #enable-notifs-btn { background: #5c9e5c; color: white; }
 .dialog-buttons .danger { background: #f7dede; color: #a33; }
 
-#enable-notifs-btn {
+#enable-notifs-btn, #test-push-btn {
   border: none;
   border-radius: 12px;
   padding: 10px 16px;
@@ -163,6 +163,7 @@ dialog input[type="number"] { width: 80px; display: inline-block; }
   cursor: pointer;
   margin-bottom: 16px;
 }
+#test-push-btn { background: #cfe8f7; margin-left: 8px; }
 
 .hint { font-size: 0.8rem; color: #6b7d6b; margin-bottom: 10px; }
 .hint code { background: #eef3ee; padding: 1px 4px; border-radius: 4px; }

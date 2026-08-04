@@ -225,6 +225,23 @@ document.getElementById("enable-notifs-btn").addEventListener("click", async () 
   }
 });
 
+document.getElementById("test-push-btn").addEventListener("click", async () => {
+  if (!state.token) { syncStatus.textContent = "Save your sync token first."; return; }
+  syncStatus.textContent = "Sending…";
+  try {
+    const resp = await fetch(`${WORKER_URL}/test`, {
+      method: "POST",
+      headers: { "X-Sync-Token": state.token },
+    });
+    const result = await resp.json();
+    syncStatus.textContent = result.ok
+      ? "Test push sent (status " + result.pushStatus + ") — lock your phone and it should arrive in a few seconds 📬"
+      : `Push failed: ${result.error ?? "status " + result.pushStatus}`;
+  } catch (err) {
+    syncStatus.textContent = `Failed: ${err.message}`;
+  }
+});
+
 function urlBase64ToUint8Array(base64) {
   const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
   const raw = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));

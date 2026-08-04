@@ -39,12 +39,18 @@ Then wire up the PWA:
 
 ## Testing the push without waiting for 6pm
 
+In the app: ⚙️ Settings → "Send test notification". This hits `POST /test`,
+which pushes through the real pipeline immediately (ignoring due dates).
+Same thing from a terminal:
+
 ```sh
-npx wrangler dev --test-scheduled   # then: curl "http://localhost:8787/__scheduled"
+curl -X POST -H "X-Sync-Token: $SYNC_TOKEN" https://plants-push.hcnelson-plants.workers.dev/test
 ```
 
-or trigger the deployed cron once from the Cloudflare dashboard
-(Workers → plants-push → Trigger Events), and check Live Logs.
+To test the real due-date logic end to end, edit a plant's "last watered"
+date to be more than its interval ago and wait for the 6pm cron; watch
+Live Logs in the dashboard (Workers → plants-push → Logs) for the
+`cron_done` entry.
 
 ## Notes
 
