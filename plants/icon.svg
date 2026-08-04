@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#d8ecd8"/>
+  <!-- leaves -->
+  <g>
+    <path d="M256 300 C 256 220, 200 180, 140 170 C 140 250, 190 295, 256 300 Z" fill="#5c9e5c"/>
+    <path d="M256 300 C 256 220, 312 180, 372 170 C 372 250, 322 295, 256 300 Z" fill="#6fb06f"/>
+    <path d="M256 300 C 246 200, 256 130, 256 96 C 256 130, 266 200, 256 300 Z" stroke="#4a8a4a" stroke-width="26" stroke-linecap="round" fill="none"/>
+    <circle cx="256" cy="96" r="34" fill="#4a8a4a"/>
+  </g>
+  <!-- pot -->
+  <path d="M166 306 L 346 306 L 330 420 Q 328 434 314 434 L 198 434 Q 184 434 182 420 Z" fill="#e8a87c"/>
+  <rect x="152" y="292" width="208" height="30" rx="15" fill="#d98e5f"/>
+  <!-- cute face on the pot -->
+  <circle cx="222" cy="366" r="9" fill="#7a4a2b"/>
+  <circle cx="290" cy="366" r="9" fill="#7a4a2b"/>
+  <path d="M238 390 Q 256 404 274 390" stroke="#7a4a2b" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <!-- blush -->
+  <circle cx="204" cy="384" r="7" fill="#f2b8a0"/>
+  <circle cx="308" cy="384" r="7" fill="#f2b8a0"/>
+  <!-- water drop -->
+  <path d="M392 236 C 392 218 374 196 374 196 C 374 196 356 218 356 236 C 356 247 364 256 374 256 C 384 256 392 247 392 236 Z" fill="#7cc0e8"/>
+</svg>

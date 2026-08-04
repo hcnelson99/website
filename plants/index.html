@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plants</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#eaf5ea">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>🪴 Plants</h1>
+  <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
+</header>
+
+<main>
+  <ul id="plant-list"></ul>
+  <p id="empty-msg" class="empty" hidden>No plants yet — add your first one!</p>
+  <button id="add-btn" class="big-btn">＋ Add a plant</button>
+</main>
+
+<dialog id="plant-dialog">
+  <form id="plant-form" method="dialog">
+    <h2 id="dialog-title">New plant</h2>
+    <label class="photo-label">
+      <img id="photo-preview" src="" alt="" hidden>
+      <span id="photo-placeholder">📷<br>photo</span>
+      <input type="file" id="photo-input" accept="image/*" hidden>
+    </label>
+    <label>Name
+      <input type="text" id="name-input" required placeholder="Fernando" autocomplete="off">
+    </label>
+    <label>Water every
+      <span class="inline"><input type="number" id="interval-input" required min="1" max="365" value="7"> days</span>
+    </label>
+    <label>Last watered
+      <input type="date" id="last-watered-input" required>
+    </label>
+    <div class="dialog-buttons">
+      <button type="button" id="delete-btn" class="danger" hidden>Delete</button>
+      <span class="spacer"></span>
+      <button type="button" id="cancel-btn">Cancel</button>
+      <button type="submit" class="primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="settings-dialog">
+  <form id="settings-form" method="dialog">
+    <h2>Settings</h2>
+    <p id="notif-status" class="hint"></p>
+    <button type="button" id="enable-notifs-btn" class="primary">Enable notifications</button>
+    <label>Sync token
+      <input type="password" id="token-input" autocomplete="off" placeholder="paste your sync token">
+    </label>
+    <p class="hint">The token you set with <code>wrangler secret put SYNC_TOKEN</code>.</p>
+    <p id="sync-status" class="hint"></p>
+    <div class="dialog-buttons">
+      <span class="spacer"></span>
+      <button type="button" id="settings-close-btn">Close</button>
+      <button type="submit" class="primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
