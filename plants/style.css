@@ -73,6 +73,17 @@ main { padding: 0 16px 32px; max-width: 480px; margin: 0 auto; }
 }
 .water-btn:active { transform: scale(0.92); }
 
+.snooze-btn {
+  background: #eef3ee;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.snooze-btn:active { transform: scale(0.92); }
+
 .big-btn {
   display: block;
   width: 100%;

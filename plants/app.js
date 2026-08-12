@@ -27,6 +27,13 @@ function todayStr() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+// YYYY-MM-DD plus n days (n may be negative), DST-safe via UTC.
+function addDays(dateStr, n) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const t = new Date(Date.UTC(y, m - 1, d + n));
+  return `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, "0")}-${String(t.getUTCDate()).padStart(2, "0")}`;
+}
+
 // Days between two YYYY-MM-DD strings, DST-safe via UTC.
 function daysBetween(a, b) {
   const [ay, am, ad] = a.split("-").map(Number);
@@ -86,7 +93,23 @@ function render() {
       syncToWorker();
     });
 
-    li.append(photo, info, waterBtn);
+    if (daysUntilDue(plant) <= 0) {
+      const snoozeBtn = document.createElement("button");
+      snoozeBtn.className = "snooze-btn";
+      snoozeBtn.textContent = "💤";
+      snoozeBtn.title = "Soil still damp — snooze 2 days";
+      snoozeBtn.addEventListener("click", () => {
+        // Snooze = make the plant come due 2 days from now, expressed as a
+        // fictional lastWatered (clamped so it never lands in the future).
+        plant.lastWatered = addDays(todayStr(), Math.min(0, 2 - plant.intervalDays));
+        saveState();
+        render();
+        syncToWorker();
+      });
+      li.append(photo, info, snoozeBtn, waterBtn);
+    } else {
+      li.append(photo, info, waterBtn);
+    }
     listEl.append(li);
   }
   updateBadge();

@@ -12,10 +12,21 @@
 			"id": "b312490479ef404aac4a12c1b2852e39"
 		}
 	],
-	"triggers": {
-		// 22:00 UTC = 6pm America/New_York during EDT (shifts to 5pm in winter).
-		"crons": [
-			"0 22 * * *"
+	// Daily notifications are driven by a PlantScheduler alarm, not a cron
+	// trigger — the cron scheduler never dispatched to this worker (known
+	// platform issue).
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "SCHEDULER",
+				"class_name": "PlantScheduler"
+			}
 		]
-	}
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["PlantScheduler"]
+		}
+	]
 }

@@ -1,13 +1,52 @@
 // Push server for the plants PWA at https://hcnelson.com/plants/
 //
 // The PWA mirrors its watering schedule here (POST /sync, authed with a
-// shared token). A daily cron checks which plants are due and sends a Web
+// shared token). A daily check runs which plants are due and sends a Web
 // Push notification (RFC 8291 aes128gcm encryption + RFC 8292 VAPID).
+//
+// Scheduling uses a Durable Object alarm rather than a cron trigger: the
+// cron scheduler silently never dispatched to this worker (a known
+// platform issue — see e.g. community.cloudflare.com/t/935555), while DO
+// alarms use a separate dispatch path with at-least-once delivery and
+// retries. The singleton PlantScheduler DO re-arms itself after each
+// firing, and every fetch re-arms it if the alarm was ever lost.
 //
 // Secrets (set with `wrangler secret put`, never committed):
 //   SYNC_TOKEN        — shared secret the PWA sends in X-Sync-Token
 //   VAPID_PUBLIC_KEY  — base64url raw P-256 public key (served to the client)
 //   VAPID_PRIVATE_JWK — the matching private key as a JWK JSON string
+
+import { DurableObject } from "cloudflare:workers";
+
+export class PlantScheduler extends DurableObject {
+  // Arms the alarm if none is set. Called on every fetch as a self-healing
+  // bootstrap; setAlarm is only invoked when the alarm is actually missing.
+  async ensureScheduled() {
+    let at = await this.ctx.storage.getAlarm();
+    if (at === null) {
+      at = nextNotifyTime();
+      await this.ctx.storage.setAlarm(at);
+      console.log(JSON.stringify({ event: "alarm_armed", at: new Date(at).toISOString() }));
+    }
+    return at;
+  }
+
+  async alarm() {
+    // Re-arm before sending so a throw in the send path can't kill the
+    // schedule; if this handler throws, the runtime retries it anyway.
+    const next = nextNotifyTime();
+    await this.ctx.storage.setAlarm(next);
+    await sendDueNotifications(this.env);
+    console.log(JSON.stringify({ event: "alarm_done", next: new Date(next).toISOString() }));
+  }
+}
+
+// Next 22:00 UTC = 6pm America/New_York during EDT (shifts to 5pm in winter).
+function nextNotifyTime(now = Date.now()) {
+  const d = new Date(now);
+  const today = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 22, 0, 0);
+  return today > now ? today : today + 24 * 3600 * 1000;
+}
 
 const ALLOWED_ORIGIN = "https://hcnelson.com";
 const VAPID_SUB = "mailto:hcnelson99@gmail.com";
@@ -20,7 +59,10 @@ const CORS_HEADERS = {
 };
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
+    // Self-healing bootstrap: any traffic re-arms the alarm if it was lost.
+    ctx.waitUntil(env.SCHEDULER.getByName("daily").ensureScheduled());
+
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
@@ -74,10 +116,6 @@ export default {
       return json({ error: "internal error" }, 500);
     }
   },
-
-  async scheduled(controller, env, ctx) {
-    ctx.waitUntil(sendDueNotifications(env));
-  },
 };
 
 function json(obj, status = 200) {
@@ -102,7 +140,7 @@ async function tokenValid(provided, expected) {
   return crypto.subtle.timingSafeEqual(a, b);
 }
 
-// ---- daily cron ----
+// ---- daily notification check (invoked by the PlantScheduler alarm) ----
 
 async function sendDueNotifications(env) {
   const state = await readState(env);
