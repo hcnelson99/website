@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#111">
+<title>Blackout</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #111; color: #eee; font-family: -apple-system, system-ui, sans-serif; overflow: hidden; overscroll-behavior: none; }
+  #app { display: flex; flex-direction: column; height: 100%; }
+  #stage { flex: 1; position: relative; overflow: hidden; touch-action: none; background: #222; }
+  #canvas { position: absolute; top: 0; left: 0; transform-origin: 0 0; image-rendering: auto; }
+  #bar { display: flex; gap: 8px; padding: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); background: #111; border-top: 1px solid #333; align-items: center; }
+  button, label.btn { background: #333; color: #eee; border: 0; border-radius: 8px; padding: 10px 14px; font-size: 15px; cursor: pointer; white-space: nowrap; }
+  button.on { background: #e5c600; color: #111; }
+  button:disabled { opacity: .4; }
+  select { background: #333; color: #eee; border: 0; border-radius: 8px; padding: 10px 6px; font-size: 14px; }
+  #bar { overflow-x: auto; }
+  input[type=file] { display: none; }
+  #status { flex: 1; font-size: 13px; color: #aaa; text-align: center; }
+  #intro { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 24px; color: #aaa; }
+  #intro h1 { color: #eee; font-size: 28px; }
+  #prog { width: 100%; max-width: 280px; height: 6px; background: #333; border-radius: 3px; overflow: hidden; display: none; }
+  #prog i { display: block; height: 100%; width: 0; background: #e5c600; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="canvas"></canvas>
+    <div id="intro">
+      <h1>Blackout</h1>
+      <p>Photograph a page of text, then slide your finger across words to black them out.</p>
+      <label class="btn" for="file">📷 Take a photo</label>
+      <div id="prog"><i></i></div>
+      <input type="file" id="file" accept="image/*" capture="environment">
+    </div>
+  </div>
+  <div id="bar">
+    <label class="btn" for="file">📷</label>
+    <button id="mode" class="on">Paint</button>
+    <button id="clear">Clear</button>
+    <button id="boxes">Boxes</button>
+    <select id="psm" title="Page segmentation mode">
+      <option value="3">Auto</option>
+      <option value="1">Auto+OSD</option>
+      <option value="4">Column</option>
+      <option value="6">Single block</option>
+      <option value="11">Sparse</option>
+    </select>
+    <select id="scale" title="Working resolution">
+      <option value="1500">1500px</option>
+      <option value="2500" selected>2500px</option>
+      <option value="3500">3500px</option>
+    </select>
+    <span id="status"></span>
+    <button id="save">Save</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@7/dist/tesseract.min.js"></script>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const stage = $('stage'), canvas = $('canvas'), ctx = canvas.getContext('2d');
+const status = $('status'), intro = $('intro'), prog = $('prog');
+
+let img = null;          // HTMLImageElement of the photo
+let words = [];          // {x0,y0,x1,y1,text,on}
+let view = { x: 0, y: 0, s: 1 }; // pan/zoom of canvas element
+let paintMode = true;    // true = paint, false = pan only
+let showBoxes = false;   // debug: draw every detected word box
+let lastFile = null;
+let worker = null;
+
+/* ---------- OCR ---------- */
+async function getWorker() {
+  if (worker) return worker;
+  setStatus('Loading OCR…');
+  worker = await Tesseract.createWorker('eng', 1, {
+    logger: m => {
+      if (m.status === 'recognizing text') {
+        prog.style.display = 'block';
+        prog.firstElementChild.style.width = (m.progress * 100) + '%';
+      }
+    }
+  });
+  return worker;
+}
+
+$('file').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  e.target.value = '';
+  lastFile = f;
+  await runOCR(f);
+});
+
+$('psm').onchange = $('scale').onchange = () => lastFile && runOCR(lastFile);
+
+async function runOCR(f) {
+  intro.style.display = 'flex';
+  setStatus('Loading image…');
+  img = await loadImage(f, +$('scale').value);
+  canvas.width = img.width; canvas.height = img.height;
+  fitView();
+  words = [];
+  draw();
+  try {
+    const w = await getWorker();
+    await w.setParameters({ tessedit_pageseg_mode: $('psm').value, user_defined_dpi: '300' });
+    setStatus('Recognizing…');
+    // v6+: word-level data only comes back if the `blocks` output is requested
+    const { data } = await w.recognize(img, {}, { blocks: true });
+    const raw = [];
+    for (const b of data.blocks || []) for (const p of b.paragraphs) for (const l of p.lines) for (const x of l.words) raw.push(x);
+    words = raw
+      .filter(x => x.text.trim())
+      .map(x => ({ x0: x.bbox.x0, y0: x.bbox.y0, x1: x.bbox.x1, y1: x.bbox.y1, text: x.text, conf: x.confidence, on: false }));
+    const low = words.filter(x => x.conf < 40).length;
+    setStatus(`${words.length} words (${low} low-conf) · ${img.width}×${img.height}`);
+    console.log('OCR words', words);
+  } catch (err) {
+    setStatus('OCR failed: ' + err.message);
+  }
+  prog.style.display = 'none';
+  intro.style.display = 'none';
+  draw();
+}
+
+// Load photo, honoring EXIF orientation, downscaled so OCR stays fast.
+async function loadImage(file, MAX) {
+  const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  const scale = Math.min(1, MAX / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas');
+  c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close();
+  return c; // canvas works as an image source everywhere we need
+}
+
+/* ---------- Drawing ---------- */
+function draw() {
+  if (!img) return;
+  ctx.drawImage(img, 0, 0);
+  ctx.fillStyle = '#000';
+  const pad = 2;
+  for (const w of words) {
+    if (w.on) ctx.fillRect(w.x0 - pad, w.y0 - pad, w.x1 - w.x0 + 2 * pad, w.y1 - w.y0 + 2 * pad);
+  }
+  if (showBoxes) {
+    ctx.lineWidth = 2;
+    for (const w of words) {
+      // green = confident, red = low confidence
+      ctx.strokeStyle = w.conf >= 40 ? 'rgba(0,200,80,.9)' : 'rgba(255,60,60,.9)';
+      ctx.strokeRect(w.x0, w.y0, w.x1 - w.x0, w.y1 - w.y0);
+    }
+  }
+}
+function applyView() {
+  canvas.style.transform = `translate(${view.x}px,${view.y}px) scale(${view.s})`;
+}
+function fitView() {
+  const r = stage.getBoundingClientRect();
+  view.s = Math.min(r.width / canvas.width, r.height / canvas.height);
+  view.x = (r.width - canvas.width * view.s) / 2;
+  view.y = (r.height - canvas.height * view.s) / 2;
+  applyView();
+}
+function setStatus(t) { status.textContent = t; }
+
+/* ---------- Touch: pan / pinch / paint ---------- */
+const ptrs = new Map();
+let pinch = null;   // {d, cx, cy, x, y, s}
+let paintTarget = null; // value we're setting words to during this stroke
+let painted = new Set();
+
+function toImage(cx, cy) {
+  const r = stage.getBoundingClientRect();
+  return { x: (cx - r.left - view.x) / view.s, y: (cy - r.top - view.y) / view.s };
+}
+function wordAt(p) {
+  const slop = 3;
+  return words.find(w => p.x >= w.x0 - slop && p.x <= w.x1 + slop && p.y >= w.y0 - slop && p.y <= w.y1 + slop);
+}
+function paintAt(cx, cy) {
+  const w = wordAt(toImage(cx, cy));
+  if (!w || painted.has(w)) return;
+  if (paintTarget === null) paintTarget = !w.on;
+  w.on = paintTarget; painted.add(w); draw();
+}
+
+stage.addEventListener('pointerdown', e => {
+  if (!img) return;
+  stage.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId, e);
+  if (ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()];
+    pinch = { d: dist(a, b), cx: (a.clientX + b.clientX) / 2, cy: (a.clientY + b.clientY) / 2, ...view };
+    paintTarget = null; painted.clear();
+  } else if (ptrs.size === 1) {
+    paintTarget = null; painted.clear();
+    if (paintMode) paintAt(e.clientX, e.clientY);
+  }
+});
+stage.addEventListener('pointermove', e => {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.set(e.pointerId, e);
+  if (ptrs.size === 2 && pinch) {
+    const [a, b] = [...ptrs.values()];
+    const cx = (a.clientX + b.clientX) / 2, cy = (a.clientY + b.clientY) / 2;
+    const s = Math.max(0.2, Math.min(8, pinch.s * dist(a, b) / pinch.d));
+    // keep the point under the pinch center fixed
+    view.s = s;
+    view.x = cx - (pinch.cx - pinch.x) * (s / pinch.s);
+    view.y = cy - (pinch.cy - pinch.y) * (s / pinch.s);
+    applyView();
+  } else if (ptrs.size === 1) {
+    if (paintMode) paintAt(e.clientX, e.clientY);
+    else { view.x += e.movementX; view.y += e.movementY; applyView(); }
+  }
+});
+function endPtr(e) {
+  ptrs.delete(e.pointerId);
+  if (ptrs.size < 2) pinch = null;
+  if (ptrs.size === 0) { paintTarget = null; painted.clear(); }
+}
+stage.addEventListener('pointerup', endPtr);
+stage.addEventListener('pointercancel', endPtr);
+stage.addEventListener('wheel', e => { // desktop zoom
+  e.preventDefault();
+  const r = stage.getBoundingClientRect(), cx = e.clientX - r.left, cy = e.clientY - r.top;
+  const s = Math.max(0.2, Math.min(8, view.s * Math.exp(-e.deltaY * 0.002)));
+  view.x = cx - (cx - view.x) * (s / view.s);
+  view.y = cy - (cy - view.y) * (s / view.s);
+  view.s = s; applyView();
+}, { passive: false });
+const dist = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+
+/* ---------- Buttons ---------- */
+$('mode').onclick = () => {
+  paintMode = !paintMode;
+  $('mode').textContent = paintMode ? 'Paint' : 'Pan';
+  $('mode').classList.toggle('on', paintMode);
+};
+$('boxes').onclick = () => { showBoxes = !showBoxes; $('boxes').classList.toggle('on', showBoxes); draw(); };
+$('clear').onclick = () => { words.forEach(w => w.on = false); draw(); };
+$('save').onclick = async () => {
+  if (!img) return;
+  const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.92));
+  const file = new File([blob], 'blackout.jpg', { type: 'image/jpeg' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); return; } catch (_) {}
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'blackout.jpg'; a.click();
+};
+window.addEventListener('resize', () => img && fitView());
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
