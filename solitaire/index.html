@@ -1,0 +1,1419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Klondike Solitaire</title>
+<meta name="theme-color" content="#3a6040">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Solitaire">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+  html, body {
+    margin: 0; height: 100%; overflow: hidden; background: #3a6040;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+  }
+  canvas { position: fixed; left: 0; top: 0; display: block; image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none; }
+  #safe { position: fixed; visibility: hidden; padding-top: env(safe-area-inset-top); }
+  #bar {
+    position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; justify-content: center; align-items: center;
+    padding: 6px 10px calc(6px + env(safe-area-inset-bottom)); font: 13px ui-monospace, Menlo, Consolas, monospace;
+    pointer-events: none;
+  }
+  #bar .tb {
+    all: unset; pointer-events: auto; cursor: pointer; touch-action: manipulation; color: rgba(255,255,255,.8);
+    padding: 7px 14px; border-radius: 4px; background: rgba(20,40,24,.6);
+  }
+  #bar .tb:hover, #bar .tb[aria-expanded="true"] { color: #fff; background: rgba(20,40,24,.9); }
+  #bar .win { color: #f8d820; background: rgba(20,40,24,.75); padding: 7px 10px; border-radius: 4px; }
+  #menu {
+    position: fixed; right: 10px; bottom: calc(48px + env(safe-area-inset-bottom)); z-index: 10;
+    width: 270px; max-width: calc(100vw - 20px); max-height: calc(100vh - 110px); overflow-y: auto; box-sizing: border-box;
+    padding: 6px; background: #1f3a25; border: 2px solid #000; box-shadow: inset 0 0 0 1px #5d8c64, 4px 4px 0 rgba(0,0,0,.35);
+    font: 13px ui-monospace, Menlo, Consolas, monospace; color: #e8f0e8;
+  }
+  #menu[hidden] { display: none; }
+  #menu .row {
+    all: unset; display: flex; align-items: center; gap: 10px; width: 100%; box-sizing: border-box;
+    padding: 9px 10px; border-radius: 3px; cursor: pointer; touch-action: manipulation;
+  }
+  #menu .row:hover, #menu .row:focus-visible { background: #2d5234; }
+  #menu .row span { flex: 1; }
+  #menu .val { font-weight: normal; color: rgba(255,255,255,.45); }
+  #menu .val.on { color: #f8d820; }
+  #menu kbd { font: inherit; color: rgba(255,255,255,.3); min-width: 1ch; text-align: right; }
+  #menu hr { border: 0; border-top: 1px solid #3d6644; margin: 4px 2px; }
+  #menu .note { padding: 2px 10px 6px; color: rgba(255,255,255,.45); font-size: 11px; line-height: 1.4; }
+  @media (hover: none) { #menu kbd { display: none; } }
+  #hints {
+    position: fixed; left: 8px; right: 8px; bottom: 50px; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font: 12px ui-monospace, Menlo, Consolas, monospace; color: rgba(255,255,255,.85); pointer-events: none;
+    text-shadow: 0 1px 0 rgba(0,0,0,.5); text-align: center;
+  }
+  #hints span { background: rgba(20,40,24,.8); padding: 2px 8px; border-radius: 3px; }
+  #hints b { font-weight: normal; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="safe"></div>
+<div id="bar">
+  <span class="win" id="winmsg" hidden>You win! Tap to play again.</span>
+  <button class="tb" id="bUndo" title="Undo (Z)">&#8630; Undo</button>
+  <button class="tb" id="bNew" title="New winnable game (N)">New game</button>
+  <button class="tb" id="bMenu" aria-label="Menu" aria-haspopup="true" aria-expanded="false">&#9776;</button>
+</div>
+<div id="menu" role="menu" hidden>
+  <button class="row" data-act="newWin"><span>New winnable game</span><kbd>N</kbd></button>
+  <button class="row" data-act="newRandom"><span>New random game</span><kbd>R</kbd></button>
+  <button class="row" data-act="undo"><span>Undo</span><kbd>Z</kbd></button>
+  <hr>
+  <button class="row" id="bDraw" data-act="draw"><span>Cards per draw</span><b class="val"></b><kbd>D</kbd></button>
+  <button class="row" id="bStrip" data-act="strip"><span>Deck strip</span><b class="val"></b><kbd>T</kbd></button>
+  <button class="row" id="bReveal" data-act="reveal"><span>Show face-down cards</span><b class="val"></b><kbd>V</kbd></button>
+  <button class="row" id="bAuto" data-act="automove"><span>Auto-move safe cards</span><b class="val"></b><kbd>A</kbd></button>
+  <button class="row" id="bMute" data-act="sound"><span>Sound</span><b class="val"></b><kbd>M</kbd></button>
+  <hr>
+  <button class="row" id="bPerfect" data-act="perfect"><span><b style="color:#3ee0ff">&#9679;</b> Perfect hint</span><b class="val"></b><kbd>P</kbd></button>
+  <button class="row" id="bHeur" data-act="heuristic"><span><b style="color:#ff9f1c">&#9679;</b> Heuristic hint</span><b class="val"></b><kbd>H</kbd></button>
+  <button class="row" id="bWin" data-act="winnable"><span><b style="color:#b8f070">&#9679;</b> Winnable?</span><b class="val"></b><kbd>W</kbd></button>
+</div>
+<div id="hints"></div>
+<script src="solver.js"></script>
+<script>
+'use strict';
+
+// ---------- Constants ----------
+const CW = 70, CH = 95;
+const FAN_STEP = 13, BOTTOM_PAD = 16;
+// Deck-strip mode lays the whole stock + waste out as mini cards across the top.
+const STRIP_Y = 6;
+let stripMode = true, reveal = true;
+try {
+  stripMode = localStorage.getItem('klondike-strip') !== '0'; // on unless turned off
+  reveal = localStorage.getItem('klondike-reveal') !== '0'; // on unless the player turned it off
+} catch (e) {}
+// Layout depends on the window: portrait screens (phones) get tighter columns and taller fans.
+let portrait = false, MARGIN, COL_SP, LAYOUT_W, UP_STEP, DOWN_STEP, TOP_Y, TAB_Y, MIN_H;
+// Deck strip geometry: one row of small cards on wide screens; on phones, which have height to
+// spare, 4 rows of 6 big tiles (each row is two groups of 3, so playable cards line up).
+let MW, MH, STRIP_STEP, STRIP_COLS, STRIP_ROW_H;
+function applyLayout() {
+  portrait = innerWidth < innerHeight * 0.9;
+  MARGIN = portrait ? 4 : 10;
+  COL_SP = portrait ? 73 : 85;
+  LAYOUT_W = 2 * MARGIN + 6 * COL_SP + CW;
+  UP_STEP = portrait ? 22 : 14;
+  DOWN_STEP = portrait ? 5 : 3;
+  [MW, MH, STRIP_COLS] = portrait ? [78, 58, 6] : [21, 30, 24];
+  STRIP_STEP = Math.floor((LAYOUT_W - 2 * MARGIN - MW) / (STRIP_COLS - 1));
+  STRIP_ROW_H = MH + 8;
+  TOP_Y = stripMode ? STRIP_Y + Math.ceil(24 / STRIP_COLS) * STRIP_ROW_H + 2 : 6;
+  TAB_Y = TOP_Y + 106;
+  MIN_H = stripMode ? 380 : 340;
+}
+applyLayout();
+const COL_X = i => MARGIN + i * COL_SP;
+const SUITS = ['S', 'H', 'D', 'C'];
+const RANKS = ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+const RED = '#e42018', BLACK = '#000', WHITE = '#fff', YELLOW = '#f8d820', BLUE = '#2038c8';
+const isRed = s => s === 'H' || s === 'D';
+const suitColor = s => isRed(s) ? RED : BLACK;
+
+// ---------- Pixel font (ranks) ----------
+const GLYPHS = {
+  A: ['..###..', '.##.##.', '##...##', '##...##', '##...##', '#######', '##...##', '##...##', '##...##', '##...##'],
+  2: ['.#####.', '##...##', '.....##', '.....##', '....##.', '...##..', '..##...', '.##....', '##.....', '#######'],
+  3: ['.#####.', '##...##', '.....##', '.....##', '..####.', '.....##', '.....##', '.....##', '##...##', '.#####.'],
+  4: ['....##.', '...###.', '..####.', '.##.##.', '##..##.', '##..##.', '#######', '....##.', '....##.', '....##.'],
+  5: ['#######', '##.....', '##.....', '######.', '.....##', '.....##', '.....##', '.....##', '##...##', '.#####.'],
+  6: ['..####.', '.##....', '##.....', '##.....', '######.', '##...##', '##...##', '##...##', '##...##', '.#####.'],
+  7: ['#######', '.....##', '.....##', '....##.', '....##.', '...##..', '...##..', '..##...', '..##...', '..##...'],
+  8: ['.#####.', '##...##', '##...##', '##...##', '.#####.', '##...##', '##...##', '##...##', '##...##', '.#####.'],
+  9: ['.#####.', '##...##', '##...##', '##...##', '##...##', '.######', '.....##', '.....##', '....##.', '.####..'],
+  1: ['.##', '###', '.##', '.##', '.##', '.##', '.##', '.##', '.##', '.##'],
+  0: ['.####.', '##..##', '##..##', '##..##', '##..##', '##..##', '##..##', '##..##', '##..##', '.####.'],
+  J: ['..#####', '....##.', '....##.', '....##.', '....##.', '....##.', '....##.', '##..##.', '##..##.', '.####..'],
+  Q: ['.#####.', '##...##', '##...##', '##...##', '##...##', '##...##', '##.#.##', '##..##.', '.###.##', '......#'],
+  K: ['##...##', '##..##.', '##.##..', '####...', '###....', '####...', '##.##..', '##..##.', '##...##', '##...##'],
+};
+
+function drawText(ctx, str, x, y, color, scale = 1) {
+  ctx.fillStyle = color;
+  for (const ch of str) {
+    const g = GLYPHS[ch];
+    g.forEach((row, j) => {
+      for (let i = 0; i < row.length; i++) if (row[i] === '#') ctx.fillRect(x + i * scale, y + j * scale, scale, scale);
+    });
+    x += (g[0].length + 1) * scale;
+  }
+}
+
+// ---------- Sprite helpers ----------
+function mk(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+
+function roundedBase(ctx, fill, outline, w = CW, h = CH) {
+  ctx.fillStyle = outline; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = fill; ctx.fillRect(1, 1, w - 2, h - 2);
+  for (const [x, y] of [[0, 0], [w - 1, 0], [0, h - 1], [w - 1, h - 1]]) ctx.clearRect(x, y, 1, 1);
+  ctx.fillStyle = outline;
+  for (const [x, y] of [[1, 1], [w - 2, 1], [1, h - 2], [w - 2, h - 2]]) ctx.fillRect(x, y, 1, 1);
+}
+
+// Faint horizontal lines over the white areas of a card, like the original's dithered look.
+function scanlines(c) {
+  const ctx = c.getContext('2d');
+  const img = ctx.getImageData(0, 0, c.width, c.height), d = img.data;
+  for (let y = 1; y < c.height - 1; y += 2) {
+    for (let x = 1; x < c.width - 1; x++) {
+      const i = (y * c.width + x) * 4;
+      if (d[i] === 255 && d[i + 1] === 255 && d[i + 2] === 255) d[i] = d[i + 1] = d[i + 2] = 236;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+function suitPath(ctx, suit, cx, cy, s) {
+  ctx.beginPath();
+  const circ = (x, y, r) => { ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); };
+  if (suit === 'H') {
+    circ(cx - s * 0.24, cy - s * 0.17, s * 0.26);
+    circ(cx + s * 0.24, cy - s * 0.17, s * 0.26);
+    ctx.moveTo(cx - s * 0.49, cy - s * 0.08); ctx.lineTo(cx + s * 0.49, cy - s * 0.08); ctx.lineTo(cx, cy + s * 0.5); ctx.closePath();
+  } else if (suit === 'D') {
+    ctx.moveTo(cx, cy - s * 0.5); ctx.lineTo(cx + s * 0.38, cy); ctx.lineTo(cx, cy + s * 0.5); ctx.lineTo(cx - s * 0.38, cy); ctx.closePath();
+  } else if (suit === 'S') {
+    // An upside-down heart, plus a flared stem
+    const P = (x, y) => [cx + x * s, cy + y * s];
+    ctx.moveTo(...P(0, -0.5));
+    ctx.bezierCurveTo(...P(-0.12, -0.32), ...P(-0.5, -0.14), ...P(-0.5, 0.1));
+    ctx.bezierCurveTo(...P(-0.5, 0.28), ...P(-0.36, 0.36), ...P(-0.25, 0.36));
+    ctx.bezierCurveTo(...P(-0.14, 0.36), ...P(-0.05, 0.3), ...P(0, 0.22));
+    ctx.bezierCurveTo(...P(0.05, 0.3), ...P(0.14, 0.36), ...P(0.25, 0.36));
+    ctx.bezierCurveTo(...P(0.36, 0.36), ...P(0.5, 0.28), ...P(0.5, 0.1));
+    ctx.bezierCurveTo(...P(0.5, -0.14), ...P(0.12, -0.32), ...P(0, -0.5));
+    ctx.closePath();
+    stem(ctx, cx, cy, s);
+  } else {
+    circ(cx, cy - s * 0.25, s * 0.22);
+    circ(cx - s * 0.26, cy + s * 0.08, s * 0.22);
+    circ(cx + s * 0.26, cy + s * 0.08, s * 0.22);
+    ctx.moveTo(cx - s * 0.1, cy - s * 0.1); ctx.lineTo(cx + s * 0.1, cy - s * 0.1);
+    ctx.lineTo(cx + s * 0.1, cy + s * 0.1); ctx.lineTo(cx - s * 0.1, cy + s * 0.1); ctx.closePath();
+    stem(ctx, cx, cy, s);
+  }
+  ctx.fill();
+}
+
+// Stem with concave sides flaring out to the base, shared by spades and clubs.
+function stem(ctx, cx, cy, s) {
+  ctx.moveTo(cx - s * 0.05, cy + s * 0.1);
+  ctx.quadraticCurveTo(cx - s * 0.06, cy + s * 0.4, cx - s * 0.22, cy + s * 0.5);
+  ctx.lineTo(cx + s * 0.22, cy + s * 0.5);
+  ctx.quadraticCurveTo(cx + s * 0.06, cy + s * 0.4, cx + s * 0.05, cy + s * 0.1);
+  ctx.closePath();
+}
+
+// Spades and clubs don't survive being rasterized at small sizes, so those are hand-drawn.
+const PIP_BITMAPS = {
+  S9: ['....#....', '...###...', '..#####..', '.#######.', '#########', '#########', '.##.#.##.', '....#....', '...###...'],
+  C9: ['...###...', '..#####..', '..#####..', '.##.#.##.', '#########', '#########', '.##.#.##.', '....#....', '...###...'],
+  S13: [
+    '......#......', '.....###.....', '....#####....', '...#######...', '..#########..', '.###########.', '#############',
+    '#############', '#############', '.####.#.####.', '..##..#..##..', '.....###.....', '...#######...',
+  ],
+  C13: [
+    '.....###.....', '....#####....', '...#######...', '...#######...', '...#######...', '.###.###.###.', '#############',
+    '#############', '#############', '.###..#..###.', '......#......', '.....###.....', '...#######...',
+  ],
+};
+
+// Other suit pips are drawn as vectors, then alpha-thresholded so they come out as crisp pixel art.
+const pipCache = new Map();
+function pip(suit, size, flipped) {
+  const key = suit + size + (flipped ? 'f' : '');
+  if (pipCache.has(key)) return pipCache.get(key);
+  const bmp = PIP_BITMAPS[suit + size];
+  if (bmp) {
+    const c = mk(bmp[0].length, bmp.length), ctx = c.getContext('2d');
+    ctx.fillStyle = suitColor(suit);
+    bmp.forEach((row, y) => { for (let x = 0; x < row.length; x++) if (row[x] === '#') ctx.fillRect(x, flipped ? bmp.length - 1 - y : y, 1, 1); });
+    pipCache.set(key, c);
+    return c;
+  }
+  const S = size + 2, c = mk(S, S), ctx = c.getContext('2d');
+  ctx.fillStyle = suitColor(suit);
+  suitPath(ctx, suit, S / 2, S / 2, size);
+  const img = ctx.getImageData(0, 0, S, S), d = img.data;
+  const [r, g, b] = isRed(suit) ? [0xe4, 0x20, 0x18] : [0, 0, 0];
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i + 3] >= 128) { d[i] = r; d[i + 1] = g; d[i + 2] = b; d[i + 3] = 255; } else d[i + 3] = 0;
+  }
+  ctx.putImageData(img, 0, 0);
+  let out = c;
+  if (flipped) {
+    out = mk(S, S);
+    const o = out.getContext('2d');
+    o.translate(S, S); o.rotate(Math.PI); o.drawImage(c, 0, 0);
+  }
+  pipCache.set(key, out);
+  return out;
+}
+
+function drawPip(ctx, suit, cx, cy, size, flipped) {
+  const p = pip(suit, size, flipped);
+  ctx.drawImage(p, Math.round(cx - p.width / 2), Math.round(cy - p.height / 2));
+}
+
+// ---------- Card faces ----------
+const PIP_L = 22, PIP_M = 35, PIP_R = 48;
+const ROW = [19, 38, 57, 76], MID = 47.5;
+function pipLayout(rank) {
+  const L = PIP_L, M = PIP_M, R = PIP_R;
+  const sides = rows => rows.flatMap(y => [[L, y], [R, y]]);
+  switch (rank) {
+    case 2: return [[M, ROW[0]], [M, ROW[3]]];
+    case 3: return [[M, ROW[0]], [M, MID], [M, ROW[3]]];
+    case 4: return sides([ROW[0], ROW[3]]);
+    case 5: return [...sides([ROW[0], ROW[3]]), [M, MID]];
+    case 6: return sides([ROW[0], MID, ROW[3]]);
+    case 7: return [...sides([ROW[0], MID, ROW[3]]), [M, (ROW[0] + MID) / 2]];
+    case 8: return [...sides([ROW[0], MID, ROW[3]]), [M, (ROW[0] + MID) / 2], [M, (MID + ROW[3]) / 2]];
+    case 9: return [...sides(ROW), [M, MID]];
+    case 10: return [...sides(ROW), [M, (ROW[0] + ROW[1]) / 2], [M, (ROW[2] + ROW[3]) / 2]];
+  }
+  return [];
+}
+
+function drawIndex(ctx, rank, suit) {
+  const label = RANKS[rank];
+  drawText(ctx, label, label === '10' ? 2 : 3, 3, suitColor(suit));
+  drawPip(ctx, suit, 7, 19, 9, false);
+}
+
+function drawCourtHalf(ctx, rank, suit) {
+  const R = (x, y, w, h, col) => { ctx.fillStyle = col; ctx.fillRect(x, y, w, h); };
+  const cx = 35;
+  // Robe
+  const band = rank === 13 ? BLUE : rank === 11 ? BLACK : YELLOW;
+  for (let y = 35; y <= 47; y++) {
+    const hw = 9 + Math.floor((y - 35) * 0.7);
+    for (let x = Math.max(15, cx - hw); x <= Math.min(54, cx + hw); x++) {
+      let col;
+      if (x === cx - hw || x === cx + hw) col = BLACK;
+      else if (Math.abs(x - cx) <= 2) col = (band === YELLOW && (x + y) % 3 === 0) ? RED : band;
+      else col = ((x + y) % 6 < 2) ? YELLOW : ((x - y + 60) % 7 === 0 ? BLACK : RED);
+      R(x, y, 1, 1, col);
+    }
+  }
+  // Collar
+  for (let x = 26; x <= 44; x++) { R(x, 33, 1, 1, x % 2 ? WHITE : BLACK); R(x, 34, 1, 1, x % 2 ? YELLOW : BLACK); }
+  // Hair behind head
+  if (rank === 12) { R(27, 21, 3, 15, YELLOW); R(41, 21, 3, 15, YELLOW); }
+  if (rank === 13) { R(28, 22, 2, 9, YELLOW); R(41, 22, 2, 9, YELLOW); }
+  if (rank === 11) { R(28, 21, 2, 8, BLACK); R(41, 21, 2, 8, BLACK); }
+  // Head
+  const inHead = (x, y) => ((x - cx) / 5.5) ** 2 + ((y - 26) / 6) ** 2 <= 1;
+  for (let y = 19; y <= 33; y++) for (let x = 28; x <= 42; x++) {
+    if (!inHead(x, y)) continue;
+    const edge = !inHead(x - 1, y) || !inHead(x + 1, y) || !inHead(x, y - 1) || !inHead(x, y + 1);
+    R(x, y, 1, 1, edge ? BLACK : WHITE);
+  }
+  R(32, 23, 2, 1, BLACK); R(37, 23, 2, 1, BLACK);   // brows
+  R(33, 25, 1, 1, BLACK); R(37, 25, 1, 1, BLACK);   // eyes
+  R(35, 26, 1, 2, BLACK);                           // nose
+  if (rank === 13) { R(31, 29, 9, 3, YELLOW); R(33, 29, 5, 1, BLACK); }
+  R(34, 30, 3, 1, RED);                             // mouth
+  // Headwear
+  if (rank === 13) {
+    R(29, 17, 13, 3, YELLOW); R(29, 20, 13, 1, BLACK);
+    for (const [x, h] of [[29, 3], [32, 4], [35, 5], [38, 4], [41, 3]]) { R(x, 17 - h, 1, h, YELLOW); R(x, 16 - h, 1, 1, RED); }
+    R(32, 18, 1, 1, RED); R(35, 18, 1, 1, BLUE); R(38, 18, 1, 1, RED);
+  } else if (rank === 12) {
+    R(30, 17, 11, 3, YELLOW); R(30, 20, 11, 1, BLACK);
+    for (const x of [30, 33, 35, 37, 40]) R(x, 15, 1, 2, YELLOW);
+    R(33, 18, 1, 1, BLUE); R(35, 18, 1, 1, RED); R(37, 18, 1, 1, BLUE);
+  } else {
+    R(28, 14, 15, 5, RED); R(26, 19, 19, 2, YELLOW); R(28, 16, 15, 1, BLACK);
+    for (const [x, y] of [[43, 14], [44, 13], [45, 12], [46, 12], [47, 13], [48, 14], [44, 14], [45, 13]]) R(x, y, 1, 1, BLACK);
+  }
+  // Held item
+  if (rank === 13) { R(51, 13, 1, 22, BLACK); R(50, 14, 1, 20, WHITE); R(49, 35, 5, 1, YELLOW); R(51, 36, 1, 6, YELLOW); }
+  else if (rank === 12) { R(49, 32, 3, 3, RED); R(50, 33, 1, 1, YELLOW); R(50, 35, 1, 9, BLACK); R(51, 38, 2, 1, BLACK); }
+  else { R(51, 15, 1, 32, BLACK); R(50, 12, 3, 3, YELLOW); R(51, 13, 1, 1, RED); }
+  // Suit mark in the frame corner
+  drawPip(ctx, suit, 20, 16, 9, false);
+}
+
+function makeFace(rank, suit) {
+  const c = mk(CW, CH), ctx = c.getContext('2d');
+  roundedBase(ctx, WHITE, BLACK);
+  drawIndex(ctx, rank, suit);
+  if (rank >= 11) {
+    // Draw the top half of the portrait, then mirror it (180° rotation) into the bottom half.
+    drawCourtHalf(ctx, rank, suit);
+    const src = ctx.getImageData(14, 10, 42, 37);
+    const dst = ctx.createImageData(42, 37);
+    for (let j = 0; j < 37; j++) for (let i = 0; i < 42; i++) {
+      const s = (j * 42 + i) * 4, t = ((36 - j) * 42 + (41 - i)) * 4;
+      for (let k = 0; k < 4; k++) dst.data[t + k] = src.data[s + k];
+    }
+    ctx.putImageData(dst, 14, 48);
+    ctx.fillStyle = BLACK;
+    ctx.fillRect(14, 10, 42, 1); ctx.fillRect(14, 84, 42, 1); ctx.fillRect(14, 10, 1, 75); ctx.fillRect(55, 10, 1, 75);
+  } else if (rank === 1) {
+    drawPip(ctx, suit, CW / 2, CH / 2, 30, false);
+  } else {
+    for (const [x, y] of pipLayout(rank)) drawPip(ctx, suit, x, y, 13, y > MID);
+  }
+  // Bottom-right index, rotated 180°
+  ctx.save(); ctx.translate(CW, CH); ctx.rotate(Math.PI); drawIndex(ctx, rank, suit); ctx.restore();
+  scanlines(c);
+  return c;
+}
+
+function makeBlank() {
+  const c = mk(CW, CH);
+  roundedBase(c.getContext('2d'), WHITE, BLACK);
+  scanlines(c);
+  return c;
+}
+
+function makeBack() {
+  const c = mk(CW, CH), ctx = c.getContext('2d');
+  roundedBase(ctx, WHITE, BLACK);
+  const cols = { r: RED, b: BLUE, w: WHITE, n: '#101860' };
+  for (let y = 3; y < CH - 3; y++) for (let x = 3; x < CW - 3; x++) {
+    const u = x - 3, v = y - 3, a = u % 3, b = v % 3;
+    let k;
+    if ((Math.floor(u / 3) + Math.floor(v / 3)) & 1) k = b === 1 ? 'r' : b === 0 ? 'w' : 'n';
+    else k = a === 1 ? 'b' : a === 0 ? 'w' : 'n';
+    ctx.fillStyle = cols[k]; ctx.fillRect(x, y, 1, 1);
+  }
+  return c;
+}
+
+function makeSlot(mark) {
+  const c = mk(CW, CH), ctx = c.getContext('2d');
+  roundedBase(ctx, '#34882c', BLACK);
+  ctx.fillStyle = '#16501a';
+  for (let y = 2; y < CH - 2; y += 2) for (let x = 2 + (y % 4 === 0 ? 0 : 1); x < CW - 2; x += 2) ctx.fillRect(x, y, 1, 1);
+  if (mark) {
+    ctx.fillStyle = '#8fd07a';
+    for (let y = 0; y < CH; y++) for (let x = 0; x < CW; x++) {
+      const d = Math.hypot(x + 0.5 - CW / 2, y + 0.5 - CH / 2);
+      if (d >= 12 && d < 14.5) ctx.fillRect(x, y, 1, 1);
+    }
+  }
+  return c;
+}
+
+function makeEmptyOutline() {
+  const c = mk(CW, CH), ctx = c.getContext('2d');
+  ctx.fillStyle = '#284a2e';
+  ctx.fillRect(1, 0, CW - 2, 1); ctx.fillRect(1, CH - 1, CW - 2, 1); ctx.fillRect(0, 1, 1, CH - 2); ctx.fillRect(CW - 1, 1, 1, CH - 2);
+  return c;
+}
+
+// Deck strip cards: small cards for wide screens, and wide tiles (double-size rank, big pip) for phones.
+function makeMini(rank, suit) {
+  const c = mk(21, 30), ctx = c.getContext('2d');
+  roundedBase(ctx, WHITE, BLACK, 21, 30);
+  const label = RANKS[rank];
+  drawText(ctx, label, label === '10' ? 1 : 3, 3, suitColor(suit));
+  drawPip(ctx, suit, 10.5, 21, 9, false);
+  scanlines(c);
+  return c;
+}
+function makeTile(rank, suit) {
+  const w = 78, h = 58, c = mk(w, h), ctx = c.getContext('2d');
+  roundedBase(ctx, WHITE, BLACK, w, h);
+  const label = RANKS[rank];
+  drawText(ctx, label, label === '10' ? 3 : 5, 5, suitColor(suit), 2);
+  drawPip(ctx, suit, w - 22, h / 2 + 2, 28, false);
+  scanlines(c);
+  return c;
+}
+
+const SPR = { back: makeBack(), blank: makeBlank(), slot: makeSlot(false), recycle: makeSlot(true), empty: makeEmptyOutline(), face: {}, mini: {}, tile: {} };
+for (const s of SUITS) for (let r = 1; r <= 13; r++) { SPR.face[s + r] = makeFace(r, s); SPR.mini[s + r] = makeMini(r, s); SPR.tile[s + r] = makeTile(r, s); }
+const faceOf = c => SPR.face[c.suit + c.rank];
+// Face-down cards when "Show face-down cards" is on: the face, tinted blue so they read as still face down.
+const ghostCache = new Map();
+function ghostOf(c) {
+  const k = c.suit + c.rank;
+  if (!ghostCache.has(k)) {
+    const g = mk(CW, CH), x = g.getContext('2d');
+    x.drawImage(faceOf(c), 0, 0);
+    x.globalCompositeOperation = 'source-atop';
+    x.fillStyle = 'rgba(40,70,170,0.35)'; x.fillRect(0, 0, CW, CH);
+    ghostCache.set(k, g);
+  }
+  return ghostCache.get(k);
+}
+const miniOf = c => (portrait ? SPR.tile : SPR.mini)[c.suit + c.rank];
+
+
+// ---------- Sound (procedural, Web Audio) ----------
+let actx = null, master = null, noiseBuf = null, muted = false;
+try { muted = localStorage.getItem('klondike-muted') === '1'; } catch (e) {}
+
+// Browsers keep audio paused until the player interacts with the page, and anything played while
+// paused is queued and comes out late when audio starts. So play nothing at all before the first
+// interaction (e.g. an ace auto-moved in the very first deal is silent, not delayed).
+let interacted = false;
+function audio() {
+  if (muted || !interacted) return null;
+  if (!actx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    actx = new AC();
+    master = actx.createGain(); master.gain.value = 0.5; master.connect(actx.destination);
+    noiseBuf = actx.createBuffer(1, actx.sampleRate, actx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+
+// A sound started later from a timer (e.g. an automatic move) doesn't count as interaction, so
+// switch audio on at the first tap, click or key press, whether or not that action makes a sound.
+function unlockAudio() { interacted = true; if (!muted && (!actx || actx.state !== 'running')) audio(); }
+for (const ev of ['pointerdown', 'touchend', 'click', 'keydown']) addEventListener(ev, unlockAudio, { capture: true, passive: true });
+
+// A burst of filtered noise with a quick attack and exponential decay; freq may sweep to freq2.
+function noise(t, { type, freq, freq2 = freq, q = 1, gain, dur, attack = 0.002 }) {
+  const src = actx.createBufferSource();
+  src.buffer = noiseBuf;
+  src.playbackRate.value = 0.9 + Math.random() * 0.2;
+  const f = actx.createBiquadFilter();
+  f.type = type; f.Q.value = q;
+  f.frequency.setValueAtTime(freq, t); f.frequency.exponentialRampToValueAtTime(freq2, t + dur);
+  const g = actx.createGain();
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  src.connect(f).connect(g).connect(master);
+  src.start(t, Math.random() * 0.5, dur + 0.05);
+}
+
+// A bell note `semis` semitones above C5: a sine, with a quiet octave overtone unless pure.
+function bell(t, semis, gain, dur, { attack = 0, pure = false } = {}) {
+  const f = 523.25 * 2 ** (semis / 12);
+  tone(t, { freq: f, gain, dur, attack });
+  if (!pure) tone(t, { freq: f * 2, gain: gain / 4, dur: dur * 0.6, attack });
+}
+
+// attack: seconds to fade in (0 = instant, which clicks slightly).
+function tone(t, { freq, freq2 = freq, gain, dur, attack = 0 }) {
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.frequency.setValueAtTime(freq, t); o.frequency.exponentialRampToValueAtTime(freq2, t + dur);
+  if (attack) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + attack); }
+  else g.gain.setValueAtTime(gain, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(master);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+
+const sfx = {
+  // Picking up a card: a tiny, bright tick.
+  click() {
+    if (!audio()) return;
+    noise(actx.currentTime, { type: 'bandpass', freq: 4200, q: 1.5, gain: 0.22, dur: 0.025 });
+  },
+  // Placing a card: a soft papery slap with a little low thump underneath.
+  drop(level = 1) {
+    if (!audio()) return;
+    const t = actx.currentTime;
+    noise(t, { type: 'lowpass', freq: 2200, freq2: 600, q: 0.7, gain: 0.32 * level, dur: 0.07 });
+    tone(t, { freq: 150, freq2: 70, gain: 0.12 * level, dur: 0.07 });
+  },
+  // Dealing from the stock: one quick swish per card, staggered to match the animation.
+  flip(n) {
+    if (!audio()) return;
+    const t = actx.currentTime;
+    for (let k = 0; k < n; k++) {
+      const f = 2000 + k * 350;
+      noise(t + k * 0.045, { type: 'bandpass', freq: f, freq2: f * 2.2, q: 2, gain: 0.2, dur: 0.055, attack: 0.012 });
+    }
+  },
+  // Any card going up to a foundation: a soft bell pitched by rank (A = C5 up a major scale to
+  // K = A6), so a chain like A, 2, 3 plays a rising run, over a very quiet card drop.
+  chime(rank) {
+    if (!audio()) return;
+    const t = actx.currentTime;
+    bell(t, [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21][rank - 1], 0.1, 0.35);
+    noise(t, { type: 'lowpass', freq: 2200, freq2: 600, q: 0.7, gain: 0.08, dur: 0.05 });
+  },
+  // Winning: the same bells run up a C major arpeggio and ring out on the full chord, resolving
+  // the ...Q Q Q Q K K K K (A6) the end-game auto-moves just played.
+  // Winning: the same bells run up C6 E6 G6, then ring out on a soft chord (G5 C6 E6 G6),
+  // rolled like a strum with plain faded-in tones so it isn't harsh.
+  victory() {
+    if (!audio()) return;
+    const t = actx.currentTime + 0.05;
+    [12, 16, 19].forEach((st, i) => bell(t + i * 0.11, st, 0.09, 0.35));
+    [7, 12, 16, 19].forEach((st, i) => bell(t + 0.42 + i * 0.045, st, 0.035, 1.3, { attack: 0.012, pure: true }));
+  },
+  // Turning the waste back over: a longer, lower shuffle.
+  recycle() {
+    if (!audio()) return;
+    noise(actx.currentTime, { type: 'bandpass', freq: 900, freq2: 2600, q: 1.2, gain: 0.16, dur: 0.22, attack: 0.03 });
+  },
+};
+
+// ---------- Game state ----------
+let S, undoStack = [];
+const Solver = solverModule();
+let drawN = 3;
+try { if (localStorage.getItem('klondike-draw') === '1') drawN = 1; } catch (e) {}
+
+// Deals from a deck order of solver card codes (the last card is dealt first), or a fresh shuffle.
+// Dealing matches Solver.dealFromDeck exactly, so a deck the solver won is the same game here.
+function newGame(order) {
+  const deck = (order || Solver.shuffledDeck(Math.random))
+    .map(c => ({ id: c, suit: SUITS[(c / 13) | 0], rank: c % 13 + 1, up: false }));
+  S = { stock: [], waste: [], fan: 0, found: [[], [], [], []], tab: [[], [], [], [], [], [], []] };
+  for (let i = 0; i < 7; i++) for (let j = i; j < 7; j++) S.tab[j].push(deck.pop());
+  S.tab.forEach(col => col[col.length - 1].up = true);
+  S.stock = deck;
+  undoStack = [];
+  anims.clear(); drag = null;
+  stopAuto(); stopWin();
+  perfectPlan = null;
+  refreshHints();
+  scheduleAuto(); // aces dealt face up go straight to the foundation
+}
+
+function pile(ref) {
+  if (ref.t === 'tab') return S.tab[ref.i];
+  if (ref.t === 'found') return S.found[ref.i];
+  if (ref.t === 'waste') return S.waste;
+  if (ref.t === 'talon') return talonCards();
+  return S.stock;
+}
+
+// ---------- Deck strip ----------
+// The stock and waste as one list in deal order: talon[p - 1] is the waste top, where p = waste size.
+const talonCards = () => [...S.waste, ...S.stock.slice().reverse()];
+
+// 1-based positions q whose card can be brought to the waste top by dealing and recycling.
+function reachable(L, p) {
+  const R = new Set();
+  if (p > 0) R.add(p);
+  for (let q = p; q < L;) { q = Math.min(q + drawN, L); R.add(q); }
+  for (let q = 0; q < L;) { q = Math.min(q + drawN, L); R.add(q); }
+  return R;
+}
+
+// Deals / recycles (the ordinary way, just without animation) until the waste holds q cards.
+function bringToTop(q) {
+  for (let guard = 0; S.waste.length !== q && guard < 100; guard++) {
+    if (S.stock.length) {
+      const n = Math.min(drawN, S.stock.length);
+      for (let k = 0; k < n; k++) { const c = S.stock.pop(); c.up = true; S.waste.push(c); }
+      S.fan = n;
+    } else {
+      S.stock = S.waste.reverse().map(c => (c.up = false, c));
+      S.waste = []; S.fan = 0;
+    }
+  }
+}
+
+// Plays deck card idx (0-based) to dst as one undoable step. Refuses (returns false) unless the
+// card can genuinely be brought to the top by dealing and recycling, e.g. if the draw mode was
+// switched mid-drag.
+function playFromTalon(idx, dst, starts, dur) {
+  const card = talonCards()[idx];
+  if (!card || !reachable(S.waste.length + S.stock.length, S.waste.length).has(idx + 1)) return false;
+  pushUndo();
+  bringToTop(idx + 1);
+  if (S.waste[S.waste.length - 1] !== card) { S = JSON.parse(undoStack.pop()); return false; }
+  doMove({ t: 'waste' }, S.waste.length - 1, dst, starts, dur, false);
+  return true;
+}
+
+const stripPos = k => ({ x: OX + MARGIN + (k % STRIP_COLS) * STRIP_STEP, y: STRIP_Y + Math.floor(k / STRIP_COLS) * STRIP_ROW_H });
+let hoverIdx = -1;
+
+function drawStrip(place) {
+  const talon = talonCards(), p = S.waste.length;
+  // Preview what the deck looks like after playing the card being dragged or hovered.
+  const pv = drag && drag.ref.t === 'talon' ? drag.idx : hoverIdx < talon.length ? hoverIdx : -1;
+  const L = pv >= 0 ? talon.length - 1 : talon.length, pp = pv >= 0 ? pv : p;
+  const orig = j => pv >= 0 && j >= pv ? j + 1 : j; // preview index -> strip slot
+  const R = reachable(L, pp);
+
+  for (let j = 0; j < L; j++) {
+    const k = orig(j), c = talon[k], { x, y } = stripPos(k);
+    place(c, x, y, miniOf(c));
+    if (!R.has(j + 1)) {
+      ctx.globalAlpha = 0.6; ctx.fillStyle = '#2c4a31'; ctx.fillRect(x, y, MW, MH); ctx.globalAlpha = 1;
+    }
+  }
+  if (pv >= 0 && !(drag && drag.ref.t === 'talon')) {
+    // Lift the hovered card so it reads as "the one being played".
+    const c = talon[pv], { x, y } = stripPos(pv);
+    lastPos.set(c.id, { x, y });
+    ctx.fillStyle = '#3ee0ff'; ctx.fillRect(x - 1, y - 4, MW + 2, MH + 2);
+    ctx.drawImage(miniOf(c), x, y - 3);
+  }
+  // Underline each playable card: yellow = reachable by dealing forward this pass, green = reachable
+  // after turning the deck over (split in two when both), white = the current top card.
+  const fwd = new Set(), after = new Set();
+  for (let q = pp; q < L;) { q = Math.min(q + drawN, L); fwd.add(q); }
+  for (let q = 0; q < L;) { q = Math.min(q + drawN, L); after.add(q); }
+  for (let j = 0; j < L; j++) {
+    const q = j + 1, cols = [q === pp && WHITE, fwd.has(q) && YELLOW, after.has(q) && '#8fd07a'].filter(Boolean);
+    if (!cols.length) continue;
+    const { x, y } = stripPos(orig(j)), w = MW / cols.length;
+    cols.forEach((c, i) => {
+      ctx.fillStyle = c;
+      ctx.fillRect(Math.round(x + i * w), y + MH + 2, Math.round(w) - (i < cols.length - 1 ? 1 : 0), 2);
+    });
+  }
+}
+
+function stripHit(px, py) {
+  if (!stripMode) return -1;
+  const L = S.waste.length + S.stock.length;
+  const row = Math.floor((py - STRIP_Y) / STRIP_ROW_H), col = Math.floor((px - stripPos(0).x) / STRIP_STEP);
+  const k = row * STRIP_COLS + col;
+  if (row < 0 || col < 0 || col >= STRIP_COLS || k >= L) return -1;
+  const { x, y } = stripPos(k);
+  if (px - x >= MW || py - y >= MH) return -1;
+  return reachable(L, S.waste.length).has(k + 1) ? k : -1;
+}
+
+const canFound = (card, i) => {
+  const p = S.found[i], top = p[p.length - 1];
+  return top ? top.suit === card.suit && top.rank === card.rank - 1 : card.rank === 1;
+};
+const canTab = (card, i) => {
+  const p = S.tab[i], top = p[p.length - 1];
+  return top ? top.up && isRed(top.suit) !== isRed(card.suit) && top.rank === card.rank + 1 : card.rank === 13;
+};
+
+function pushUndo() { undoStack.push(JSON.stringify(S)); if (undoStack.length > 500) undoStack.shift(); }
+function undo() {
+  if (winning || !undoStack.length) return;
+  stopAuto();
+  S = JSON.parse(undoStack.pop());
+  anims.clear(); drag = null;
+  refreshHints();
+}
+
+function flipTops() { for (const col of S.tab) if (col.length && !col[col.length - 1].up) col[col.length - 1].up = true; }
+
+function doMove(src, idx, dst, starts, dur = 170, undoable = true) {
+  if (undoable) pushUndo();
+  const moving = pile(src).splice(idx);
+  pile(dst).push(...moving);
+  if (src.t === 'waste') S.fan = Math.max(S.waste.length ? 1 : 0, S.fan - 1);
+  flipTops();
+  if (dst.t === 'found') sfx.chime(moving[0].rank); else sfx.drop();
+  const now = performance.now();
+  moving.forEach((c, k) => {
+    const p = starts ? starts[k] : lastPos.get(c.id);
+    if (p) anims.set(c.id, { x0: p.x, y0: p.y, t0: now, dur });
+  });
+  afterMove();
+}
+
+function clickStock() {
+  const now = performance.now();
+  if (S.stock.length) {
+    pushUndo();
+    const n = Math.min(drawN, S.stock.length);
+    const sx = OX + COL_X(0), sy = TOP_Y;
+    for (let k = 0; k < n; k++) {
+      const c = S.stock.pop(); c.up = true; S.waste.push(c);
+      anims.set(c.id, { x0: sx, y0: sy, t0: now + k * 45, dur: 140 });
+    }
+    S.fan = n;
+    sfx.flip(n);
+  } else if (S.waste.length) {
+    pushUndo();
+    sfx.recycle();
+    S.stock = S.waste.reverse().map(c => (c.up = false, c));
+    S.waste = []; S.fan = 0;
+  }
+  afterMove();
+}
+
+function toFoundation(ref) {
+  const p = pile(ref), card = p[p.length - 1];
+  if (!card) return false;
+  for (let i = 0; i < 4; i++) if (canFound(card, i)) { doMove(ref, p.length - 1, { t: 'found', i }); return true; }
+  return false;
+}
+
+const isWon = () => S.found.every(f => f.length === 13);
+
+function afterMove() {
+  refreshHints();
+  if (isWon()) { stopAuto(); setTimeout(startWin, 450); return; }
+  scheduleAuto();
+}
+
+// Automatic foundation moves, one at a time so each animates:
+// 1. Safe moves (the rule shared with the solver): tableau cards nothing could ever need. They
+//    don't get their own undo step, so Undo takes back your move together with what it set off.
+// 2. End-game auto-complete once the deck is empty and every card is face up.
+let autoTimer = 0, autoMove = true;
+try { autoMove = localStorage.getItem('klondike-automove') !== '0'; } catch (e) {}
+function stopAuto() { clearTimeout(autoTimer); autoTimer = 0; }
+function scheduleAuto() { if (!autoTimer) autoTimer = setTimeout(autoStep, 120); }
+function safeTableauMove() {
+  const found = [0, 0, 0, 0];
+  for (const f of S.found) if (f.length) found[suitIdx(f[0].suit)] = f.length;
+  for (let i = 0; i < 7; i++) {
+    const c = S.tab[i][S.tab[i].length - 1];
+    if (c && c.up && Solver.isSafeToFoundation(found, code(c))) return { i, c };
+  }
+  return null;
+}
+function autoStep() {
+  autoTimer = 0;
+  if (winning || isWon()) return;
+  if (drag) { scheduleAuto(); return; } // wait until the player lets go
+  if (autoMove) {
+    const m = safeTableauMove();
+    if (m) { doMove({ t: 'tab', i: m.i }, S.tab[m.i].length - 1, foundFor(m.c.suit), null, 170, false); return; }
+  }
+  if (S.stock.length || S.waste.length || !S.tab.every(col => col.every(c => c.up))) return;
+  let best = null;
+  S.tab.forEach((col, i) => {
+    const c = col[col.length - 1];
+    if (c && (!best || c.rank < best.c.rank) && [0, 1, 2, 3].some(f => canFound(c, f))) best = { c, ref: { t: 'tab', i } };
+  });
+  if (best) doMove(best.ref, S.tab[best.ref.i].length - 1, foundFor(best.c.suit), null, 170, false);
+}
+
+// ---------- Rendering ----------
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W = 600, H = 340, OX = 0, scale = 1;
+const lastPos = new Map();
+const anims = new Map();
+let drag = null;
+let bgPattern;
+
+(function () {
+  const p = mk(1, 2), c = p.getContext('2d');
+  c.fillStyle = '#3a6040'; c.fillRect(0, 0, 1, 1);
+  c.fillStyle = '#365b3b'; c.fillRect(0, 1, 1, 1);
+  bgPattern = ctx.createPattern(p, 'repeat');
+})();
+
+const safeEl = document.getElementById('safe');
+function resize() {
+  applyLayout();
+  const dpr = window.devicePixelRatio || 1;
+  const top = parseFloat(getComputedStyle(safeEl).paddingTop) || 0; // iPhone notch / status bar
+  const availH = innerHeight - top;
+  const fit = Math.min(innerWidth / LAYOUT_W, availH / MIN_H) * dpr;
+  // A whole number of device pixels per game pixel keeps the pixel art crisp; fall back to a
+  // fractional scale when rounding down would waste more than a fifth of the screen.
+  // On high-density phone screens uneven pixels are invisible, so fill the width exactly there.
+  const ds = fit >= 1 && Math.floor(fit) >= (portrait && dpr >= 2 ? 0.97 : 0.8) * fit ? Math.floor(fit) : fit;
+  scale = ds / dpr;
+  W = Math.ceil(innerWidth / scale); H = Math.ceil(availH / scale);
+  canvas.width = W; canvas.height = H;
+  canvas.style.top = top + 'px';
+  canvas.style.width = W * scale + 'px'; canvas.style.height = H * scale + 'px';
+  OX = Math.floor((W - LAYOUT_W) / 2);
+  ctx.imageSmoothingEnabled = false;
+  if (winning) stopWin();
+  render();
+}
+
+// Keep the tableau clear of the button bar, which may wrap onto two lines on narrow windows.
+const barEl = document.getElementById('bar');
+const bottomPad = () => Math.max(BOTTOM_PAD, barEl.offsetHeight / scale + 2);
+
+function tabPositions(i) {
+  const col = S.tab[i];
+  const up = col.filter(c => c.up).length, down = col.length - up;
+  const room = H - bottomPad() - TAB_Y - CH;
+  let step = UP_STEP, downStep = DOWN_STEP;
+  if (reveal) {
+    // Face-down cards are shown too, so give them the same spacing and squeeze everything evenly.
+    downStep = UP_STEP;
+    if (col.length > 1 && (col.length - 1) * step > room) step = downStep = Math.max(4, room / (col.length - 1));
+  } else {
+    const avail = room - down * DOWN_STEP;
+    if (up > 1 && (up - 1) * step > avail) step = Math.max(4, avail / (up - 1));
+  }
+  const out = [];
+  let y = TAB_Y;
+  for (const c of col) { out.push({ x: OX + COL_X(i), y: Math.round(y) }); y += c.up ? step : downStep; }
+  return out;
+}
+
+function wasteLayout() {
+  const len = S.waste.length, n = Math.min(drawN === 1 ? 1 : S.fan, len);
+  const bx = OX + COL_X(1), out = [];
+  for (let k = 0; k < len; k++) {
+    const fanIdx = k - (len - n);
+    out.push({ x: bx + Math.max(0, fanIdx) * FAN_STEP, y: TOP_Y });
+  }
+  return out;
+}
+
+let raf = 0;
+function requestRender() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; render(); }); }
+
+function render() {
+  if (winning) return;
+  const now = performance.now();
+  const deferred = [];
+  const hidden = c => drag && drag.cards.includes(c);
+  const place = (card, x, y, sprite) => {
+    lastPos.set(card.id, { x, y });
+    if (hidden(card)) return;
+    const a = anims.get(card.id);
+    if (a) {
+      const t = Math.max(0, (now - a.t0) / a.dur);
+      if (t >= 1) anims.delete(card.id);
+      else {
+        const e = 1 - (1 - t) ** 3;
+        deferred.push([sprite, a.x0 + (x - a.x0) * e, a.y0 + (y - a.y0) * e]);
+        return;
+      }
+    }
+    ctx.drawImage(sprite, x, y);
+  };
+
+  ctx.fillStyle = bgPattern; ctx.fillRect(0, 0, W, H);
+
+  if (stripMode) drawStrip(place);
+  else {
+    // Stock
+    const sx = OX + COL_X(0);
+    if (S.stock.length) {
+      ctx.drawImage(reveal ? ghostOf(S.stock[S.stock.length - 1]) : SPR.back, sx, TOP_Y);
+      S.stock.forEach(c => lastPos.set(c.id, { x: sx, y: TOP_Y }));
+    } else ctx.drawImage(S.waste.length ? SPR.recycle : SPR.slot, sx, TOP_Y);
+
+    // Waste: only the fanned cards plus the one underneath need drawing
+    const wl = wasteLayout();
+    const firstVisible = Math.max(0, S.waste.length - Math.max(S.fan, 1) - 1);
+    for (let k = firstVisible; k < S.waste.length; k++) place(S.waste[k], wl[k].x, wl[k].y, faceOf(S.waste[k]));
+  }
+
+  // Foundations
+  S.found.forEach((f, i) => {
+    const x = OX + COL_X(3 + i);
+    ctx.drawImage(SPR.slot, x, TOP_Y);
+    for (let k = Math.max(0, f.length - 2); k < f.length; k++) place(f[k], x, TOP_Y, faceOf(f[k]));
+  });
+
+  // Tableau
+  S.tab.forEach((col, i) => {
+    const pos = tabPositions(i);
+    if (!col.length) ctx.drawImage(SPR.empty, OX + COL_X(i), TAB_Y);
+    col.forEach((c, k) => place(c, pos[k].x, pos[k].y, c.up ? faceOf(c) : reveal ? ghostOf(c) : SPR.blank));
+  });
+
+  for (const [sp, x, y] of deferred) ctx.drawImage(sp, Math.round(x), Math.round(y));
+
+  if (!anims.size) drawHintMarks();
+
+  if (drag) drag.cards.forEach((c, k) => ctx.drawImage(faceOf(c), drag.x, drag.y + drag.dy[k]));
+
+  if (anims.size) requestRender();
+}
+
+// ---------- Input ----------
+function toLogical(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left) / scale, y: (e.clientY - r.top) / scale };
+}
+const inRect = (px, py, x, y) => px >= x && px < x + CW && py >= y && py < y + CH;
+
+function hitTest(px, py) {
+  for (let i = 0; i < 7; i++) {
+    const col = S.tab[i], pos = tabPositions(i);
+    for (let k = col.length - 1; k >= 0; k--) {
+      if (inRect(px, py, pos[k].x, pos[k].y)) return col[k].up ? { ref: { t: 'tab', i }, idx: k } : null;
+    }
+  }
+  const k = stripHit(px, py);
+  if (k >= 0) return { ref: { t: 'talon' }, idx: k };
+  if (!stripMode) {
+    if (inRect(px, py, OX + COL_X(0), TOP_Y)) return { ref: { t: 'stock' } };
+    const wl = wasteLayout(), w = S.waste.length - 1;
+    if (w >= 0 && inRect(px, py, wl[w].x, wl[w].y)) return { ref: { t: 'waste' }, idx: w };
+  }
+  for (let i = 0; i < 4; i++) {
+    if (S.found[i].length && inRect(px, py, OX + COL_X(3 + i), TOP_Y)) return { ref: { t: 'found', i }, idx: S.found[i].length - 1 };
+  }
+  return null;
+}
+
+let lastClick = { id: -1, t: 0 };
+
+canvas.addEventListener('pointerdown', e => {
+  if (menuEl && !menuEl.hidden) { closeMenu(); return; }
+  if (winning || winDone) { newWinnableGame(); return; }
+  if (e.button !== 0) return;
+  const p = toLogical(e);
+  const hit = hitTest(p.x, p.y);
+  if (!hit) return;
+  if (hit.ref.t === 'stock') { stopAuto(); clickStock(); return; }
+  sfx.click();
+  hoverIdx = -1;
+  const cards = hit.ref.t === 'talon' ? [talonCards()[hit.idx]] : pile(hit.ref).slice(hit.idx);
+  const starts = cards.map(c => lastPos.get(c.id));
+  cards.forEach(c => anims.delete(c.id));
+  drag = {
+    ref: hit.ref, idx: hit.idx, cards, moved: false,
+    px: p.x, py: p.y, x: starts[0].x, y: starts[0].y,
+    offX: p.x - starts[0].x, offY: p.y - starts[0].y,
+    dy: starts.map(s => s.y - starts[0].y), pending: true,
+  };
+  canvas.setPointerCapture(e.pointerId);
+});
+
+canvas.addEventListener('pointermove', e => {
+  const p = toLogical(e);
+  if (!drag) {
+    const h = winning || winDone ? -1 : stripHit(p.x, p.y);
+    if (h !== hoverIdx) { hoverIdx = h; requestRender(); }
+    return;
+  }
+  if (!drag.moved && Math.hypot(p.x - drag.px, p.y - drag.py) < 3) return;
+  drag.moved = true;
+  drag.x = Math.round(p.x - drag.offX); drag.y = Math.round(p.y - drag.offY);
+  requestRender();
+});
+
+function overlap(ax, ay, bx, by) {
+  const w = Math.min(ax, bx) + CW - Math.max(ax, bx), h = Math.min(ay, by) + CH - Math.max(ay, by);
+  return w > 0 && h > 0 ? w * h : 0;
+}
+
+canvas.addEventListener('pointerup', e => {
+  if (!drag) return;
+  const d = drag;
+  drag = null;
+  if (!d.moved) {
+    // Double-click sends a card to the foundation.
+    const card = d.cards[d.cards.length - 1];
+    const now = performance.now();
+    if (d.cards.length === 1 && lastClick.id === card.id && now - lastClick.t < 400) {
+      stopAuto();
+      if (d.ref.t === 'talon') {
+        const i = [0, 1, 2, 3].find(i => canFound(card, i));
+        if (i !== undefined) playFromTalon(d.idx, { t: 'found', i });
+      } else toFoundation(d.ref);
+      lastClick = { id: -1, t: 0 };
+    } else lastClick = { id: card.id, t: now };
+    requestRender();
+    return;
+  }
+  const lead = d.cards[0];
+  let best = null, bestArea = 0;
+  const consider = (ref, x, y, ok) => {
+    const a = overlap(d.x, d.y, x, y);
+    if (ok && a > bestArea) { best = ref; bestArea = a; }
+  };
+  if (d.cards.length === 1) for (let i = 0; i < 4; i++) {
+    if (!(d.ref.t === 'found' && d.ref.i === i)) consider({ t: 'found', i }, OX + COL_X(3 + i), TOP_Y, canFound(lead, i));
+  }
+  for (let i = 0; i < 7; i++) {
+    if (d.ref.t === 'tab' && d.ref.i === i) continue;
+    const pos = tabPositions(i), last = pos[pos.length - 1];
+    consider({ t: 'tab', i }, last ? last.x : OX + COL_X(i), last ? last.y : TAB_Y, canTab(lead, i));
+  }
+  const starts = d.cards.map((c, k) => ({ x: d.x, y: d.y + d.dy[k] }));
+  // Cancel pending automatic moves before the move: the move schedules new ones itself.
+  stopAuto();
+  const moved = best && (d.ref.t === 'talon' ? playFromTalon(d.idx, best, starts, 90) : (doMove(d.ref, d.idx, best, starts, 90), true));
+  if (!moved) {
+    scheduleAuto(); // resume anything that was pending
+    const now = performance.now();
+    d.cards.forEach((c, k) => anims.set(c.id, { x0: starts[k].x, y0: starts[k].y, t0: now, dur: 160 }));
+    setTimeout(() => sfx.drop(0.5), 140); // softer tap as the cards land back home
+    requestRender();
+  }
+});
+
+canvas.addEventListener('pointercancel', () => { drag = null; requestRender(); });
+canvas.addEventListener('pointerleave', () => { if (hoverIdx >= 0) { hoverIdx = -1; requestRender(); } });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// ---------- Win cascade (the classic bouncing cards) ----------
+let winning = false, winDone = false, winRaf = 0, win = null;
+const winMsg = document.getElementById('winmsg');
+
+function startWin() {
+  if (!isWon()) return;
+  anims.clear();
+  render();
+  winning = true;
+  win = { next: 0, cur: null };
+  winMsg.hidden = false;
+  sfx.victory();
+  updateHints();
+  winRaf = requestAnimationFrame(winFrame);
+}
+
+function stopWin() {
+  cancelAnimationFrame(winRaf);
+  winning = false; winDone = false; win = null;
+  winMsg.hidden = true;
+}
+
+function winFrame() {
+  for (let step = 0; step < 2; step++) {
+    if (!win.cur) {
+      let i = -1;
+      for (let k = 0; k < 4; k++) { const fi = (win.next + k) % 4; if (S.found[fi].length) { i = fi; break; } }
+      if (i < 0) { winning = false; winDone = true; return; }
+      win.next = (i + 1) % 4;
+      const f = S.found[i], card = f.pop(), x = OX + COL_X(3 + i);
+      ctx.drawImage(f.length ? faceOf(f[f.length - 1]) : SPR.slot, x, TOP_Y);
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      win.cur = { sp: faceOf(card), x, y: TOP_Y, vx: dir * (1.5 + Math.random() * 3), vy: -Math.random() * 4 };
+    }
+    const c = win.cur;
+    c.vy += 0.3; c.x += c.vx; c.y += c.vy;
+    if (c.y > H - CH) { c.y = H - CH; c.vy = -c.vy * (0.6 + Math.random() * 0.2); }
+    ctx.drawImage(c.sp, Math.round(c.x), Math.round(c.y));
+    if (c.x < -CW || c.x > W) win.cur = null;
+  }
+  winRaf = requestAnimationFrame(winFrame);
+}
+
+// ---------- Solver hints ----------
+// Both solvers live in solver.js and run in Web Workers so a long search never blocks the game.
+// The heuristic worker only ever gets a masked state (face-down cards hidden).
+const HINT_COLOR = { perfect: '#3ee0ff', heuristic: '#ff9f1c' };
+const show = { perfect: false, heuristic: false, winnable: false };
+try { Object.assign(show, JSON.parse(localStorage.getItem('klondike-show') || '{}')); } catch (e) {}
+const solver = { perfect: { gen: -1, result: null, worker: null }, heuristic: { gen: -1, result: null, worker: null } };
+let hintGen = 0;
+
+const workerURL = URL.createObjectURL(new Blob([`
+  const Solver = (${solverModule})();
+  onmessage = e => {
+    const { kind, state, reveal, draw, history } = e.data;
+    postMessage(kind === 'perfect' ? Solver.solvePerfect(state, { maxNodes: 1.5e6, maxMs: 15000, path: true })
+      : kind === 'deal' ? Solver.winnableDeck(Math.random, draw)
+      // With face-down cards shown, the heuristic player may see them too (then it plays exactly).
+      // history: positions this game has already been in, so it never suggests going back.
+      : { move: Solver.heuristicMove(reveal ? state : Solver.mask(state), { history: new Set(history) }) });
+  };`], { type: 'text/javascript' }));
+
+const suitIdx = s => SUITS.indexOf(s);
+const code = c => suitIdx(c.suit) * 13 + c.rank - 1;
+function solverState(st = S) {
+  const found = [0, 0, 0, 0];
+  for (const f of st.found) if (f.length) found[suitIdx(f[0].suit)] = f.length;
+  return {
+    tab: st.tab.map(col => col.map(code)),
+    down: st.tab.map(col => col.filter(c => !c.up).length),
+    found,
+    talon: [...st.waste.map(code), ...st.stock.slice().reverse().map(code)],
+    p: st.waste.length, draw: drawN, rev: 0,
+  };
+}
+
+// The perfect hint follows one winning line (see Solver.planMove) instead of re-solving after
+// every move, which could suggest a move and then its reverse. It only re-solves once the
+// position leaves the line.
+let perfectPlan = null;
+
+function refreshHints() {
+  hintGen++;
+  pendingBest = false;
+  for (const k in solver) if (solver[k].worker) { solver[k].worker.terminate(); solver[k].worker = null; }
+  updateHints();
+}
+
+function ensure(kind) {
+  const st = solver[kind];
+  if (st.gen === hintGen) return;
+  st.gen = hintGen; st.result = null;
+  const state = solverState();
+  if (kind === 'perfect') {
+    const h = Solver.planMove(perfectPlan, state);
+    if (h) { st.result = { status: 'win', move: h.move, moves: h.remaining }; playPendingBest(); return; }
+  }
+  const history = kind === 'heuristic'
+    ? undoStack.slice(-150).map(j => Solver.key(reveal ? solverState(JSON.parse(j)) : Solver.mask(solverState(JSON.parse(j)))))
+    : undefined;
+  const gen = hintGen, w = st.worker = new Worker(workerURL);
+  w.onmessage = e => {
+    w.terminate();
+    if (gen !== hintGen) return;
+    st.worker = null; st.result = e.data;
+    if (kind === 'perfect') perfectPlan = e.data.status === 'win' ? Solver.makePlan(state, e.data.path) : null;
+    updateHints();
+    if (kind === 'perfect') playPendingBest();
+  };
+  w.postMessage({ kind, state, reveal, history });
+}
+
+const cardName = c => RANKS[c.rank] + { S: '\u2660', H: '\u2665', D: '\u2666', C: '\u2663' }[c.suit];
+function foundFor(suit) {
+  const i = S.found.findIndex(f => f.length && f[0].suit === suit);
+  return { t: 'found', i: i >= 0 ? i : S.found.findIndex(f => !f.length) };
+}
+
+// Translates a solver move into what to do on the board right now.
+function describe(m) {
+  switch (m.k) {
+    case 'tf': {
+      const col = S.tab[m.i], c = col[col.length - 1];
+      return { from: { t: 'tab', i: m.i }, idx: col.length - 1, to: foundFor(c.suit), text: `${cardName(c)} \u2192 foundation` };
+    }
+    case 'tt': {
+      const col = S.tab[m.from], n = col.length - m.j;
+      return { from: { t: 'tab', i: m.from }, idx: m.j, to: { t: 'tab', i: m.to },
+        text: `${cardName(col[m.j])}${n > 1 ? ` (+${n - 1})` : ''} \u2192 column ${m.to + 1}` };
+    }
+    case 'wf': case 'wt': {
+      const p = S.waste.length;
+      const c = m.q <= p ? S.waste[m.q - 1] : S.stock[S.stock.length - m.q + p];
+      const dest = m.k === 'wf' ? 'foundation' : `column ${m.to + 1}`;
+      const to = m.k === 'wf' ? foundFor(c.suit) : { t: 'tab', i: m.to };
+      if (stripMode) return { from: { t: 'talon' }, idx: m.q - 1, to, text: `${cardName(c)} (from the deck) \u2192 ${dest}` };
+      if (m.q === p) return { from: { t: 'waste' }, idx: p - 1, to, text: `${cardName(c)} \u2192 ${dest}` };
+      return { stock: true, text: `${S.stock.length ? 'Deal' : 'Turn over the waste'} (to reach ${cardName(c)} \u2192 ${dest})` };
+    }
+    case 'ft': {
+      const f = S.found[foundFor(SUITS[m.s]).i], c = f[f.length - 1];
+      return { from: { t: 'found', i: foundFor(SUITS[m.s]).i }, idx: f.length - 1, to: { t: 'tab', i: m.to }, text: `${cardName(c)} \u2192 column ${m.to + 1}` };
+    }
+  }
+}
+
+function hintMove(kind) {
+  const r = solver[kind].gen === hintGen && solver[kind].result;
+  if (!r || !r.move || (kind === 'perfect' && r.status !== 'win')) return null;
+  return describe(r.move);
+}
+
+const hintsEl = document.getElementById('hints');
+function updateHints() {
+  const live = S && !winning && !winDone && !isWon();
+  if (live) {
+    if (show.perfect || show.winnable) ensure('perfect');
+    if (show.heuristic) ensure('heuristic');
+  }
+  const lines = [];
+  const pr = solver.perfect.gen === hintGen ? solver.perfect.result : null;
+  const hr = solver.heuristic.gen === hintGen ? solver.heuristic.result : null;
+  const line = (color, label, text) => lines.push(`<span><b style="color:${color}">${label}</b> ${text}</span>`);
+  if (live && show.winnable) {
+    line('#b8f070', 'Winnable:', !pr ? 'solving\u2026'
+      : pr.status === 'win' ? `yes (${pr.moves}-move solution found)`
+      : pr.status === 'lose' ? 'almost certainly not \u2014 the full search found no solution'
+      : `unknown (gave up after ${(pr.nodes / 1e6).toFixed(1)}M positions)`);
+  }
+  if (live && show.perfect) {
+    line(HINT_COLOR.perfect, 'Perfect:', !pr ? 'thinking\u2026'
+      : pr.status === 'win' ? describe(pr.move).text
+      : pr.status === 'lose' ? 'no winning line found (full search)' : 'no win found within the search limit');
+  }
+  if (live && show.heuristic) {
+    line(HINT_COLOR.heuristic, 'Heuristic:', !hr ? 'thinking\u2026' : hr.move ? describe(hr.move).text : 'no useful move \u2014 it would give up here');
+  }
+  hintsEl.innerHTML = lines.join('');
+  hintsEl.style.bottom = barEl.offsetHeight + 2 + 'px';
+  setRow('bPerfect', show.perfect); setRow('bHeur', show.heuristic); setRow('bWin', show.winnable);
+  requestRender();
+}
+
+// B: play the perfect solver's move (the same one the perfect hint shows), waiting for the solver
+// if it's still thinking.
+let pendingBest = false;
+function playBestMove() {
+  if (winning || winDone || isWon()) return;
+  pendingBest = true;
+  ensure('perfect');
+  playPendingBest();
+}
+function playPendingBest() {
+  if (!pendingBest || drag) return;
+  const r = solver.perfect.gen === hintGen && solver.perfect.result;
+  if (!r) return; // still solving; called again when the result arrives
+  pendingBest = false;
+  const h = hintMove('perfect');
+  if (!h) return; // no winning line found
+  stopAuto();
+  if (h.stock) clickStock();
+  else if (h.from.t === 'talon') playFromTalon(h.idx, h.to);
+  else doMove(h.from, h.idx, h.to);
+}
+
+function toggleShow(k) {
+  show[k] = !show[k];
+  try { localStorage.setItem('klondike-show', JSON.stringify(show)); } catch (e) {}
+  updateHints();
+}
+
+// Solid outline around the cards to move, dotted outline around where they go.
+function drawHintMarks() {
+  if (winning || winDone || drag) return;
+  const outline = (x, y, w, h, color, inset, dotted) => {
+    ctx.fillStyle = color;
+    const x0 = x - 2 - inset, y0 = y - 2 - inset, x1 = x + w + 1 + inset, y1 = y + h + 1 + inset;
+    for (let t = 0; t < 2; t++) for (let px = x0; px <= x1; px++) {
+      if (dotted && (px >> 1) % 2) continue;
+      ctx.fillRect(px, y0 + t, 1, 1); ctx.fillRect(px, y1 - t, 1, 1);
+    }
+    for (let t = 0; t < 2; t++) for (let py = y0; py <= y1; py++) {
+      if (dotted && (py >> 1) % 2) continue;
+      ctx.fillRect(x0 + t, py, 1, 1); ctx.fillRect(x1 - t, py, 1, 1);
+    }
+  };
+  const posOf = (ref, idx) => ref.t === 'tab' ? tabPositions(ref.i)[idx]
+    : ref.t === 'waste' ? wasteLayout()[idx] : { x: OX + COL_X(3 + ref.i), y: TOP_Y };
+  const targetOf = ref => {
+    if (ref.t === 'found') return { x: OX + COL_X(3 + ref.i), y: TOP_Y };
+    const pos = tabPositions(ref.i);
+    return pos.length ? pos[pos.length - 1] : { x: OX + COL_X(ref.i), y: TAB_Y };
+  };
+  ['perfect', 'heuristic'].forEach((kind, n) => {
+    if (!show[kind]) return;
+    const h = hintMove(kind);
+    if (!h) return;
+    const color = HINT_COLOR[kind], inset = n * 3;
+    if (h.stock) { outline(OX + COL_X(0), TOP_Y, CW, CH, color, inset, false); return; }
+    if (h.from.t === 'talon') {
+      const sp = stripPos(h.idx);
+      outline(sp.x, sp.y, MW, MH, color, inset, false);
+      const t = targetOf(h.to);
+      outline(t.x, t.y, CW, CH, color, inset, true);
+      return;
+    }
+    const a = posOf(h.from, h.idx), b = posOf(h.from, pile(h.from).length - 1);
+    outline(a.x, a.y, CW, b.y - a.y + CH, color, inset, false);
+    const t = targetOf(h.to);
+    outline(t.x, t.y, CW, CH, color, inset, true);
+  });
+}
+
+// ---------- New games ----------
+// "New winnable game" deals only deals the perfect solver can win (checked with a small search
+// budget per candidate, since proving a deal unwinnable is slow). A background worker keeps the
+// next one ready so dealing is instant.
+let nextDeal = null, dealer = null;
+function prefetchDeal() {
+  if (!dealer) {
+    dealer = new Worker(workerURL);
+    dealer.onmessage = e => { if (e.data) nextDeal = { deck: e.data.deck, draw: e.data.draw }; };
+  }
+  nextDeal = null;
+  dealer.postMessage({ kind: 'deal', draw: drawN });
+}
+function newWinnableGame() {
+  let deck = nextDeal && nextDeal.draw === drawN ? nextDeal.deck : null;
+  if (!deck) { const r = Solver.winnableDeck(Math.random, drawN); deck = r && r.deck; } // not ready yet
+  newGame(deck);
+  prefetchDeal();
+}
+function newRandomGame() { newGame(); }
+
+// ---------- Controls ----------
+function setRow(id, on, text) {
+  const v = document.getElementById(id).querySelector('.val');
+  v.textContent = text || (on ? 'On' : 'Off');
+  v.classList.toggle('on', !!on);
+}
+function updateDrawLabel() { setRow('bDraw', drawN === 3, String(drawN)); }
+function toggleDraw() {
+  drawN = drawN === 3 ? 1 : 3;
+  try { localStorage.setItem('klondike-draw', String(drawN)); } catch (e) {}
+  updateDrawLabel();
+  prefetchDeal();
+  perfectPlan = null;
+  refreshHints();
+}
+function updateAutoLabel() { setRow('bAuto', autoMove); }
+function toggleAutoMove() {
+  autoMove = !autoMove;
+  try { localStorage.setItem('klondike-automove', autoMove ? '1' : '0'); } catch (e) {}
+  updateAutoLabel();
+  if (autoMove) scheduleAuto();
+}
+function updateMuteLabel() { setRow('bMute', !muted); }
+function toggleMute() {
+  muted = !muted;
+  try { localStorage.setItem('klondike-muted', muted ? '1' : '0'); } catch (e) {}
+  updateMuteLabel();
+  unlockAudio();
+}
+function updateStripLabel() { setRow('bStrip', stripMode); }
+function toggleStrip() {
+  stripMode = !stripMode;
+  try { localStorage.setItem('klondike-strip', stripMode ? '1' : '0'); } catch (e) {}
+  hoverIdx = -1;
+  updateStripLabel();
+  resize();
+  updateHints();
+}
+function updateRevealLabel() { setRow('bReveal', reveal); }
+function toggleReveal() {
+  reveal = !reveal;
+  try { localStorage.setItem('klondike-reveal', reveal ? '1' : '0'); } catch (e) {}
+  updateRevealLabel();
+  refreshHints(); // the heuristic player gets to see the cards too
+}
+
+const menuEl = document.getElementById('menu'), bMenu = document.getElementById('bMenu');
+function openMenu() { menuEl.hidden = false; bMenu.setAttribute('aria-expanded', 'true'); }
+function closeMenu() { menuEl.hidden = true; bMenu.setAttribute('aria-expanded', 'false'); }
+bMenu.onclick = () => (menuEl.hidden ? openMenu() : closeMenu());
+const ACTIONS = {
+  newWin: () => { closeMenu(); newWinnableGame(); },
+  newRandom: () => { closeMenu(); newRandomGame(); },
+  undo: () => { closeMenu(); undo(); },
+  draw: toggleDraw, strip: toggleStrip, reveal: toggleReveal, sound: toggleMute, automove: toggleAutoMove,
+  perfect: () => toggleShow('perfect'), heuristic: () => toggleShow('heuristic'), winnable: () => toggleShow('winnable'),
+};
+menuEl.addEventListener('click', e => { const r = e.target.closest('[data-act]'); if (r) ACTIONS[r.dataset.act](); });
+document.getElementById('bNew').onclick = () => { closeMenu(); newWinnableGame(); };
+document.getElementById('bUndo').onclick = undo;
+
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) { if (e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); } return; }
+  const k = e.key.toLowerCase();
+  if (e.key === 'Escape') closeMenu();
+  else if (k === 'n' || e.key === 'F2') { e.preventDefault(); newWinnableGame(); }
+  else if (k === 'r') newRandomGame();
+  else if (k === 'z' || e.key === 'Backspace') { e.preventDefault(); undo(); }
+  else if (k === 'd') toggleDraw();
+  else if (k === 'm') toggleMute();
+  else if (k === 'a') toggleAutoMove();
+  else if (k === 'b') playBestMove();
+  else if (k === 't') toggleStrip();
+  else if (k === 'v') toggleReveal();
+  else if (k === 'p') toggleShow('perfect');
+  else if (k === 'h') toggleShow('heuristic');
+  else if (k === 'w') toggleShow('winnable');
+});
+addEventListener('resize', resize);
+
+updateDrawLabel();
+updateMuteLabel();
+updateStripLabel();
+updateRevealLabel();
+updateAutoLabel();
+newWinnableGame();
+resize();
+
+// Offline support / add to home screen (service workers need http(s), not file://).
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
