@@ -18,7 +18,7 @@
     -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
   }
   canvas { position: fixed; left: 0; top: 0; display: block; image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none; }
-  #safe { position: fixed; visibility: hidden; padding-top: env(safe-area-inset-top); }
+  #safe { position: fixed; visibility: hidden; pointer-events: none; width: 1px; height: env(safe-area-inset-top); }
   #bar {
     position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; justify-content: center; align-items: center;
     padding: 6px 10px calc(6px + env(safe-area-inset-bottom)); font: 13px ui-monospace, Menlo, Consolas, monospace;
@@ -813,7 +813,7 @@ const safeEl = document.getElementById('safe');
 function resize() {
   applyLayout();
   const dpr = window.devicePixelRatio || 1;
-  const top = parseFloat(getComputedStyle(safeEl).paddingTop) || 0; // iPhone notch / status bar
+  const top = safeEl.getBoundingClientRect().height; // iPhone notch / status bar
   const availH = innerHeight - top;
   const fit = Math.min(innerWidth / LAYOUT_W, availH / MIN_H) * dpr;
   // A whole number of device pixels per game pixel keeps the pixel art crisp; fall back to a
@@ -1401,6 +1401,10 @@ addEventListener('keydown', e => {
   else if (k === 'w') toggleShow('winnable');
 });
 addEventListener('resize', resize);
+// In a home-screen web app iOS reports the safe-area inset as 0 at load and fills it in later
+// without a resize event, so watch the probe element itself.
+new ResizeObserver(resize).observe(safeEl);
+addEventListener('pageshow', resize);
 
 updateDrawLabel();
 updateMuteLabel();
