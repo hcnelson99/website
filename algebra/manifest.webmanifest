@@ -1,7 +1,7 @@
 {
   "name": "A Book of Abstract Algebra",
   "short_name": "Algebra",
-  "start_url": "./algebra.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f8f8f5",

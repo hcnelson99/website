@@ -1,10 +1,10 @@
 // Offline cache for the reader. The page is served from cache immediately and
 // refreshed in the background, so a slow network never delays opening the book.
 // Bump VERSION to force installed copies to drop everything and re-download.
-const VERSION = 'algebra-v2';
-const PAGE = './algebra.html';
+const VERSION = 'algebra-v3';
+const PAGE = './';
 const PRECACHE = [PAGE, './manifest.webmanifest', './icon-180.png', './icon-512.png'];
-// Same URL as the stylesheet <link> in algebra.html (&amp; decoded).
+// Same URL as the stylesheet <link> in index.html (&amp; decoded).
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400;1,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap';
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
