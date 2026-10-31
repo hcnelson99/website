@@ -1,8 +1,13 @@
 // Push server for the plants PWA at https://hcnelson.com/plants/
 //
 // The PWA mirrors its watering schedule here (POST /sync, authed with a
-// shared token). A daily check runs which plants are due and sends a Web
-// Push notification (RFC 8291 aes128gcm encryption + RFC 8292 VAPID).
+// per-user token). A daily check runs which plants are due for each user and
+// sends them a Web Push notification (RFC 8291 aes128gcm encryption + RFC
+// 8292 VAPID).
+//
+// Users live in KV under USERS_KEY as {"name": "token", ...}; each user's
+// subscription + plants live under `state:<name>`. Manage users with
+// `node users.mjs` (see README).
 //
 // Scheduling uses a Durable Object alarm rather than a cron trigger: the
 // cron scheduler silently never dispatched to this worker (a known
@@ -12,7 +17,6 @@
 // firing, and every fetch re-arms it if the alarm was ever lost.
 //
 // Secrets (set with `wrangler secret put`, never committed):
-//   SYNC_TOKEN        — shared secret the PWA sends in X-Sync-Token
 //   VAPID_PUBLIC_KEY  — base64url raw P-256 public key (served to the client)
 //   VAPID_PRIVATE_JWK — the matching private key as a JWK JSON string
 
@@ -50,7 +54,7 @@ function nextNotifyTime(now = Date.now()) {
 
 const ALLOWED_ORIGIN = "https://hcnelson.com";
 const VAPID_SUB = "mailto:hcnelson99@gmail.com";
-const STATE_KEY = "state";
+const USERS_KEY = "users";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
@@ -75,9 +79,8 @@ export default {
       }
 
       if (url.pathname === "/sync" && request.method === "POST") {
-        if (!(await tokenValid(request.headers.get("X-Sync-Token"), env.SYNC_TOKEN))) {
-          return json({ error: "bad token" }, 401);
-        }
+        const user = await userForToken(request.headers.get("X-Sync-Token"), env);
+        if (!user) return json({ error: "bad token" }, 401);
         const body = await request.json();
         const plants = (Array.isArray(body.plants) ? body.plants : [])
           .slice(0, 200)
@@ -87,18 +90,17 @@ export default {
             lastWatered: String(p.lastWatered ?? "").slice(0, 10),
           }));
 
-        const prev = await readState(env);
+        const prev = await readState(env, user);
         const subscription = body.subscription?.endpoint ? body.subscription : prev?.subscription;
-        await env.PLANTS_KV.put(STATE_KEY, JSON.stringify({ subscription, plants }));
+        await writeState(env, user, { subscription, plants });
         return json({ ok: true, plants: plants.length, hasSubscription: !!subscription });
       }
 
       // Sends a test push to the stored subscription, regardless of due plants.
       if (url.pathname === "/test" && request.method === "POST") {
-        if (!(await tokenValid(request.headers.get("X-Sync-Token"), env.SYNC_TOKEN))) {
-          return json({ error: "bad token" }, 401);
-        }
-        const state = await readState(env);
+        const user = await userForToken(request.headers.get("X-Sync-Token"), env);
+        if (!user) return json({ error: "bad token" }, 401);
+        const state = await readState(env, user);
         if (!state?.subscription) {
           return json({ error: "no subscription synced yet — enable notifications first" }, 400);
         }
@@ -125,8 +127,26 @@ function json(obj, status = 200) {
   });
 }
 
-async function readState(env) {
-  return env.PLANTS_KV.get(STATE_KEY, "json");
+async function readUsers(env) {
+  return (await env.PLANTS_KV.get(USERS_KEY, "json")) ?? {};
+}
+
+async function readState(env, user) {
+  return env.PLANTS_KV.get(`state:${user}`, "json");
+}
+
+async function writeState(env, user, state) {
+  await env.PLANTS_KV.put(`state:${user}`, JSON.stringify(state));
+}
+
+// Returns the name of the user owning this token, or null. Checks every
+// user so timing doesn't reveal which (if any) matched.
+async function userForToken(provided, env) {
+  let match = null;
+  for (const [name, token] of Object.entries(await readUsers(env))) {
+    if (await tokenValid(provided, token)) match = name;
+  }
+  return match;
 }
 
 // Constant-time token check (compare SHA-256 digests so lengths match).
@@ -143,9 +163,20 @@ async function tokenValid(provided, expected) {
 // ---- daily notification check (invoked by the PlantScheduler alarm) ----
 
 async function sendDueNotifications(env) {
-  const state = await readState(env);
+  for (const user of Object.keys(await readUsers(env))) {
+    // One user's failure shouldn't block everyone else's notification.
+    try {
+      await sendDueNotificationsForUser(env, user);
+    } catch (err) {
+      console.log(JSON.stringify({ event: "cron_error", user, message: err.message }));
+    }
+  }
+}
+
+async function sendDueNotificationsForUser(env, user) {
+  const state = await readState(env, user);
   if (!state?.subscription) {
-    console.log(JSON.stringify({ event: "cron_skip", reason: "no subscription" }));
+    console.log(JSON.stringify({ event: "cron_skip", user, reason: "no subscription" }));
     return;
   }
 
@@ -154,7 +185,7 @@ async function sendDueNotifications(env) {
     (p) => daysBetween(p.lastWatered, today) >= p.intervalDays
   );
   if (due.length === 0) {
-    console.log(JSON.stringify({ event: "cron_done", due: 0 }));
+    console.log(JSON.stringify({ event: "cron_done", user, due: 0 }));
     return;
   }
 
@@ -167,11 +198,11 @@ async function sendDueNotifications(env) {
   });
 
   const status = await sendWebPush(state.subscription, payload, env);
-  console.log(JSON.stringify({ event: "cron_done", due: due.length, pushStatus: status }));
+  console.log(JSON.stringify({ event: "cron_done", user, due: due.length, pushStatus: status }));
 
   // 404/410 means the subscription is dead — drop it so we stop trying.
   if (status === 404 || status === 410) {
-    await env.PLANTS_KV.put(STATE_KEY, JSON.stringify({ ...state, subscription: undefined }));
+    await writeState(env, user, { ...state, subscription: undefined });
   }
 }
 

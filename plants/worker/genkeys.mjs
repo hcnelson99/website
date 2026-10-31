@@ -12,6 +12,4 @@ const b64url = (bytes) =>
 console.log("VAPID_PUBLIC_KEY (also fine to share publicly):\n");
 console.log(`  ${b64url(publicRaw)}\n`);
 console.log("VAPID_PRIVATE_JWK (secret! paste into `wrangler secret put VAPID_PRIVATE_JWK`):\n");
-console.log(`  ${JSON.stringify(privateJwk)}\n`);
-console.log("Suggested SYNC_TOKEN (secret! or make up your own):\n");
-console.log(`  ${b64url(crypto.getRandomValues(new Uint8Array(24)))}`);
+console.log(`  ${JSON.stringify(privateJwk)}`);
